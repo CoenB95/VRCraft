@@ -149,7 +149,7 @@ void onDraw() {
 	angleY = (GLfloat)(elapsedMs % yRotationTime) / yRotationTime * 360;
 	angleZ = (GLfloat)(elapsedMs % zRotationTime) / zRotationTime * 360;
 
-	glClearColor(0.5, 0, 1, 1);
+	glClearColor(0.25, 0, 0.5, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glMatrixMode(GL_PROJECTION);
