@@ -7,10 +7,10 @@ using namespace std;
 class Chunk
 {
 private:
-	int width, depth;
+	int width, height, depth;
 	vector<Block> blocks;
 public:
-	Chunk(int width, int depth);
+	Chunk(int width, int height, int depth);
 	void draw();
 	void drawRaw();
 };

@@ -2,18 +2,22 @@
 
 #include "chunk.h"
 
-Chunk::Chunk(int width, int depth)
+Chunk::Chunk(int width, int height, int depth)
 {
 	this->width = width;
+	this->height = height;
 	this->depth = depth;
 
-	for (int z = -depth / 2; z < depth / 2; z++)
+	for (int y = 0; y < height; y++)
 	{
-		for (int x = -width / 2; x < width / 2; x++)
+		for (int z = -depth / 2; z < depth / 2; z++)
 		{
-			Block block(1.0f, 1.0f, 1.0f);
-			block.setPosition(x + x * 0.1f, -1.0f, z + z * 0.1f);
-			blocks.push_back(block);
+			for (int x = -width / 2; x < width / 2; x++)
+			{
+				Block block(1.0f, 1.0f, 1.0f);
+				block.setPosition(x + x * 0.1f, y + y * 0.1, z + z * 0.1f);
+				blocks.push_back(block);
+			}
 		}
 	}
 
@@ -36,6 +40,12 @@ void Chunk::drawRaw()
 {
 	for (int i = 0; i < blocks.size(); i++)
 	{
+		blocks[i].backSide.shouldRender = i / width % depth == 0 ||
+			(i - width) >= 0 && blocks[(i - width)].isTransparent;
+
+		blocks[i].frontSide.shouldRender = i / width % depth == depth - 1 ||
+			(i + width) < width * depth && blocks[(i + width)].isTransparent;
+
 		blocks[i].leftSide.shouldRender = i % width == 0 ||
 			(i - 1) >= 0 && blocks[(i - 1)].isTransparent;
 
