@@ -6,12 +6,13 @@
 #include <vector>
 
 #include "block.h"
+#include "chunk.h"
 
 float lastFrameTime = 0;
 
 int width, height;
 
-std::vector<Block> blocks;
+Chunk chunk(10, 10);
 
 struct Camera
 {
@@ -101,12 +102,14 @@ void display()
 		}
 	}*/
 
-	for (int i = 0; i < blocks.size(); i++)
+	/*for (int i = 0; i < blocks.size(); i++)
 	{
 		glPushMatrix();
 		blocks[i].draw();
 		glPopMatrix();
-	}
+	}*/
+
+	chunk.draw();
 
 	glutSwapBuffers();
 }
@@ -181,16 +184,6 @@ int main(int argc, char* argv[])
 	glutPassiveMotionFunc(mousePassiveMotion);
 
 	glutWarpPointer(width / 2, height / 2);
-
-	for (int x = -10; x <= 10; x += 5)
-	{
-		for (int y = -10; y <= 10; y += 5)
-		{
-			Block block(1, 1, 1);
-			block.setPosition(x, y);
-			blocks.push_back(block);
-		}
-	}
 
 	glutMainLoop();
 

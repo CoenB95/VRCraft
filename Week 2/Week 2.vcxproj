@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="block.cpp" />
+    <ClCompile Include="chunk.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="fps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="block.h" />
+    <ClInclude Include="chunk.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>

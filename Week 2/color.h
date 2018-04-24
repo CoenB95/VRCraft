@@ -1,3 +1,6 @@
+#ifndef COLOR_H
+#define COLOR_H
+
 class Color4f
 {
 public:
@@ -19,3 +22,5 @@ public:
 	static const Color4f RED;
 	static const Color4f YELLOW;
 };
+
+#endif // !COLOR_H
