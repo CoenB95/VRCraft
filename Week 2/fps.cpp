@@ -12,7 +12,7 @@ float lastFrameTime = 0;
 
 int width, height;
 
-Chunk chunk(10, 3, 10);
+Chunk chunk(30, 30, 30);
 
 struct Camera
 {
@@ -109,6 +109,7 @@ void display()
 		glPopMatrix();
 	}*/
 
+	chunk.update();
 	chunk.draw();
 
 	glutSwapBuffers();

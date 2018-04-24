@@ -41,5 +41,8 @@
     <ClInclude Include="chunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stb_perlin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
