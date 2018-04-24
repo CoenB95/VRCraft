@@ -83,7 +83,7 @@ void display()
 	glTranslatef(camera.posX, 0, camera.posY);
 
 
-	glColor3f(0.1f, 1.0f, 0.2f);
+	glColor3f(0.1f, 0.6f, 0.2f);
 	glBegin(GL_QUADS);
 		glVertex3f(-15, -1, -15);
 		glVertex3f( 15, -1, -15);
