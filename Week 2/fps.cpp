@@ -2,11 +2,16 @@
 #include <cstdio>
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <iostream>
+#include <vector>
+
+#include "block.h"
 
 float lastFrameTime = 0;
 
 int width, height;
 
+std::vector<Block> blocks;
 
 struct Camera
 {
@@ -85,7 +90,7 @@ void display()
 		glVertex3f(-15, -1,  15);
 	glEnd();
 
-	for (int x = -10; x <= 10; x += 5)
+	/*for (int x = -10; x <= 10; x += 5)
 	{
 		for (int y = -10; y <= 10; y += 5)
 		{
@@ -94,6 +99,13 @@ void display()
 			drawCube();
 			glPopMatrix();
 		}
+	}*/
+
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		glPushMatrix();
+		blocks[i].draw();
+		glPopMatrix();
 	}
 
 	glutSwapBuffers();
@@ -169,6 +181,16 @@ int main(int argc, char* argv[])
 	glutPassiveMotionFunc(mousePassiveMotion);
 
 	glutWarpPointer(width / 2, height / 2);
+
+	for (int x = -10; x <= 10; x += 5)
+	{
+		for (int y = -10; y <= 10; y += 5)
+		{
+			Block block(1, 1, 1);
+			block.setPosition(x, y);
+			blocks.push_back(block);
+		}
+	}
 
 	glutMainLoop();
 
