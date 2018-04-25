@@ -1,12 +1,20 @@
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif // !_USE_MATH_DEFINES
+
+#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#endif // !STB_IMAGE_IMPLEMENTATION
+
 #include <GL/freeglut.h>
 #include <cstdio>
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
 #include <vector>
 
 #include "block.h"
 #include "chunk.h"
+#include "stb_image.h"
 
 float lastFrameTime = 0;
 
@@ -185,6 +193,44 @@ int main(int argc, char* argv[])
 	glutPassiveMotionFunc(mousePassiveMotion);
 
 	glutWarpPointer(width / 2, height / 2);
+
+	cout << "Loading textures... " << endl;
+
+	int imageWidth, imageHeight, imageComponents;
+	stbi_uc* image = stbi_load("terrain.png", &imageWidth, &imageHeight, &imageComponents, 0);
+
+	if (image == nullptr)
+	{
+		cout << "Could not load textures" << endl << "  Reason: " << stbi_failure_reason() << endl;
+	}
+	else
+	{
+		cout << "Image size: " << imageWidth << "x" << imageHeight << endl;
+
+		GLuint textureId;
+
+		glGenTextures(1, &textureId);
+		glBindTexture(GL_TEXTURE_2D, textureId);
+
+		glTexImage2D(GL_TEXTURE_2D,
+			0,					//level
+			GL_RGBA,			//internal format
+			imageWidth,			//width
+			imageHeight,		//height
+			0,					//border
+			GL_RGBA,			//data format
+			GL_UNSIGNED_BYTE,	//data type
+			image);				//data
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glEnable(GL_TEXTURE_2D);
+
+		stbi_image_free(image);
+	}
+
+	cout << "Loading textures done" << endl;
 
 	glutMainLoop();
 

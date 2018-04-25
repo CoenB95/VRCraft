@@ -7,7 +7,7 @@ class BlockSide
 {
 public:
 	bool shouldRender = true;
-	virtual void applyTexture() = 0;
+	virtual void applyTexture(GLfloat texX, GLfloat texY) = 0;
 };
 
 class SimpleBlockSide : public BlockSide
@@ -16,15 +16,24 @@ private:
 	Color4f color;
 public:
 	SimpleBlockSide(Color4f color);
-	void applyTexture() override;
-	inline Color4f getColor()
-	{
-		return color;
-	};
+	void applyTexture(GLfloat texX, GLfloat texY) override;
+};
+
+
+class TexturedBlockSide : public BlockSide
+{
+private:
+	GLfloat x, y, w, h;
+public:
+	TexturedBlockSide(GLfloat texX, GLfloat texY, GLfloat texW, GLfloat texH);
+	void applyTexture(GLfloat texX, GLfloat texY) override;
 };
 
 class Block
 {
+private:
+	GLfloat hw, hh, hd;
+	void drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY);
 public:
 	BlockSide* backSide;
 	BlockSide* bottomSide;
@@ -34,7 +43,6 @@ public:
 	BlockSide* topSide;
 
 	float x, y, z;
-	float width, height, depth;
 	bool isTransparent = false;
 
 	Block();
