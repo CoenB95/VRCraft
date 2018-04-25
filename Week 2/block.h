@@ -1,7 +1,11 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
+#include <GL/freeglut.h>
+
 #include "color.h"
+
+class BlockContext;
 
 class BlockSide
 {
@@ -35,6 +39,19 @@ private:
 	GLfloat hw, hh, hd;
 	void drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY);
 public:
+	class BlockContext
+	{
+	public:
+		Block* top;
+		Block* front;
+		Block* right;
+		Block* back;
+		Block* left;
+		Block* bottom;
+		BlockContext(Block* top, Block* front, Block* right, Block* back, Block* left, Block* bottom);
+	};
+
+public:
 	static const GLfloat TILE_SIZE;
 
 	BlockSide* backSide;
@@ -44,17 +61,22 @@ public:
 	BlockSide* rightSide;
 	BlockSide* topSide;
 
-	float x, y, z;
+	int x, y, z;
 	bool isTransparent = false;
 
 	Block();
 	Block(float w, float h, float d);
+	Block(BlockSide* top, BlockSide* front, BlockSide* right,
+		BlockSide* back, BlockSide* left, BlockSide* bottom);
+	Block(float w, float h, float d, BlockSide* top, BlockSide* front, BlockSide* right,
+		BlockSide* back, BlockSide* left, BlockSide* bottom);
 
 	void draw();
 	void drawRaw();
+	virtual Block* randomTick(Block::BlockContext& adjacentBlocks);
 	void setColor(Color4f color);
 	void setColors(Color4f front, Color4f top, Color4f right, Color4f back, Color4f bottom, Color4f left);
-	void setPosition(float x, float y, float z);
+	void setPosition(int x, int y, int z);
 };
 
 inline void Block::setColor(Color4f color)
