@@ -1,3 +1,8 @@
+#define BOTTOM_LEFT		0, 1
+#define BOTTOM_RIGHT	1, 1
+#define TOP_LEFT		0, 0
+#define TOP_RIGHT		1, 0
+
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif // !_USE_MATH_DEFINES
@@ -7,13 +12,15 @@
 
 #include "block.h"
 
+const GLfloat Block::TILE_SIZE = 1.0f / 256.0f * 16.0f;
+
 Block::Block() :
-	frontSide(new TexturedBlockSide(0, 0, 1.0f / 256.0f * 16.0f, 1.0f / 256.0f * 16.0f)),
-	topSide(new SimpleBlockSide(Color4f::BLUE)),
-	rightSide(new SimpleBlockSide(Color4f::GREEN)),
-	backSide(new SimpleBlockSide(Color4f::YELLOW)),
-	bottomSide(new SimpleBlockSide(Color4f::CYAN)),
-	leftSide(new SimpleBlockSide(Color4f::MAGENTA))
+	frontSide(	new TexturedBlockSide(3, 0, 1, 1)),
+	topSide(	new TexturedBlockSide(0, 0, 1, 1)),
+	rightSide(	new TexturedBlockSide(3, 0, 1, 1)),
+	backSide(	new TexturedBlockSide(3, 0, 1, 1)),
+	bottomSide(	new TexturedBlockSide(2, 0, 1, 1)),
+	leftSide(	new TexturedBlockSide(3, 0, 1, 1))
 {
 	this->x = 0;
 	this->y = 0;
@@ -45,68 +52,63 @@ void Block::drawRaw()
 
 	if (frontSide->shouldRender)
 	{
-		drawVertex(frontSide, x - hw, y + hh, z + hd, 0, 0);
-		drawVertex(frontSide, x - hw, y - hh, z + hd, 0, 1);
-		drawVertex(frontSide, x + hw, y - hh, z + hd, 1, 1);
-		drawVertex(frontSide, x + hw, y + hh, z + hd, 1, 0);
-		drawVertex(frontSide, x - hw, y + hh, z + hd, 0, 0);
-		drawVertex(frontSide, x + hw, y - hh, z + hd, 1, 1);
+		drawVertex(frontSide, x - hw, y + hh, z + hd, TOP_LEFT);
+		drawVertex(frontSide, x - hw, y - hh, z + hd, BOTTOM_LEFT);
+		drawVertex(frontSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
+		drawVertex(frontSide, x + hw, y + hh, z + hd, TOP_RIGHT);
+		drawVertex(frontSide, x - hw, y + hh, z + hd, TOP_LEFT);
+		drawVertex(frontSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
 	}
 
 	if (topSide->shouldRender)
 	{
-		topSide->applyTexture(0, 0);
-		glVertex3f(x - hw, y + hh, z - hd);
-		glVertex3f(x - hw, y + hh, z + hd);
-		glVertex3f(x + hw, y + hh, z + hd);
-		glVertex3f(x + hw, y + hh, z - hd);
-		glVertex3f(x - hw, y + hh, z - hd);
-		glVertex3f(x + hw, y + hh, z + hd);
+		drawVertex(topSide, x - hw, y + hh, z - hd, TOP_LEFT);
+		drawVertex(topSide, x - hw, y + hh, z + hd, BOTTOM_LEFT);
+		drawVertex(topSide, x + hw, y + hh, z + hd, BOTTOM_RIGHT);
+		drawVertex(topSide, x + hw, y + hh, z - hd, TOP_RIGHT);
+		drawVertex(topSide, x - hw, y + hh, z - hd, TOP_LEFT);
+		drawVertex(topSide, x + hw, y + hh, z + hd, BOTTOM_RIGHT);
 	}
 
 	if (rightSide->shouldRender)
 	{
-		rightSide->applyTexture(0, 0);
-		glVertex3f(x + hw, y + hh, z + hd);
-		glVertex3f(x + hw, y - hh, z + hd);
-		glVertex3f(x + hw, y - hh, z - hd);
-		glVertex3f(x + hw, y + hh, z - hd);
-		glVertex3f(x + hw, y + hh, z + hd);
-		glVertex3f(x + hw, y - hh, z - hd);
+		drawVertex(rightSide, x + hw, y + hh, z + hd, TOP_LEFT);
+		drawVertex(rightSide, x + hw, y - hh, z + hd, BOTTOM_LEFT);
+		drawVertex(rightSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
+		drawVertex(rightSide, x + hw, y + hh, z - hd, TOP_RIGHT);
+		drawVertex(rightSide, x + hw, y + hh, z + hd, TOP_LEFT);
+		drawVertex(rightSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
 	}
 
 	if (backSide->shouldRender)
 	{
-		backSide->applyTexture(0, 0);
-		glVertex3f(x + hw, y + hh, z - hd);
-		glVertex3f(x + hw, y - hh, z - hd);
-		glVertex3f(x - hw, y - hh, z - hd);
-		glVertex3f(x - hw, y + hh, z - hd);
-		glVertex3f(x + hw, y + hh, z - hd);
-		glVertex3f(x - hw, y - hh, z - hd);
+		drawVertex(backSide, x + hw, y + hh, z - hd, TOP_LEFT);
+		drawVertex(backSide, x + hw, y - hh, z - hd, BOTTOM_LEFT);
+		drawVertex(backSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
+		drawVertex(backSide, x - hw, y + hh, z - hd, TOP_RIGHT);
+		drawVertex(backSide, x + hw, y + hh, z - hd, TOP_LEFT);
+		drawVertex(backSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
 	}
 
 	if (bottomSide->shouldRender)
 	{
-		bottomSide->applyTexture(0, 0);
-		glVertex3f(x - hw, y - hh, z + hd);
-		glVertex3f(x - hw, y - hh, z - hd);
-		glVertex3f(x + hw, y - hh, z - hd);
-		glVertex3f(x + hw, y - hh, z + hd);
-		glVertex3f(x - hw, y - hh, z + hd);
-		glVertex3f(x + hw, y - hh, z - hd);
+		drawVertex(bottomSide, x - hw, y - hh, z + hd, TOP_LEFT);
+		drawVertex(bottomSide, x - hw, y - hh, z - hd, BOTTOM_LEFT);
+		drawVertex(bottomSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
+		drawVertex(bottomSide, x + hw, y - hh, z + hd, TOP_RIGHT);
+		drawVertex(bottomSide, x - hw, y - hh, z + hd, TOP_LEFT);
+		drawVertex(bottomSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
 	}
 
 	
 	if (leftSide->shouldRender)
 	{
-		leftSide->applyTexture(0, 0);
-		glVertex3f(x - hw, y + hh, z - hd);
-		glVertex3f(x - hw, y - hh, z - hd);
-		glVertex3f(x - hw, y - hh, z + hd);
-		glVertex3f(x - hw, y + hh, z + hd);
-		glVertex3f(x - hw, y + hh, z - hd);
-		glVertex3f(x - hw, y - hh, z + hd);
+		drawVertex(leftSide, x - hw, y + hh, z - hd, TOP_LEFT);
+		drawVertex(leftSide, x - hw, y - hh, z - hd, BOTTOM_LEFT);
+		drawVertex(leftSide, x - hw, y - hh, z + hd, BOTTOM_RIGHT);
+		drawVertex(leftSide, x - hw, y + hh, z + hd, TOP_RIGHT);
+		drawVertex(leftSide, x - hw, y + hh, z - hd, TOP_LEFT);
+		drawVertex(leftSide, x - hw, y - hh, z + hd, BOTTOM_RIGHT);
 	}
 }
 
@@ -139,10 +141,10 @@ void SimpleBlockSide::applyTexture(GLfloat texX, GLfloat texY)
 
 TexturedBlockSide::TexturedBlockSide(GLfloat texX, GLfloat texY, GLfloat texW, GLfloat texH)
 {
-	this->x = texX;
-	this->y = texY;
-	this->w = texW;
-	this->h = texH;
+	this->x = texX * Block::TILE_SIZE;
+	this->y = texY * Block::TILE_SIZE;
+	this->w = texW * Block::TILE_SIZE;
+	this->h = texH * Block::TILE_SIZE;
 }
 
 void TexturedBlockSide::applyTexture(GLfloat texX, GLfloat texY)

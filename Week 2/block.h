@@ -35,6 +35,8 @@ private:
 	GLfloat hw, hh, hd;
 	void drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY);
 public:
+	static const GLfloat TILE_SIZE;
+
 	BlockSide* backSide;
 	BlockSide* bottomSide;
 	BlockSide* frontSide;
