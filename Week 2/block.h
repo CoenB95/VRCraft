@@ -5,14 +5,18 @@
 
 class BlockSide
 {
+public:
+	bool shouldRender = true;
+	virtual void applyTexture() = 0;
+};
+
+class SimpleBlockSide : public BlockSide
+{
 private:
 	Color4f color;
 public:
-	bool shouldRender = true;
-
-	BlockSide(Color4f color);
-
-	void applyTexture();
+	SimpleBlockSide(Color4f color);
+	void applyTexture() override;
 	inline Color4f getColor()
 	{
 		return color;
@@ -22,12 +26,12 @@ public:
 class Block
 {
 public:
-	BlockSide backSide;
-	BlockSide bottomSide;
-	BlockSide frontSide;
-	BlockSide leftSide;
-	BlockSide rightSide;
-	BlockSide topSide;
+	BlockSide* backSide;
+	BlockSide* bottomSide;
+	BlockSide* frontSide;
+	BlockSide* leftSide;
+	BlockSide* rightSide;
+	BlockSide* topSide;
 
 	float x, y, z;
 	float width, height, depth;
@@ -45,22 +49,25 @@ public:
 
 inline void Block::setColor(Color4f color)
 {
-	backSide = BlockSide(color);
-	bottomSide = BlockSide(color);
-	frontSide = BlockSide(color);
-	leftSide = BlockSide(color);
-	rightSide = BlockSide(color);
-	topSide = BlockSide(color);
+	setColors(color, color, color, color, color, color);
 }
 
 inline void Block::setColors(Color4f front, Color4f top, Color4f right, Color4f back, Color4f bottom, Color4f left)
 {
-	backSide = BlockSide(back);
-	bottomSide = BlockSide(bottom);
-	frontSide = BlockSide(front);
-	leftSide = BlockSide(left);
-	rightSide = BlockSide(right);
-	topSide = BlockSide(top);
+	// Prevent memory leaks.
+	delete backSide;
+	delete bottomSide;
+	delete frontSide;
+	delete leftSide;
+	delete rightSide;
+	delete topSide;
+
+	backSide = new SimpleBlockSide(back);
+	bottomSide = new SimpleBlockSide(bottom);
+	frontSide = new SimpleBlockSide(front);
+	leftSide = new SimpleBlockSide(left);
+	rightSide = new SimpleBlockSide(right);
+	topSide = new SimpleBlockSide(top);
 }
 
 #endif // BLOCK_H

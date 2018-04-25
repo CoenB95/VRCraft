@@ -3,12 +3,12 @@
 #include "block.h"
 
 Block::Block() :
-	frontSide(Color4f::RED),
-	topSide(Color4f::BLUE),
-	rightSide(Color4f::GREEN),
-	backSide(Color4f::YELLOW),
-	bottomSide(Color4f::CYAN),
-	leftSide(Color4f::MAGENTA)
+	frontSide(new SimpleBlockSide(Color4f::RED)),
+	topSide(new SimpleBlockSide(Color4f::BLUE)),
+	rightSide(new SimpleBlockSide(Color4f::GREEN)),
+	backSide(new SimpleBlockSide(Color4f::YELLOW)),
+	bottomSide(new SimpleBlockSide(Color4f::CYAN)),
+	leftSide(new SimpleBlockSide(Color4f::MAGENTA))
 {
 	this->x = 0;
 	this->y = 0;
@@ -42,9 +42,9 @@ void Block::drawRaw()
 	GLfloat hh = height / 2;
 	GLfloat hd = depth / 2;
 
-	if (frontSide.shouldRender)
+	if (frontSide->shouldRender)
 	{
-		frontSide.applyTexture();
+		frontSide->applyTexture();
 		glVertex3f(x - hw, y + hh, z + hd);
 		glVertex3f(x - hw, y - hh, z + hd);
 		glVertex3f(x + hw, y - hh, z + hd);
@@ -53,9 +53,9 @@ void Block::drawRaw()
 		glVertex3f(x + hw, y - hh, z + hd);
 	}
 
-	if (topSide.shouldRender)
+	if (topSide->shouldRender)
 	{
-		topSide.applyTexture();
+		topSide->applyTexture();
 		glVertex3f(x - hw, y + hh, z - hd);
 		glVertex3f(x - hw, y + hh, z + hd);
 		glVertex3f(x + hw, y + hh, z + hd);
@@ -64,9 +64,9 @@ void Block::drawRaw()
 		glVertex3f(x + hw, y + hh, z + hd);
 	}
 
-	if (rightSide.shouldRender)
+	if (rightSide->shouldRender)
 	{
-		rightSide.applyTexture();
+		rightSide->applyTexture();
 		glVertex3f(x + hw, y + hh, z + hd);
 		glVertex3f(x + hw, y - hh, z + hd);
 		glVertex3f(x + hw, y - hh, z - hd);
@@ -75,9 +75,9 @@ void Block::drawRaw()
 		glVertex3f(x + hw, y - hh, z - hd);
 	}
 
-	if (backSide.shouldRender)
+	if (backSide->shouldRender)
 	{
-		backSide.applyTexture();
+		backSide->applyTexture();
 		glVertex3f(x + hw, y + hh, z - hd);
 		glVertex3f(x + hw, y - hh, z - hd);
 		glVertex3f(x - hw, y - hh, z - hd);
@@ -86,9 +86,9 @@ void Block::drawRaw()
 		glVertex3f(x - hw, y - hh, z - hd);
 	}
 
-	if (bottomSide.shouldRender)
+	if (bottomSide->shouldRender)
 	{
-		bottomSide.applyTexture();
+		bottomSide->applyTexture();
 		glVertex3f(x - hw, y - hh, z + hd);
 		glVertex3f(x - hw, y - hh, z - hd);
 		glVertex3f(x + hw, y - hh, z - hd);
@@ -98,9 +98,9 @@ void Block::drawRaw()
 	}
 
 	
-	if (leftSide.shouldRender)
+	if (leftSide->shouldRender)
 	{
-		leftSide.applyTexture();
+		leftSide->applyTexture();
 		glVertex3f(x - hw, y + hh, z - hd);
 		glVertex3f(x - hw, y - hh, z - hd);
 		glVertex3f(x - hw, y - hh, z + hd);
@@ -119,12 +119,12 @@ void Block::setPosition(float x, float y, float z)
 
 //======================
 
-BlockSide::BlockSide(Color4f color) : color(color)
+SimpleBlockSide::SimpleBlockSide(Color4f color) : color(color)
 {
 
 }
 
-void BlockSide::applyTexture()
+void SimpleBlockSide::applyTexture()
 {
 	glColor4fv(color.color4fv);
 }
