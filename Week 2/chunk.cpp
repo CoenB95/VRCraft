@@ -26,7 +26,7 @@ Chunk::Chunk(int width, int height, int depth)
 		}
 	}
 
-	blocks[1].setColor(Color4f::CYAN);
+	//blocks[1].setColor(Color4f::CYAN);
 }
 
 void Chunk::draw()

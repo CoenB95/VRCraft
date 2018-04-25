@@ -26,6 +26,7 @@ struct Camera
 {
 	float posX = 0;
 	float posY = -4;
+	float posZ = 0;
 	float rotX = 0;
 	float rotY = 0;
 } camera;
@@ -88,16 +89,16 @@ void display()
 	glLoadIdentity();
 	glRotatef(camera.rotX, 1, 0, 0);
 	glRotatef(camera.rotY, 0, 1, 0);
-	glTranslatef(camera.posX, 0, camera.posY);
+	glTranslatef(camera.posX, camera.posY, camera.posZ);
 
 
-	glColor3f(0.1f, 0.6f, 0.2f);
+	/*glColor3f(0.1f, 0.6f, 0.2f);
 	glBegin(GL_QUADS);
 		glVertex3f(-15, -1, -15);
 		glVertex3f( 15, -1, -15);
 		glVertex3f( 15, -1,  15);
 		glVertex3f(-15, -1,  15);
-	glEnd();
+	glEnd();*/
 
 	/*for (int x = -10; x <= 10; x += 5)
 	{
@@ -126,7 +127,7 @@ void display()
 void move(float angle, float fac)
 {
 	camera.posX += (float)cos((camera.rotY + angle) / 180 * M_PI) * fac;
-	camera.posY += (float)sin((camera.rotY + angle) / 180 * M_PI) * fac;
+	camera.posZ += (float)sin((camera.rotY + angle) / 180 * M_PI) * fac;
 }
 
 void idle()
@@ -140,6 +141,8 @@ void idle()
 	if (keys['d']) move(180, deltaTime*speed);
 	if (keys['w']) move(90, deltaTime*speed);
 	if (keys['s']) move(270, deltaTime*speed);
+	if (keys['z']) camera.posY += deltaTime * speed;
+	if (keys[' ']) camera.posY -= deltaTime * speed;
 
 	glutPostRedisplay();
 }

@@ -8,7 +8,7 @@ class Chunk
 {
 private:
 	int width, height, depth;
-	float blockSize = 0.9f;
+	float blockSize = 1.0f;
 	float blockDrawSize = 1.0f;
 	vector<Block> blocks;
 	bool blocksChanged = true;
