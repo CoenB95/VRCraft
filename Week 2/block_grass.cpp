@@ -21,6 +21,7 @@ Block* GrassBlock::randomTick(Block::BlockContext& adjacentBlocks)
 	if (top != nullptr && !top->isTransparent)
 	{
 		DirtBlock* dirt = new DirtBlock();
+		dirt->isTransparent = isTransparent;
 		dirt->setPosition(x, y, z);
 		return dirt;
 	}
