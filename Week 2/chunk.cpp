@@ -66,9 +66,9 @@ Block::BlockContext& Chunk::getAdjacentBlocks(Block* base)
 	int i = getBlockIndex(base);
 	Block::BlockContext context = Block::BlockContext(
 		getBlock(blocks[i]->x, blocks[i]->y + 1, blocks[i]->z),
-		getBlock(blocks[i]->x, blocks[i]->y, blocks[i]->z + 1),
-		getBlock(blocks[i]->x + 1, blocks[i]->y, blocks[i]->z),
 		getBlock(blocks[i]->x, blocks[i]->y, blocks[i]->z - 1),
+		getBlock(blocks[i]->x + 1, blocks[i]->y, blocks[i]->z),
+		getBlock(blocks[i]->x, blocks[i]->y, blocks[i]->z + 1),
 		getBlock(blocks[i]->x - 1, blocks[i]->y, blocks[i]->z),
 		getBlock(blocks[i]->x, blocks[i]->y - 1, blocks[i]->z)
 	);
@@ -96,6 +96,9 @@ int Chunk::getBlockIndex(Block* block)
 
 int Chunk::getBlockIndex(int x, int y, int z)
 {
+	if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth)
+		return -1;
+
 	return x + z * width + y * width * height;
 }
 
@@ -131,10 +134,15 @@ void Chunk::update()
 
 		for (int i = 0; i < blocks.size(); i++)
 		{
-			blocks[i]->backSide->shouldRender = i / width % depth == 0 ||
-				(i - width) >= 0 && blocks[(i - width)]->isTransparent;
+			Block::BlockContext context = getAdjacentBlocks(blocks[i]);
+			blocks[i]->topSide->shouldRender = context.top == nullptr || context.top->isTransparent;
+			blocks[i]->frontSide->shouldRender = context.front == nullptr || context.front->isTransparent;
+			blocks[i]->rightSide->shouldRender = context.right == nullptr || context.right->isTransparent;
+			blocks[i]->backSide->shouldRender = context.back == nullptr || context.back->isTransparent;
+			blocks[i]->leftSide->shouldRender = context.left == nullptr || context.left->isTransparent;
+			blocks[i]->bottomSide->shouldRender = context.bottom == nullptr || context.bottom->isTransparent;
 
-			blocks[i]->bottomSide->shouldRender = i / (width * depth) == 0 ||
+			/*blocks[i]->bottomSide->shouldRender = i / (width * depth) == 0 ||
 				(i - width * depth) >= 0 && blocks[(i - width * depth)]->isTransparent;
 
 			blocks[i]->frontSide->shouldRender = i / width % depth == depth - 1 ||
@@ -147,7 +155,7 @@ void Chunk::update()
 				(i + 1) < width * depth * height && blocks[(i + 1)]->isTransparent;
 
 			blocks[i]->topSide->shouldRender = i / (width * depth) == height - 1 ||
-				(i + width * depth) < width * depth * height && blocks[(i + width * depth)]->isTransparent;
+				(i + width * depth) < width * depth * height && blocks[(i + width * depth)]->isTransparent;*/
 		}
 	}
 }

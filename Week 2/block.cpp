@@ -72,7 +72,7 @@ void Block::drawRaw()
 
 	GLfloat x = this->x * this->hw * 2;
 	GLfloat y = this->y * this->hh * 2;
-	GLfloat z = this->z * this->hd * 2;
+	GLfloat z = this->z * this->hd * -2;
 
 	if (frontSide->shouldRender)
 	{
@@ -139,7 +139,7 @@ void Block::drawRaw()
 void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY)
 {
 	side->applyTexture(texX, texY);
-	glVertex3f(x, y, z * -1);
+	glVertex3f(x, y, z);
 }
 
 string Block::getPositionString() const

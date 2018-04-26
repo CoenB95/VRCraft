@@ -39,7 +39,7 @@ string GrassBlock::toString() const
 
 DirtBlock::DirtBlock() : Block(
 	new TexturedBlockSide(2, 0, 1, 1),
-	new TexturedBlockSide(2, 0, 1, 1),
+	new TexturedBlockSide(5, 0, 1, 1),
 	new TexturedBlockSide(2, 0, 1, 1),
 	new TexturedBlockSide(2, 0, 1, 1),
 	new TexturedBlockSide(2, 0, 1, 1),
