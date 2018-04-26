@@ -6,7 +6,7 @@
 
 GrassBlock::GrassBlock() : Block(
 	new TexturedBlockSide(0, 0, 1, 1),
-	new TexturedBlockSide(5, 0, 1, 1),
+	new TexturedBlockSide(3, 0, 1, 1),
 	new TexturedBlockSide(3, 0, 1, 1),
 	new TexturedBlockSide(3, 0, 1, 1),
 	new TexturedBlockSide(3, 0, 1, 1),
@@ -39,7 +39,7 @@ string GrassBlock::toString() const
 
 DirtBlock::DirtBlock() : Block(
 	new TexturedBlockSide(2, 0, 1, 1),
-	new TexturedBlockSide(5, 0, 1, 1),
+	new TexturedBlockSide(2, 0, 1, 1),
 	new TexturedBlockSide(2, 0, 1, 1),
 	new TexturedBlockSide(2, 0, 1, 1),
 	new TexturedBlockSide(2, 0, 1, 1),
