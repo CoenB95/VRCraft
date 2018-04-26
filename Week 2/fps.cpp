@@ -125,10 +125,62 @@ void display()
 	glutSwapBuffers();
 }
 
+bool transp(Block* b2)
+{
+	return b2 == nullptr || b2->isTransparent;
+}
+
 void move(float angle, float fac)
 {
-	camera.posX += (float)cos((camera.rotY + angle) / 360 * M_PI * 2) * fac;
-	camera.posZ += (float)sin((camera.rotY + angle) / 360 * M_PI * 2) * fac;
+	float chunkX = roundf(camera.posX / chunk.blockSize);
+	float chunkZ = roundf(camera.posZ / chunk.blockSize);
+	float blockX = camera.posX - chunkX * chunk.blockSize;
+	float blockZ = camera.posZ - chunkZ * chunk.blockSize;
+	float deltaX = (float)cos((-90 + camera.rotY + angle) / 360 * M_PI * 2) * fac;
+	float deltaZ = (float)sin((-90 + camera.rotY + angle) / 360 * M_PI * 2) * fac;
+	blockX += deltaX / chunk.blockSize;
+	blockZ += deltaZ / chunk.blockSize;
+
+	Block* curFloor = chunk.getBlock(roundf(camera.posX / chunk.blockSize),
+		(camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
+		-roundf(camera.posZ / chunk.blockSize));
+
+	Block::BlockContext curContext = chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top);
+
+	Block* nextFloor = chunk.getBlock(roundf(camera.posX + deltaX / chunk.blockSize),
+		(camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
+		-roundf(camera.posZ + deltaZ / chunk.blockSize));
+
+	bool limit = false;
+	if (nextFloor == nullptr)
+	{
+		cout << "End of world" << endl;
+		limit = true;
+	}
+	else
+	{
+		Block* nextWall = chunk.getAdjacentBlocks(nextFloor).top;
+		if (nextWall != nullptr && !nextWall->isTransparent)
+		{
+			cout << "Wall" << endl;
+			limit = true;
+		}
+	}
+
+	if (limit)
+	{
+		// Left
+		if ((nextFloor == nullptr || (nextFloor->x < curFloor->x && !transp(curContext.left))) && blockX < -0.49f) blockX = -0.49f;
+		// Right
+		if ((nextFloor == nullptr || (nextFloor->x > curFloor->x && !transp(curContext.right))) && blockX > 0.49f) blockX = 0.49f;
+		// Back (Block behind)
+		if ((nextFloor == nullptr || (nextFloor->z > curFloor->z && !transp(curContext.back))) && blockZ < -0.49f) blockZ = -0.49f;
+		// Front (Block in front)
+		if ((nextFloor == nullptr || (nextFloor->z < curFloor->z && !transp(curContext.front))) && blockZ > 0.49f) blockZ = 0.49f;
+	}
+
+	camera.posX = (chunkX + blockX) * chunk.blockSize;
+	camera.posZ = (chunkZ + blockZ) * chunk.blockSize;
 }
 
 void idle()
@@ -139,10 +191,10 @@ void idle()
 	lastUpdate += deltaTime;
 
 	const float speed = 3;
-	if (keys['a']) move(180, deltaTime*speed);
-	if (keys['d']) move(0, deltaTime*speed);
-	if (keys['w']) move(270, deltaTime*speed);
-	if (keys['s']) move(90, deltaTime*speed);
+	if (keys['a']) move(270, deltaTime*speed);
+	if (keys['d']) move(90, deltaTime*speed);
+	if (keys['w']) move(0, deltaTime*speed);
+	if (keys['s']) move(180, deltaTime*speed);
 	if (keys[' ']) camera.posY += deltaTime * speed;
 	if (keys['z']) camera.posY -= deltaTime * speed;
 	//if (lastUpdate > 1.0f)
