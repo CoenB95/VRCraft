@@ -2,8 +2,11 @@
 #define BLOCK_H
 
 #include <GL/freeglut.h>
+#include <string>
 
 #include "color.h"
+
+using namespace std;
 
 class BlockContext;
 
@@ -73,10 +76,12 @@ public:
 
 	void draw();
 	void drawRaw();
+	string getPositionString() const;
 	virtual Block* randomTick(Block::BlockContext& adjacentBlocks);
 	void setColor(Color4f color);
 	void setColors(Color4f front, Color4f top, Color4f right, Color4f back, Color4f bottom, Color4f left);
 	void setPosition(int x, int y, int z);
+	virtual string toString() const;
 };
 
 inline void Block::setColor(Color4f color)

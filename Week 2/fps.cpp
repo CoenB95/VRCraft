@@ -17,6 +17,7 @@
 #include "stb_image.h"
 
 float lastFrameTime = 0;
+float lastUpdate = 0;
 
 int width, height;
 
@@ -89,7 +90,7 @@ void display()
 	glLoadIdentity();
 	glRotatef(camera.rotX, 1, 0, 0);
 	glRotatef(camera.rotY, 0, 1, 0);
-	glTranslatef(camera.posX, camera.posY, camera.posZ);
+	glTranslatef(-camera.posX, -camera.posY, -camera.posZ);
 
 
 	/*glColor3f(0.1f, 0.6f, 0.2f);
@@ -126,8 +127,8 @@ void display()
 
 void move(float angle, float fac)
 {
-	camera.posX += (float)cos((camera.rotY + angle) / 180 * M_PI) * fac;
-	camera.posZ += (float)sin((camera.rotY + angle) / 180 * M_PI) * fac;
+	camera.posX += (float)cos((camera.rotY + angle) / 360 * M_PI * 2) * fac;
+	camera.posZ += (float)sin((camera.rotY + angle) / 360 * M_PI * 2) * fac;
 }
 
 void idle()
@@ -135,14 +136,28 @@ void idle()
 	float frameTime = glutGet(GLUT_ELAPSED_TIME)/1000.0f;
 	float deltaTime = frameTime - lastFrameTime;
 	lastFrameTime = frameTime;
+	lastUpdate += deltaTime;
 
 	const float speed = 3;
-	if (keys['a']) move(0, deltaTime*speed);
-	if (keys['d']) move(180, deltaTime*speed);
-	if (keys['w']) move(90, deltaTime*speed);
-	if (keys['s']) move(270, deltaTime*speed);
-	if (keys['z']) camera.posY += deltaTime * speed;
-	if (keys[' ']) camera.posY -= deltaTime * speed;
+	if (keys['a']) move(180, deltaTime*speed);
+	if (keys['d']) move(0, deltaTime*speed);
+	if (keys['w']) move(270, deltaTime*speed);
+	if (keys['s']) move(90, deltaTime*speed);
+	if (keys[' ']) camera.posY += deltaTime * speed;
+	if (keys['z']) camera.posY -= deltaTime * speed;
+	//if (lastUpdate > 1.0f)
+	//{
+		lastUpdate = 0;
+		Block* curBlock = chunk.getBlock(roundf(camera.posX / chunk.blockSize), (camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
+			-roundf(camera.posZ / chunk.blockSize));
+		//cout << "Camera: x=" << camera.posX << ", y=" << camera.posY << ", z=" << camera.posZ;
+		//cout << "|Position: " << (curBlock == nullptr ? "Unknown" : curBlock->getPositionString()) << endl;
+		if (curBlock != nullptr)
+		{
+			curBlock->isTransparent = false;
+			curBlock->setColor(Color4f::RED);
+		}
+	//}
 
 	glutPostRedisplay();
 }
@@ -234,6 +249,49 @@ int main(int argc, char* argv[])
 	}
 
 	cout << "Loading textures done" << endl;
+
+	cout << "Spawning Steve..." << endl;
+	camera.posX = 0.0f;
+	camera.posY = 0.5f;
+	camera.posZ = 0.0f;
+	Block* spawnBlock;
+	Block* firstBlock = chunk.getBlock(0);
+	Block* secondBlock;
+	int i = 0;
+
+	while (firstBlock != nullptr)
+	{
+		i++;
+		firstBlock = chunk.getBlock(i / chunk.height, i, i / (chunk.height * chunk.width));
+		cout << "Try at position " << firstBlock->toString() << endl;
+
+		if (firstBlock != nullptr && !firstBlock->isTransparent)
+		{
+			cout << "  No air." << endl;
+			continue;
+		}
+
+		Block::BlockContext context = chunk.getAdjacentBlocks(firstBlock);
+		spawnBlock = context.bottom;
+		if (firstBlock == nullptr || spawnBlock->isTransparent)
+		{
+			cout << "  No solid spawnblock." << endl;
+			break;
+		}
+
+		secondBlock = chunk.getAdjacentBlocks(firstBlock).top;
+		if (firstBlock != nullptr && !firstBlock->isTransparent)
+		{
+			cout << "  Not enough air." << endl;
+			continue;
+		}
+
+		cout << "  Found space!" << endl;
+		camera.posX = spawnBlock->x * chunk.blockSize;
+		camera.posY = spawnBlock->y * chunk.blockSize + 2 * chunk.blockSize;
+		camera.posZ = spawnBlock->z * chunk.blockSize;
+		break;
+	}
 
 	glutMainLoop();
 

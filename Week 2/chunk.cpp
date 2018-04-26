@@ -30,14 +30,7 @@ Chunk::Chunk(int width, int height, int depth)
 
 	for (int i = 0; i < blocks.size(); i++)
 	{
-		Block::BlockContext context = Block::BlockContext(
-			getBlock(blocks[i]->x, blocks[i]->y + 1, blocks[i]->z),
-			getBlock(blocks[i]->x, blocks[i]->y, blocks[i]->z + 1),
-			getBlock(blocks[i]->x + 1, blocks[i]->y, blocks[i]->z),
-			getBlock(blocks[i]->x, blocks[i]->y, blocks[i]->z - 1),
-			getBlock(blocks[i]->x - 1, blocks[i]->y, blocks[i]->z),
-			getBlock(blocks[i]->x, blocks[i]->y - 1, blocks[i]->z)
-		);
+		Block::BlockContext context = getAdjacentBlocks(blocks[i]);
 		
 		Block* newBlock = blocks[i]->randomTick(context);
 		if (newBlock != nullptr)
@@ -68,19 +61,47 @@ void Chunk::drawRaw()
 	}
 }
 
-Block* Chunk::getBlock(int x, int y, int z)
+Block::BlockContext& Chunk::getAdjacentBlocks(Block* base)
 {
-	int index = x + z * width + y * width * height;
+	int i = getBlockIndex(base);
+	Block::BlockContext context = Block::BlockContext(
+		getBlock(blocks[i]->x, blocks[i]->y + 1, blocks[i]->z),
+		getBlock(blocks[i]->x, blocks[i]->y, blocks[i]->z + 1),
+		getBlock(blocks[i]->x + 1, blocks[i]->y, blocks[i]->z),
+		getBlock(blocks[i]->x, blocks[i]->y, blocks[i]->z - 1),
+		getBlock(blocks[i]->x - 1, blocks[i]->y, blocks[i]->z),
+		getBlock(blocks[i]->x, blocks[i]->y - 1, blocks[i]->z)
+	);
+	return context;
+}
 
-	if (index < 0 || index >= width * height * depth)
+Block* Chunk::getBlock(int index)
+{
+	if (index < 0 || index >= blocks.size())
 		return nullptr;
 
 	return blocks[index];
 }
 
+Block* Chunk::getBlock(int x, int y, int z)
+{
+	Block** ptr = getBlockPtr(x, y, z);
+	return (ptr == nullptr ? nullptr : *ptr);
+}
+
+int Chunk::getBlockIndex(Block* block)
+{
+	return getBlockIndex(block->x, block->y, block->z);
+}
+
+int Chunk::getBlockIndex(int x, int y, int z)
+{
+	return x + z * width + y * width * height;
+}
+
 Block** Chunk::getBlockPtr(int x, int y, int z)
 {
-	int index = x + z * width + y * width * height;
+	int index = getBlockIndex(x, y, z);
 
 	if (index < 0 || index >= width * height * depth)
 		return nullptr;

@@ -9,8 +9,12 @@
 
 #include <GL/freeglut.h>
 #include <cmath>
+#include <string>
+#include <sstream>
 
 #include "block.h"
+
+using namespace std;
 
 const GLfloat Block::TILE_SIZE = 1.0f / 256.0f * 16.0f;
 
@@ -135,7 +139,14 @@ void Block::drawRaw()
 void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY)
 {
 	side->applyTexture(texX, texY);
-	glVertex3f(x, y, z);
+	glVertex3f(x, y, z * -1);
+}
+
+string Block::getPositionString() const
+{
+	stringstream ss;
+	ss << "x=" << x << ", y=" << y << ", z=" << z;
+	return ss.str();
 }
 
 Block* Block::randomTick(Block::BlockContext& adjacentBlocks)
@@ -148,6 +159,13 @@ void Block::setPosition(int x, int y, int z)
 	this->x = x;
 	this->y = y;
 	this->z = z;
+}
+
+string Block::toString() const
+{
+	stringstream ss;
+	ss << (isTransparent ? "Air" : "Block") << "{" << getPositionString() << "}";
+	return ss.str();
 }
 
 Block::BlockContext::BlockContext(Block* top, Block* front, Block* right, Block* back, Block* left, Block* bottom) :
