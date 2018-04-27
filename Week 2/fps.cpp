@@ -125,9 +125,9 @@ void display()
 	glutSwapBuffers();
 }
 
-bool transp(Block* b2)
+bool transp(Block* b1, Block* b2)
 {
-	return b2 == nullptr || b2->isTransparent;
+	return (b1 == nullptr || b1->isTransparent) && (b2 == nullptr || b2->isTransparent);
 }
 
 void move(float angle, float fac)
@@ -145,7 +145,9 @@ void move(float angle, float fac)
 		(camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
 		-roundf(camera.posZ / chunk.blockSize));
 
-	Block::BlockContext curContext = chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top);
+	Block::BlockContext feetContext = chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top);
+	Block::BlockContext headContext = chunk.getAdjacentBlocks(
+		chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top).top);
 
 	Block* nextFloor = chunk.getBlock(roundf(camera.posX + deltaX / chunk.blockSize),
 		(camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
@@ -170,13 +172,13 @@ void move(float angle, float fac)
 	if (limit)
 	{
 		// Left
-		if ((nextFloor == nullptr || (nextFloor->x < curFloor->x && !transp(curContext.left))) && blockX < -0.49f) blockX = -0.49f;
+		if (!transp(feetContext.left, headContext.left) && blockX < -0.49f) blockX = -0.49f;
 		// Right
-		if ((nextFloor == nullptr || (nextFloor->x > curFloor->x && !transp(curContext.right))) && blockX > 0.49f) blockX = 0.49f;
+		if (!transp(feetContext.right, headContext.right) && blockX > 0.49f) blockX = 0.49f;
 		// Back (Block behind)
-		if ((nextFloor == nullptr || (nextFloor->z > curFloor->z && !transp(curContext.back))) && blockZ < -0.49f) blockZ = -0.49f;
+		if (!transp(feetContext.back, headContext.back) && blockZ < -0.49f) blockZ = -0.49f;
 		// Front (Block in front)
-		if ((nextFloor == nullptr || (nextFloor->z < curFloor->z && !transp(curContext.front))) && blockZ > 0.49f) blockZ = 0.49f;
+		if (!transp(feetContext.front, headContext.front) && blockZ > 0.49f) blockZ = 0.49f;
 	}
 
 	camera.posX = (chunkX + blockX) * chunk.blockSize;
