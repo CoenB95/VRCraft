@@ -3,8 +3,11 @@
 #endif // !_USE_MATH_DEFINES
 
 #include <cmath>
+#include <iostream>
 
 #include "mob.h"
+
+using namespace std;
 
 bool Mob::checkCollision(vector<Block::BlockContext> collisionBoxes, Block*(*f)(Block::BlockContext b))
 {
@@ -46,29 +49,45 @@ void Mob::move(float angleDeg, float factor, float elapsedTime)
 		(eyes.posY - mobBlockHeight * world.blockSize) / world.blockSize,
 		roundf(eyes.posZ / world.blockSize));
 
-	vector<Block::BlockContext> collisionBoxes;
-	Block* tempBlock = world.getAdjacentBlocks(curFloor).top;
-	for (int h = 0; h < mobBlockHeight; h++)
+	if (curFloor == nullptr)
 	{
-		Block::BlockContext context = world.getAdjacentBlocks(tempBlock);
-		collisionBoxes.push_back(context);
-		tempBlock = context.top;
+		cout << "No collision-check: outside world" << endl;
 	}
+	else
+	{
+		vector<Block::BlockContext> collisionBoxes;
+		Block* tempBlock = world.getAdjacentBlocks(curFloor).top;
+		if (tempBlock == nullptr)
+		{
+			cout << "No collision-check: top level" << endl;
+		}
+		else
+		{
+			for (int h = 0; h < mobBlockHeight; h++)
+			{
+				if (tempBlock == nullptr)
+					break;
 
-	//Block::BlockContext feetContext = world.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top);
-	//Block::BlockContext headContext = chunk.getAdjacentBlocks(
-	//	chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top).top);
+				Block::BlockContext context = world.getAdjacentBlocks(tempBlock);
+				collisionBoxes.push_back(context);
+				tempBlock = context.top;
+			}
 
-	// Collision checking
-	// Left
-	if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.left; }) && blockX < -0.49f) blockX = -0.49f;
-	// Right
-	if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.right; }) && blockX > 0.49f) blockX = 0.49f;
-	// Back (Block in front of our space)
-	if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.front; }) && blockZ < -0.49f) blockZ = -0.49f;
-	// Front (Block behind our space)
-	if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.back; }) && blockZ > 0.49f) blockZ = 0.49f;
+			//Block::BlockContext feetContext = world.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top);
+			//Block::BlockContext headContext = chunk.getAdjacentBlocks(
+			//	chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top).top);
 
+			// Collision checking
+			// Left
+			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.left; }) && blockX < -0.49f) blockX = -0.49f;
+			// Right
+			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.right; }) && blockX > 0.49f) blockX = 0.49f;
+			// Back (Block in front of our space)
+			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.front; }) && blockZ < -0.49f) blockZ = -0.49f;
+			// Front (Block behind our space)
+			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.back; }) && blockZ > 0.49f) blockZ = 0.49f;
+		}
+	}
 	eyes.posX = (chunkX + blockX) * world.blockSize;
 	eyes.posZ = (chunkZ + blockZ) * world.blockSize;
 }
