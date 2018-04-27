@@ -168,8 +168,10 @@ void idle()
 	if (keys['d']) player->move(90, deltaTime*speed, deltaTime);
 	if (keys['w']) player->move(0, deltaTime*speed, deltaTime);
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
-	if (keys[' ']) player->getEyes().posY += deltaTime * speed;
+	if (keys[' ']) player->getEyes().speedY = 4.0f;//deltaTime * speed;
 	if (keys['z']) player->getEyes().posY -= deltaTime * speed;
+
+	player->update(deltaTime);
 	//if (lastUpdate > 1.0f)
 	//{
 	/*	lastUpdate = 0;
@@ -314,7 +316,7 @@ int main(int argc, char* argv[])
 
 		cout << "  Found space!" << endl;
 		camera.posX = spawnBlock->x * chunk.blockSize;
-		camera.posY = spawnBlock->y * chunk.blockSize + 2 * chunk.blockSize;
+		camera.posY = spawnBlock->y * chunk.blockSize + 15 * chunk.blockSize;
 		camera.posZ = spawnBlock->z * chunk.blockSize;
 		break;
 	}

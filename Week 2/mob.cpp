@@ -46,7 +46,7 @@ void Mob::move(float angleDeg, float factor, float elapsedTime)
 
 	Block* curFloor = world.getBlock(
 		roundf(eyes.posX / world.blockSize),
-		roundf(eyes.posY - mobBlockHeight * world.blockSize) / world.blockSize,
+		roundf(eyes.posY - mobBlockHeight * world.blockSize) / world.blockSize - 1,
 		roundf(eyes.posZ / world.blockSize));
 
 	if (curFloor == nullptr)
@@ -89,6 +89,31 @@ void Mob::move(float angleDeg, float factor, float elapsedTime)
 	}
 	eyes.posX = (chunkX + blockX) * world.blockSize;
 	eyes.posZ = (chunkZ + blockZ) * world.blockSize;
+}
+
+void Mob::update(float elapsedTime)
+{
+	Block* curFloor = world.getBlock(
+		roundf(eyes.posX / world.blockSize),
+		roundf(eyes.posY - mobBlockHeight * world.blockSize) / world.blockSize - 1,
+		roundf(eyes.posZ / world.blockSize));
+
+	if (lastFloor != nullptr)
+		lastFloor->mark = false;
+
+	if (curFloor != nullptr)
+		curFloor->mark = true;
+
+	lastFloor = curFloor;
+
+	eyes.speedY -= eyes.accelY * elapsedTime;
+	eyes.posY += eyes.speedY * elapsedTime;
+	if (curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
+		eyes.posY - mobBlockHeight * world.blockSize < curFloor->y + 0.5f)
+	{
+		eyes.posY = (curFloor->y + 0.5f + mobBlockHeight) * world.blockSize;
+		eyes.speedY = 0;
+	}
 }
 
 Steve::Steve(Chunk& world) : Mob(world)

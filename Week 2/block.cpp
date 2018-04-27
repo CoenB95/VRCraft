@@ -67,7 +67,7 @@ void Block::draw()
 
 void Block::drawRaw()
 {
-	if (isTransparent)
+	if (isTransparent && !mark)
 		return;
 
 	GLfloat x = this->x * this->hw * 2;
@@ -138,7 +138,10 @@ void Block::drawRaw()
 
 void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY)
 {
-	side->applyTexture(texX, texY);
+	if (mark)
+		glColor4fv(Color4f::RED.color4fv);
+	else
+		side->applyTexture(texX, texY);
 	// The real z-axis is inverted. Apply it here.
 	glVertex3f(x, y, -z);
 }

@@ -66,6 +66,7 @@ public:
 
 	int x, y, z;
 	bool isTransparent = false;
+	bool mark = false;
 
 	Block();
 	Block(float w, float h, float d);
