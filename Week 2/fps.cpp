@@ -13,7 +13,9 @@
 #include <vector>
 
 #include "block.h"
+#include "camera.h"
 #include "chunk.h"
+#include "mob.h"
 #include "stb_image.h"
 
 float lastFrameTime = 0;
@@ -23,14 +25,7 @@ int width, height;
 
 Chunk chunk(30, 30, 30);
 
-struct Camera
-{
-	float posX = 0;
-	float posY = -4;
-	float posZ = 0;
-	float rotX = 0;
-	float rotY = 0;
-} camera;
+Mob* player = new Steve(chunk);
 
 bool keys[255];
 
@@ -88,9 +83,7 @@ void display()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glRotatef(camera.rotX, 1, 0, 0);
-	glRotatef(camera.rotY, 0, 1, 0);
-	glTranslatef(-camera.posX, -camera.posY, -camera.posZ);
+	player->getEyes().applyTransform();
 
 
 	/*glColor3f(0.1f, 0.6f, 0.2f);
@@ -125,65 +118,43 @@ void display()
 	glutSwapBuffers();
 }
 
-bool transp(Block* b1, Block* b2)
-{
-	return (b1 != nullptr && b1->isTransparent) && (b2 != nullptr && b2->isTransparent);
-}
-
-void move(float angle, float fac)
-{
-	float chunkX = roundf(camera.posX / chunk.blockSize);
-	float chunkZ = roundf(camera.posZ / chunk.blockSize);
-	float blockX = camera.posX - chunkX * chunk.blockSize;
-	float blockZ = camera.posZ - chunkZ * chunk.blockSize;
-	float deltaX = (float)cos((-90 + camera.rotY + angle) / 360 * M_PI * 2) * fac;
-	float deltaZ = (float)sin((-90 + camera.rotY + angle) / 360 * M_PI * 2) * fac;
-	blockX += deltaX / chunk.blockSize;
-	blockZ += deltaZ / chunk.blockSize;
-
-	Block* curFloor = chunk.getBlock(roundf(camera.posX / chunk.blockSize),
-		(camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
-		-roundf(camera.posZ / chunk.blockSize));
-
-	Block::BlockContext feetContext = chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top);
-	Block::BlockContext headContext = chunk.getAdjacentBlocks(
-		chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top).top);
-
-	Block* nextFloor = chunk.getBlock(roundf(camera.posX + deltaX / chunk.blockSize),
-		(camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
-		-roundf(camera.posZ + deltaZ / chunk.blockSize));
-
-	bool limit = false;
-	if (nextFloor == nullptr)
-	{
-		cout << "End of world" << endl;
-		limit = true;
-	}
-	else
-	{
-		Block* nextWall = chunk.getAdjacentBlocks(nextFloor).top;
-		if (nextWall != nullptr && !nextWall->isTransparent)
-		{
-			cout << "Wall" << endl;
-			limit = true;
-		}
-	}
-
-	if (limit)
-	{
-		// Left
-		if (!transp(feetContext.left, headContext.left) && blockX < -0.49f) blockX = -0.49f;
-		// Right
-		if (!transp(feetContext.right, headContext.right) && blockX > 0.49f) blockX = 0.49f;
-		// Back (Block behind)
-		if (!transp(feetContext.back, headContext.back) && blockZ < -0.49f) blockZ = -0.49f;
-		// Front (Block in front)
-		if (!transp(feetContext.front, headContext.front) && blockZ > 0.49f) blockZ = 0.49f;
-	}
-
-	camera.posX = (chunkX + blockX) * chunk.blockSize;
-	camera.posZ = (chunkZ + blockZ) * chunk.blockSize;
-}
+//bool transp(Block* b1, Block* b2)
+//{
+//	return (b1 != nullptr && b1->isTransparent) && (b2 != nullptr && b2->isTransparent);
+//}
+//
+//void move(float angle, float fac)
+//{
+//	float chunkX = roundf(camera.posX / chunk.blockSize);
+//	float chunkZ = roundf(camera.posZ / chunk.blockSize);
+//	float blockX = camera.posX - chunkX * chunk.blockSize;
+//	float blockZ = camera.posZ - chunkZ * chunk.blockSize;
+//	float deltaX = (float)cos((-90 + camera.rotY + angle) / 360 * M_PI * 2) * fac;
+//	float deltaZ = (float)sin((-90 + camera.rotY + angle) / 360 * M_PI * 2) * fac;
+//	blockX += deltaX / chunk.blockSize;
+//	blockZ += deltaZ / chunk.blockSize;
+//
+//	Block* curFloor = chunk.getBlock(roundf(camera.posX / chunk.blockSize),
+//		(camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
+//		-roundf(camera.posZ / chunk.blockSize));
+//
+//	Block::BlockContext feetContext = chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top);
+//	Block::BlockContext headContext = chunk.getAdjacentBlocks(
+//		chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top).top);
+//
+//	// Collision checking
+//	// Left
+//	if (!transp(feetContext.left, headContext.left) && blockX < -0.49f) blockX = -0.49f;
+//	// Right
+//	if (!transp(feetContext.right, headContext.right) && blockX > 0.49f) blockX = 0.49f;
+//	// Back (Block behind)
+//	if (!transp(feetContext.back, headContext.back) && blockZ < -0.49f) blockZ = -0.49f;
+//	// Front (Block in front)
+//	if (!transp(feetContext.front, headContext.front) && blockZ > 0.49f) blockZ = 0.49f;
+//
+//	camera.posX = (chunkX + blockX) * chunk.blockSize;
+//	camera.posZ = (chunkZ + blockZ) * chunk.blockSize;
+//}
 
 void idle()
 {
@@ -193,15 +164,15 @@ void idle()
 	lastUpdate += deltaTime;
 
 	const float speed = 3;
-	if (keys['a']) move(270, deltaTime*speed);
-	if (keys['d']) move(90, deltaTime*speed);
-	if (keys['w']) move(0, deltaTime*speed);
-	if (keys['s']) move(180, deltaTime*speed);
-	if (keys[' ']) camera.posY += deltaTime * speed;
-	if (keys['z']) camera.posY -= deltaTime * speed;
+	if (keys['a']) player->move(270, deltaTime*speed, deltaTime);
+	if (keys['d']) player->move(90, deltaTime*speed, deltaTime);
+	if (keys['w']) player->move(0, deltaTime*speed, deltaTime);
+	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
+	if (keys[' ']) player->getEyes().posY += deltaTime * speed;
+	if (keys['z']) player->getEyes().posY -= deltaTime * speed;
 	//if (lastUpdate > 1.0f)
 	//{
-		lastUpdate = 0;
+	/*	lastUpdate = 0;
 		Block* curBlock = chunk.getBlock(roundf(camera.posX / chunk.blockSize), (camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
 			-roundf(camera.posZ / chunk.blockSize));
 		//cout << "Camera: x=" << camera.posX << ", y=" << camera.posY << ", z=" << camera.posZ;
@@ -210,7 +181,7 @@ void idle()
 		{
 			curBlock->isTransparent = false;
 			curBlock->setColor(Color4f::RED);
-		}
+		}*/
 	//}
 
 	glutPostRedisplay();
@@ -223,8 +194,8 @@ void mousePassiveMotion(int x, int y)
 	int dy = y - height / 2;
 	if ((dx != 0 || dy != 0) && abs(dx) < 400 && abs(dy) < 400 && !justMovedMouse)
 	{
-		camera.rotY += dx / 10.0f;
-		camera.rotX += dy / 10.0f;
+		player->getEyes().rotY += dx / 10.0f;
+		player->getEyes().rotX += dy / 10.0f;
 	}
 	if (!justMovedMouse)
 	{
@@ -305,6 +276,7 @@ int main(int argc, char* argv[])
 	cout << "Loading textures done" << endl;
 
 	cout << "Spawning Steve..." << endl;
+	Camera& camera = player->getEyes();
 	camera.posX = 0.0f;
 	camera.posY = 0.5f;
 	camera.posZ = 0.0f;

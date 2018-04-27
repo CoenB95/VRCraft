@@ -112,6 +112,11 @@ Block** Chunk::getBlockPtr(int x, int y, int z)
 	return &blocks[index];
 }
 
+bool Chunk::isBlockTransparent(Block* block)
+{
+	return block != nullptr && block->isTransparent;
+}
+
 void Chunk::notifyBlockChanged(Block* newBlock)
 {
 	newBlocks.push_back(newBlock);

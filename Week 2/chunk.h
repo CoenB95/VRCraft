@@ -28,6 +28,7 @@ public:
 	int getBlockIndex(Block* block);
 	int getBlockIndex(int x, int y, int z);
 	Block** getBlockPtr(int x, int y, int z);
+	bool isBlockTransparent(Block* block);
 	void notifyBlockChanged(Block* newBlock);
 	void update();
 };

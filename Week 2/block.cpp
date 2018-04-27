@@ -72,74 +72,75 @@ void Block::drawRaw()
 
 	GLfloat x = this->x * this->hw * 2;
 	GLfloat y = this->y * this->hh * 2;
-	GLfloat z = this->z * this->hd * -2;
+	GLfloat z = this->z * this->hd * 2;
 
 	if (frontSide->shouldRender)
 	{
-		drawVertex(frontSide, x - hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(frontSide, x - hw, y - hh, z + hd, BOTTOM_LEFT);
-		drawVertex(frontSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
-		drawVertex(frontSide, x + hw, y + hh, z + hd, TOP_RIGHT);
-		drawVertex(frontSide, x - hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(frontSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
+		drawVertex(frontSide, x - hw, y + hh, z - hd, TOP_LEFT);
+		drawVertex(frontSide, x - hw, y - hh, z - hd, BOTTOM_LEFT);
+		drawVertex(frontSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
+		drawVertex(frontSide, x + hw, y + hh, z - hd, TOP_RIGHT);
+		drawVertex(frontSide, x - hw, y + hh, z - hd, TOP_LEFT);
+		drawVertex(frontSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
 	}
 
 	if (topSide->shouldRender)
 	{
-		drawVertex(topSide, x - hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(topSide, x - hw, y + hh, z + hd, BOTTOM_LEFT);
-		drawVertex(topSide, x + hw, y + hh, z + hd, BOTTOM_RIGHT);
-		drawVertex(topSide, x + hw, y + hh, z - hd, TOP_RIGHT);
-		drawVertex(topSide, x - hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(topSide, x + hw, y + hh, z + hd, BOTTOM_RIGHT);
+		drawVertex(topSide, x - hw, y + hh, z + hd, TOP_LEFT);
+		drawVertex(topSide, x - hw, y + hh, z - hd, BOTTOM_LEFT);
+		drawVertex(topSide, x + hw, y + hh, z - hd, BOTTOM_RIGHT);
+		drawVertex(topSide, x + hw, y + hh, z + hd, TOP_RIGHT);
+		drawVertex(topSide, x - hw, y + hh, z + hd, TOP_LEFT);
+		drawVertex(topSide, x + hw, y + hh, z - hd, BOTTOM_RIGHT);
 	}
 
 	if (rightSide->shouldRender)
 	{
-		drawVertex(rightSide, x + hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(rightSide, x + hw, y - hh, z + hd, BOTTOM_LEFT);
-		drawVertex(rightSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
-		drawVertex(rightSide, x + hw, y + hh, z - hd, TOP_RIGHT);
-		drawVertex(rightSide, x + hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(rightSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
+		drawVertex(rightSide, x + hw, y + hh, z - hd, TOP_LEFT);
+		drawVertex(rightSide, x + hw, y - hh, z - hd, BOTTOM_LEFT);
+		drawVertex(rightSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
+		drawVertex(rightSide, x + hw, y + hh, z + hd, TOP_RIGHT);
+		drawVertex(rightSide, x + hw, y + hh, z - hd, TOP_LEFT);
+		drawVertex(rightSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
 	}
 
 	if (backSide->shouldRender)
 	{
-		drawVertex(backSide, x + hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(backSide, x + hw, y - hh, z - hd, BOTTOM_LEFT);
-		drawVertex(backSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
-		drawVertex(backSide, x - hw, y + hh, z - hd, TOP_RIGHT);
-		drawVertex(backSide, x + hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(backSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
+		drawVertex(backSide, x + hw, y + hh, z + hd, TOP_LEFT);
+		drawVertex(backSide, x + hw, y - hh, z + hd, BOTTOM_LEFT);
+		drawVertex(backSide, x - hw, y - hh, z + hd, BOTTOM_RIGHT);
+		drawVertex(backSide, x - hw, y + hh, z + hd, TOP_RIGHT);
+		drawVertex(backSide, x + hw, y + hh, z + hd, TOP_LEFT);
+		drawVertex(backSide, x - hw, y - hh, z + hd, BOTTOM_RIGHT);
 	}
 
 	if (bottomSide->shouldRender)
 	{
-		drawVertex(bottomSide, x - hw, y - hh, z + hd, TOP_LEFT);
-		drawVertex(bottomSide, x - hw, y - hh, z - hd, BOTTOM_LEFT);
-		drawVertex(bottomSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
-		drawVertex(bottomSide, x + hw, y - hh, z + hd, TOP_RIGHT);
-		drawVertex(bottomSide, x - hw, y - hh, z + hd, TOP_LEFT);
-		drawVertex(bottomSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
+		drawVertex(bottomSide, x - hw, y - hh, z - hd, TOP_LEFT);
+		drawVertex(bottomSide, x - hw, y - hh, z + hd, BOTTOM_LEFT);
+		drawVertex(bottomSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
+		drawVertex(bottomSide, x + hw, y - hh, z - hd, TOP_RIGHT);
+		drawVertex(bottomSide, x - hw, y - hh, z - hd, TOP_LEFT);
+		drawVertex(bottomSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
 	}
 
 	
 	if (leftSide->shouldRender)
 	{
-		drawVertex(leftSide, x - hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(leftSide, x - hw, y - hh, z - hd, BOTTOM_LEFT);
-		drawVertex(leftSide, x - hw, y - hh, z + hd, BOTTOM_RIGHT);
-		drawVertex(leftSide, x - hw, y + hh, z + hd, TOP_RIGHT);
-		drawVertex(leftSide, x - hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(leftSide, x - hw, y - hh, z + hd, BOTTOM_RIGHT);
+		drawVertex(leftSide, x - hw, y + hh, z + hd, TOP_LEFT);
+		drawVertex(leftSide, x - hw, y - hh, z + hd, BOTTOM_LEFT);
+		drawVertex(leftSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
+		drawVertex(leftSide, x - hw, y + hh, z - hd, TOP_RIGHT);
+		drawVertex(leftSide, x - hw, y + hh, z + hd, TOP_LEFT);
+		drawVertex(leftSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
 	}
 }
 
 void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY)
 {
 	side->applyTexture(texX, texY);
-	glVertex3f(x, y, z);
+	// The real z-axis is inverted. Apply it here.
+	glVertex3f(x, y, -z);
 }
 
 string Block::getPositionString() const

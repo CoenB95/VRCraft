@@ -21,16 +21,20 @@
   <ItemGroup>
     <ClCompile Include="block.cpp" />
     <ClCompile Include="block_grass.cpp" />
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="chunk.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="fps.cpp" />
+    <ClCompile Include="mob.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="block.h" />
     <ClInclude Include="block_grass.h" />
+    <ClInclude Include="camera.h" />
     <ClInclude Include="chunk.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="mob.h" />
     <ClInclude Include="stb_perlin.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
