@@ -127,7 +127,7 @@ void display()
 
 bool transp(Block* b1, Block* b2)
 {
-	return (b1 == nullptr || b1->isTransparent) && (b2 == nullptr || b2->isTransparent);
+	return (b1 != nullptr && b1->isTransparent) && (b2 != nullptr && b2->isTransparent);
 }
 
 void move(float angle, float fac)
