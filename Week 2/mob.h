@@ -8,7 +8,8 @@ class Mob
 {
 private:
 	Camera eyes;
-	GLfloat mobBlockHeight = 1.8f;
+	GLfloat mobBlockHeight = 2.0f;
+	GLfloat mobDiameter = 0.25f;
 	// TODO: replace with 'World' (multiple chunks)
 	Chunk& world;
 

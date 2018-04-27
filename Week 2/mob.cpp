@@ -46,7 +46,7 @@ void Mob::move(float angleDeg, float factor, float elapsedTime)
 
 	Block* curFloor = world.getBlock(
 		roundf(eyes.posX / world.blockSize),
-		(eyes.posY - mobBlockHeight * world.blockSize) / world.blockSize,
+		roundf(eyes.posY - mobBlockHeight * world.blockSize) / world.blockSize,
 		roundf(eyes.posZ / world.blockSize));
 
 	if (curFloor == nullptr)
@@ -73,19 +73,18 @@ void Mob::move(float angleDeg, float factor, float elapsedTime)
 				tempBlock = context.top;
 			}
 
-			//Block::BlockContext feetContext = world.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top);
-			//Block::BlockContext headContext = chunk.getAdjacentBlocks(
-			//	chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top).top);
+			// The distance that should be kept from any walls
+			GLfloat d = 0.5f - mobDiameter / 2;
 
 			// Collision checking
 			// Left
-			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.left; }) && blockX < -0.49f) blockX = -0.49f;
+			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.left; }) && blockX < -d) blockX = -d;
 			// Right
-			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.right; }) && blockX > 0.49f) blockX = 0.49f;
+			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.right; }) && blockX > d) blockX = d;
 			// Back (Block in front of our space)
-			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.front; }) && blockZ < -0.49f) blockZ = -0.49f;
+			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.front; }) && blockZ < -d) blockZ = -d;
 			// Front (Block behind our space)
-			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.back; }) && blockZ > 0.49f) blockZ = 0.49f;
+			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.back; }) && blockZ > d) blockZ = d;
 		}
 	}
 	eyes.posX = (chunkX + blockX) * world.blockSize;
