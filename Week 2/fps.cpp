@@ -23,7 +23,7 @@ float lastUpdate = 0;
 
 int width, height;
 
-Chunk chunk(30, 30, 30);
+Chunk chunk(50, 20, 50);
 
 Mob* player = new Steve(chunk);
 
@@ -85,76 +85,11 @@ void display()
 	glLoadIdentity();
 	player->getEyes().applyTransform();
 
-
-	/*glColor3f(0.1f, 0.6f, 0.2f);
-	glBegin(GL_QUADS);
-		glVertex3f(-15, -1, -15);
-		glVertex3f( 15, -1, -15);
-		glVertex3f( 15, -1,  15);
-		glVertex3f(-15, -1,  15);
-	glEnd();*/
-
-	/*for (int x = -10; x <= 10; x += 5)
-	{
-		for (int y = -10; y <= 10; y += 5)
-		{
-			glPushMatrix();
-			glTranslatef((float)x, 0.0f, (float)y);
-			drawCube();
-			glPopMatrix();
-		}
-	}*/
-
-	/*for (int i = 0; i < blocks.size(); i++)
-	{
-		glPushMatrix();
-		blocks[i].draw();
-		glPopMatrix();
-	}*/
-
 	chunk.update();
 	chunk.draw();
 
 	glutSwapBuffers();
 }
-
-//bool transp(Block* b1, Block* b2)
-//{
-//	return (b1 != nullptr && b1->isTransparent) && (b2 != nullptr && b2->isTransparent);
-//}
-//
-//void move(float angle, float fac)
-//{
-//	float chunkX = roundf(camera.posX / chunk.blockSize);
-//	float chunkZ = roundf(camera.posZ / chunk.blockSize);
-//	float blockX = camera.posX - chunkX * chunk.blockSize;
-//	float blockZ = camera.posZ - chunkZ * chunk.blockSize;
-//	float deltaX = (float)cos((-90 + camera.rotY + angle) / 360 * M_PI * 2) * fac;
-//	float deltaZ = (float)sin((-90 + camera.rotY + angle) / 360 * M_PI * 2) * fac;
-//	blockX += deltaX / chunk.blockSize;
-//	blockZ += deltaZ / chunk.blockSize;
-//
-//	Block* curFloor = chunk.getBlock(roundf(camera.posX / chunk.blockSize),
-//		(camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
-//		-roundf(camera.posZ / chunk.blockSize));
-//
-//	Block::BlockContext feetContext = chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top);
-//	Block::BlockContext headContext = chunk.getAdjacentBlocks(
-//		chunk.getAdjacentBlocks(chunk.getAdjacentBlocks(curFloor).top).top);
-//
-//	// Collision checking
-//	// Left
-//	if (!transp(feetContext.left, headContext.left) && blockX < -0.49f) blockX = -0.49f;
-//	// Right
-//	if (!transp(feetContext.right, headContext.right) && blockX > 0.49f) blockX = 0.49f;
-//	// Back (Block behind)
-//	if (!transp(feetContext.back, headContext.back) && blockZ < -0.49f) blockZ = -0.49f;
-//	// Front (Block in front)
-//	if (!transp(feetContext.front, headContext.front) && blockZ > 0.49f) blockZ = 0.49f;
-//
-//	camera.posX = (chunkX + blockX) * chunk.blockSize;
-//	camera.posZ = (chunkZ + blockZ) * chunk.blockSize;
-//}
 
 void idle()
 {
@@ -168,23 +103,9 @@ void idle()
 	if (keys['d']) player->move(90, deltaTime*speed, deltaTime);
 	if (keys['w']) player->move(0, deltaTime*speed, deltaTime);
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
-	if (keys[' '] && player->isFloored()) player->getEyes().speedY = 8.0f;//deltaTime * speed;
-	if (keys['z']) player->getEyes().posY -= deltaTime * speed;
+	if (keys[' '] && player->isFloored()) player->getEyes().speedY = 8.0f;
 
 	player->update(deltaTime);
-	//if (lastUpdate > 1.0f)
-	//{
-	/*	lastUpdate = 0;
-		Block* curBlock = chunk.getBlock(roundf(camera.posX / chunk.blockSize), (camera.posY - 2 * chunk.blockSize) / chunk.blockSize,
-			-roundf(camera.posZ / chunk.blockSize));
-		//cout << "Camera: x=" << camera.posX << ", y=" << camera.posY << ", z=" << camera.posZ;
-		//cout << "|Position: " << (curBlock == nullptr ? "Unknown" : curBlock->getPositionString()) << endl;
-		if (curBlock != nullptr)
-		{
-			curBlock->isTransparent = false;
-			curBlock->setColor(Color4f::RED);
-		}*/
-	//}
 
 	glutPostRedisplay();
 }
@@ -196,8 +117,8 @@ void mousePassiveMotion(int x, int y)
 	int dy = y - height / 2;
 	if ((dx != 0 || dy != 0) && abs(dx) < 400 && abs(dy) < 400 && !justMovedMouse)
 	{
-		player->getEyes().rotY += dx / 10.0f;
-		player->getEyes().rotX += dy / 10.0f;
+		player->getEyes().rotY += dx * 0.3f;
+		player->getEyes().rotX += dy * 0.3f;
 	}
 	if (!justMovedMouse)
 	{
@@ -301,7 +222,7 @@ int main(int argc, char* argv[])
 
 		Block::BlockContext context = chunk.getAdjacentBlocks(firstBlock);
 		spawnBlock = context.bottom;
-		if (firstBlock == nullptr || spawnBlock->isTransparent)
+		if (spawnBlock == nullptr || spawnBlock->isTransparent)
 		{
 			cout << "  No solid spawnblock." << endl;
 			break;
@@ -316,7 +237,7 @@ int main(int argc, char* argv[])
 
 		cout << "  Found space!" << endl;
 		camera.posX = spawnBlock->x * chunk.blockSize;
-		camera.posY = spawnBlock->y * chunk.blockSize + 15 * chunk.blockSize;
+		camera.posY = spawnBlock->y * chunk.blockSize + 5 * chunk.blockSize;
 		camera.posZ = spawnBlock->z * chunk.blockSize;
 		break;
 	}
