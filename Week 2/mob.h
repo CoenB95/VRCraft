@@ -8,6 +8,7 @@ class Mob
 {
 private:
 	Camera eyes;
+	bool floored = false;
 	Block* lastFloor;
 	GLfloat mobBlockHeight = 1.0f;
 	GLfloat mobDiameter = 0.25f;
@@ -18,6 +19,7 @@ private:
 public:
 	Mob(Chunk& world);
 	Camera& getEyes();
+	bool isFloored() { return floored; };
 	void move(float angleDeg, float factor, float elapsedTime);
 	void update(float elapsedTime);
 };

@@ -168,7 +168,7 @@ void idle()
 	if (keys['d']) player->move(90, deltaTime*speed, deltaTime);
 	if (keys['w']) player->move(0, deltaTime*speed, deltaTime);
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
-	if (keys[' ']) player->getEyes().speedY = 4.0f;//deltaTime * speed;
+	if (keys[' '] && player->isFloored()) player->getEyes().speedY = 8.0f;//deltaTime * speed;
 	if (keys['z']) player->getEyes().posY -= deltaTime * speed;
 
 	player->update(deltaTime);
