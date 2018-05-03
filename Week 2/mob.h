@@ -19,6 +19,7 @@ private:
 public:
 	Mob(Chunk& world);
 	Camera& getEyes();
+	GLfloat getMobHeight() const { return mobBlockHeight; }
 	bool isFloored() { return floored; };
 	void move(float angleDeg, float factor, float elapsedTime);
 	void update(float elapsedTime);

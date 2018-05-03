@@ -26,6 +26,7 @@ int width, height;
 Chunk chunk(50, 20, 50);
 
 Mob* player = new Steve(chunk);
+Block* pb = nullptr;
 
 bool keys[255];
 
@@ -71,6 +72,14 @@ void drawCube()
 	glEnd();
 }
 
+Block* f(int levelDiff)
+{
+	float r1 = (0.5f + player->getMobHeight() - levelDiff) / tanf(player->getEyes().rotX / 180 * M_PI);
+	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1;
+	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1;
+
+	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY + levelDiff - 1, roundf(rayZSteve));
+}
 
 void display()
 {
@@ -86,6 +95,17 @@ void display()
 	player->getEyes().applyTransform();
 
 	chunk.update();
+
+	Block* b = f(1);
+	if (b == nullptr || b->isTransparent)
+		b = f(0);
+
+	if (pb != nullptr)
+		pb->mark = false;
+	if (b != nullptr)
+		b->mark = true;
+	pb = b;
+
 	chunk.draw();
 
 	glutSwapBuffers();
