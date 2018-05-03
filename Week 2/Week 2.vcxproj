@@ -26,6 +26,8 @@
     <ClCompile Include="color.cpp" />
     <ClCompile Include="fps.cpp" />
     <ClCompile Include="mob.cpp" />
+    <ClCompile Include="objectModels\ObjModel.cpp" />
+    <ClCompile Include="objectModels\Vec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="block.h" />
@@ -35,6 +37,8 @@
     <ClInclude Include="color.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="mob.h" />
+    <ClInclude Include="objectModels\ObjModel.h" />
+    <ClInclude Include="objectModels\Vec.h" />
     <ClInclude Include="stb_perlin.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
