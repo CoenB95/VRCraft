@@ -74,6 +74,9 @@ void drawCube()
 
 Block* lookAtTop(GLfloat diffY)
 {
+	if (player->getEyes().rotX <= 0)
+		return nullptr;
+
 	float r1 = (player->getMobHeight() - diffY) / tanf(player->getEyes().rotX / 180 * M_PI);
 	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posX;
 	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posZ;
@@ -137,7 +140,7 @@ void display()
 		bF = lookAtFrontSide(iF);
 		if (bF != nullptr && !bF->isTransparent)
 		{
-			if (b != nullptr && bF->x >= b->x)
+			if (b != nullptr && bF->z > b->z)
 				break;
 			b = bF;
 		}
@@ -151,7 +154,7 @@ void display()
 		bL = lookAtLeftSide(iL);
 		if (bL != nullptr && !bL->isTransparent)
 		{
-			if (b != nullptr && bL->x >= b->x)
+			if (b != nullptr && bL->x > b->x)
 				break;
 			b = bL;
 		}
