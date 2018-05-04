@@ -44,7 +44,7 @@ Chunk::Chunk(int width, int height, int depth)
 void Chunk::draw()
 {
 	glPushMatrix();
-	glTranslatef((float)0.0f, -1.0f + blockDrawSize / 2, 0.0f);
+	glTranslatef(0.0f, 0.0f, 0.0f);
 
 	glBegin(GL_TRIANGLES);
 	drawRaw();

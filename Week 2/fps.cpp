@@ -72,13 +72,23 @@ void drawCube()
 	glEnd();
 }
 
-Block* f(int levelDiff)
+Block* f(int diffY)
 {
-	float r1 = (0.5f + player->getMobHeight() - levelDiff) / tanf(player->getEyes().rotX / 180 * M_PI);
+	float r1 = (player->getMobHeight() - diffY) / tanf(player->getEyes().rotX / 180 * M_PI);
 	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posX;
 	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posZ;
 
-	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY + levelDiff - 1, roundf(rayZSteve));
+	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY + diffY - 1, roundf(rayZSteve));
+}
+
+Block* fSide(int diffX)
+{
+	diffX -= 0.5f;
+	float diffY = -tanf(player->getEyes().rotX / 180 * M_PI) * diffX;
+	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * diffX + player->getEyes().posX;
+	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * diffX + player->getEyes().posZ;
+
+	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY + diffY + 1, roundf(rayZSteve));
 }
 
 void display()
@@ -96,9 +106,11 @@ void display()
 
 	chunk.update();
 
-	Block* b = f(1);
+	Block* b =  f(1);
 	if (b == nullptr || b->isTransparent)
 		b = f(0);
+
+	//Block* b = fSide(5);
 
 	if (pb != nullptr)
 		pb->mark = false;
