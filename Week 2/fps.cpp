@@ -72,7 +72,7 @@ void drawCube()
 	glEnd();
 }
 
-Block* f(int diffY)
+Block* lookAtTop(GLfloat diffY)
 {
 	float r1 = (player->getMobHeight() - diffY) / tanf(player->getEyes().rotX / 180 * M_PI);
 	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posX;
@@ -81,14 +81,26 @@ Block* f(int diffY)
 	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY + diffY - 1, roundf(rayZSteve));
 }
 
-Block* fSide(int diffX)
+Block* lookAtFrontSide(GLfloat diffZ)
 {
-	diffX -= 0.5f;
-	float diffY = -tanf(player->getEyes().rotX / 180 * M_PI) * diffX;
-	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * diffX + player->getEyes().posX;
-	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * diffX + player->getEyes().posZ;
+	float blockZ = player->getEyes().posZ - roundf(player->getEyes().posZ);
+	float realZ = (diffZ - 0.49f - blockZ) / sinf((-player->getEyes().rotY + 90) / 180 * M_PI);
+	float diffY = -tanf(player->getEyes().rotX / 180 * M_PI) * realZ;
+	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * realZ + player->getEyes().posX;
+	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * realZ + player->getEyes().posZ;
 
-	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY + diffY + 1, roundf(rayZSteve));
+	return chunk.getBlock(roundf(rayXSteve), roundf(player->getEyes().posY + diffY), roundf(rayZSteve));
+}
+
+Block* lookAtLeftSide(GLfloat diffX)
+{
+	float blockX = player->getEyes().posX - roundf(player->getEyes().posX);
+	float realX = (diffX - 0.49f - blockX) / cosf((-player->getEyes().rotY + 90) / 180 * M_PI);
+	float diffY = -tanf(player->getEyes().rotX / 180 * M_PI) * realX;
+	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * realX + player->getEyes().posX;
+	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * realX + player->getEyes().posZ;
+
+	return chunk.getBlock(roundf(rayXSteve), roundf(player->getEyes().posY + diffY), roundf(rayZSteve));
 }
 
 void display()
@@ -106,15 +118,51 @@ void display()
 
 	chunk.update();
 
-	Block* b =  f(1);
+	/*Block* b = lookAtFrontSide(1);
 	if (b == nullptr || b->isTransparent)
-		b = f(0);
+		b = lookAtFrontSide(2);*/
 
-	//Block* b = fSide(5);
+	int iT = 0;
+	Block* b = nullptr;
+	while (iT > -8 && (b == nullptr || b->isTransparent))
+	{
+		b = lookAtTop(iT);
+		iT--;
+	}
+
+	int iF = 1;
+	Block* bF = nullptr;
+	while (iF <= 8 && (bF == nullptr || bF->isTransparent))
+	{
+		bF = lookAtFrontSide(iF);
+		if (bF != nullptr && !bF->isTransparent)
+		{
+			if (b != nullptr && bF->x >= b->x)
+				break;
+			b = bF;
+		}
+		iF++;
+	}
+
+	int iL = 1;
+	Block* bL = nullptr;
+	while (iL <= 8 && (bL == nullptr || bL->isTransparent))
+	{
+		bL = lookAtLeftSide(iL);
+		if (bL != nullptr && !bL->isTransparent)
+		{
+			if (b != nullptr && bL->x >= b->x)
+				break;
+			b = bL;
+		}
+		iL++;
+	}
+
+	cout << "Checked " << (-iT) << " tops, " << iL-1 << " lefts and " << iF-1 << " fronts" << endl;
 
 	if (pb != nullptr)
 		pb->mark = false;
-	if (b != nullptr)
+	if (b != nullptr && !b->isTransparent)
 		b->mark = true;
 	pb = b;
 
