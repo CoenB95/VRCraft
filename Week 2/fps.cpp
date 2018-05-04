@@ -139,6 +139,10 @@ void mousePassiveMotion(int x, int y)
 	{
 		player->getEyes().rotY += dx * 0.3f;
 		player->getEyes().rotX += dy * 0.3f;
+		if (player->getEyes().rotX < -90)
+			player->getEyes().rotX = -90;
+		else if (player->getEyes().rotX > 90)
+			player->getEyes().rotX = 90;
 	}
 	if (!justMovedMouse)
 	{
