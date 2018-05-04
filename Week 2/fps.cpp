@@ -323,9 +323,9 @@ int main(int argc, char* argv[])
 		}
 
 		cout << "  Found space!" << endl;
-		camera.posX = spawnBlock->x * chunk.blockSize;
-		camera.posY = spawnBlock->y * chunk.blockSize + 5 * chunk.blockSize;
-		camera.posZ = spawnBlock->z * chunk.blockSize;
+		camera.posX = spawnBlock->x;
+		camera.posY = spawnBlock->y + player->getMobHeight() + 0.5f;
+		camera.posZ = spawnBlock->z;
 		break;
 	}
 

@@ -16,7 +16,6 @@ private:
 	bool blocksChanged = true;
 public:
 	int width, height, depth;
-	float blockSize = 1.0f;
 
 	Chunk(int width, int height, int depth);
 

@@ -35,19 +35,19 @@ Camera& Mob::getEyes()
 // 0 degrees = North, towards positive Z
 void Mob::move(float angleDeg, float factor, float elapsedTime)
 {
-	float chunkX = roundf(eyes.posX / world.blockSize);
-	float chunkZ = roundf(eyes.posZ / world.blockSize);
-	float blockX = eyes.posX - chunkX * world.blockSize;
-	float blockZ = eyes.posZ - chunkZ * world.blockSize;
+	float chunkX = roundf(eyes.posX);
+	float chunkZ = roundf(eyes.posZ);
+	float blockX = eyes.posX - chunkX;
+	float blockZ = eyes.posZ - chunkZ;
 	float deltaX = (float)cos((-90 + eyes.rotY + angleDeg) / 360 * M_PI * 2) * factor;
 	float deltaZ = (float)sin((90 + eyes.rotY + angleDeg) / 360 * M_PI * 2) * factor;
-	blockX += deltaX / world.blockSize;
-	blockZ += deltaZ / world.blockSize;
+	blockX += deltaX;
+	blockZ += deltaZ;
 
 	Block* curFloor = world.getBlock(
-		roundf(eyes.posX / world.blockSize),
-		roundf(eyes.posY - mobBlockHeight * world.blockSize) / world.blockSize - 1,
-		roundf(eyes.posZ / world.blockSize));
+		chunkX,
+		roundf(eyes.posY - mobBlockHeight) - 1,
+		chunkZ);
 
 	if (curFloor == nullptr)
 	{
@@ -87,16 +87,16 @@ void Mob::move(float angleDeg, float factor, float elapsedTime)
 			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.back; }) && blockZ > d) blockZ = d;
 		}
 	}
-	eyes.posX = (chunkX + blockX) * world.blockSize;
-	eyes.posZ = (chunkZ + blockZ) * world.blockSize;
+	eyes.posX = (chunkX + blockX);
+	eyes.posZ = (chunkZ + blockZ);
 }
 
 void Mob::update(float elapsedTime)
 {
 	Block* curFloor = world.getBlock(
-		roundf(eyes.posX / world.blockSize),
-		roundf(eyes.posY - mobBlockHeight * world.blockSize) / world.blockSize - 1,
-		roundf(eyes.posZ / world.blockSize));
+		roundf(eyes.posX),
+		roundf(eyes.posY - mobBlockHeight) - 1,
+		roundf(eyes.posZ));
 
 	if (lastFloor != nullptr)
 		lastFloor->mark = false;
@@ -110,10 +110,10 @@ void Mob::update(float elapsedTime)
 	eyes.posY += eyes.speedY * elapsedTime;
 
 	floored = curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
-		eyes.posY - mobBlockHeight * world.blockSize < curFloor->y + 0.5f;
+		eyes.posY - mobBlockHeight < curFloor->y + 0.5f;
 	if (floored)
 	{
-		eyes.posY = (curFloor->y + 0.5f + mobBlockHeight) * world.blockSize;
+		eyes.posY = (curFloor->y + 0.5f + mobBlockHeight);
 		eyes.speedY = 0;
 	}
 }
