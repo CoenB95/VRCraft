@@ -10,7 +10,7 @@ private:
 	Camera eyes;
 	bool floored = false;
 	Block* lastFloor;
-	GLfloat mobBlockHeight = 1.0f;
+	GLfloat mobBlockHeight = 1.5f;
 	GLfloat mobDiameter = 0.25f;
 	// TODO: replace with 'World' (multiple chunks)
 	Chunk& world;

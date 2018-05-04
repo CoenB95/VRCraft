@@ -81,7 +81,7 @@ Block* lookAtTop(GLfloat diffY)
 	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posX;
 	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posZ;
 
-	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY + diffY - 1, roundf(rayZSteve));
+	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY - player->getMobHeight() + diffY, roundf(rayZSteve));
 }
 
 Block* lookAtFrontSide(GLfloat diffZ)
