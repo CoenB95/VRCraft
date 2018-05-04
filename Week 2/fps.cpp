@@ -75,8 +75,8 @@ void drawCube()
 Block* f(int levelDiff)
 {
 	float r1 = (0.5f + player->getMobHeight() - levelDiff) / tanf(player->getEyes().rotX / 180 * M_PI);
-	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1;
-	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1;
+	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posX;
+	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posZ;
 
 	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY + levelDiff - 1, roundf(rayZSteve));
 }
