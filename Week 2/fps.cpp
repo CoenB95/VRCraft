@@ -73,44 +73,6 @@ void drawCube()
 	glEnd();
 }
 
-Block* lookAtTop(GLfloat diffY)
-{
-	/*if (player->getEyes().rotX <= 0)
-		return nullptr;
-
-	float r1 = (player->getMobHeight() - diffY) / tanf(player->getEyes().rotX / 180 * M_PI);
-	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posX;
-	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posZ;
-
-	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY - player->getMobHeight() + diffY, roundf(rayZSteve));*/
-	RayCast rayCast(player, chunk);
-	return rayCast.checkTopBottom(diffY);
-}
-
-Block* lookAtFrontSide(GLfloat diffZ)
-{
-	/*float blockZ = player->getEyes().posZ - roundf(player->getEyes().posZ);
-	float realZ = (diffZ - 0.49f - blockZ) / sinf((-player->getEyes().rotY + 90) / 180 * M_PI);
-	float diffY = -tanf(player->getEyes().rotX / 180 * M_PI) * realZ;
-	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * realZ + player->getEyes().posX;
-	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * realZ + player->getEyes().posZ;
-
-	return chunk.getBlock(roundf(rayXSteve), roundf(player->getEyes().posY + diffY), roundf(rayZSteve));*/
-	RayCast rayCast(player, chunk);
-	return rayCast.checkFrontBack(diffZ);
-}
-
-/*Block* lookAtLeftSide(GLfloat diffX)
-{
-	float blockX = player->getEyes().posX - roundf(player->getEyes().posX);
-	float realX = (diffX - 0.49f - blockX) / cosf((-player->getEyes().rotY + 90) / 180 * M_PI);
-	float diffY = -tanf(player->getEyes().rotX / 180 * M_PI) * realX;
-	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * realX + player->getEyes().posX;
-	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * realX + player->getEyes().posZ;
-
-	return chunk.getBlock(roundf(rayXSteve), roundf(player->getEyes().posY + diffY), roundf(rayZSteve));
-}*/
-
 void display()
 {
 	glClearColor(0.6f, 0.6f, 1, 1);
@@ -126,81 +88,50 @@ void display()
 
 	chunk.update();
 
-	/*Block* b = lookAtFrontSide(1);
-	if (b == nullptr || b->isTransparent)
-		b = lookAtFrontSide(2);*/
+	RayCast rayCast(player, chunk);
 	string itsa = "top";
 
-	int iT = -1;
+	int iT = 1;
 	Block* b = nullptr;
-	while (iT >= -8 && (b == nullptr || b->isTransparent))
+	while (iT <= 8 && (b == nullptr || b->isTransparent))
 	{
-		b = lookAtTop(iT);
-		iT--;
+		b = rayCast.checkTopBottom(iT);
+		iT++;
 	}
-
-	/*int iBo = 1;
-	Block* bBo = nullptr;
-	while (iBo <= 8 && (bBo == nullptr || bBo->isTransparent))
-	{
-		bBo = lookAtTop(iBo);
-		if (bBo != nullptr && !bBo->isTransparent)
-		{
-			if (b != nullptr && bBo->y > b->y)
-				break;
-			b = bBo;
-			itsa = "bottom";
-		}
-		iBo++;
-	}*/
 
 	int iF = 1;
 	Block* bF = nullptr;
 	while (iF <= 8 && (bF == nullptr || bF->isTransparent))
 	{
-		bF = lookAtFrontSide(iF);
+		bF = rayCast.checkFrontBack(iF);
 		if (bF != nullptr && !bF->isTransparent)
 		{
 			if (b != nullptr && player->getEyePos().distanceSquared(bF->pos) > 
 				player->getEyePos().distanceSquared(b->pos))
 				break;
 			b = bF;
-			itsa = "front";
+			itsa = rayCast.checkAngleInsideRange(player->getCamera().rotY, 270, 90) ? "front" : "back";
 		}
 		iF++;
 	}
 
-	/*int iBa = -1;
-	Block* bBa = nullptr;
-	while (iBa >= -8 && (bBa == nullptr || bBa->isTransparent))
-	{
-		bBa = lookAtFrontSide(iBa);
-		if (bBa != nullptr && !bBa->isTransparent)
-		{
-			if (b != nullptr && bBa->z > b->z)
-				break;
-			b = bBa;
-			itsa = "back";
-		}
-		iBa--;
-	}*/
-
-	/*int iL = 1;
+	int iL = 1;
 	Block* bL = nullptr;
 	while (iL <= 8 && (bL == nullptr || bL->isTransparent))
 	{
-		bL = lookAtLeftSide(iL);
+		bL = rayCast.checkLeftRight(iL);
 		if (bL != nullptr && !bL->isTransparent)
 		{
-			if (b != nullptr && bL->x > b->x)
+			if (b != nullptr && player->getEyePos().distanceSquared(bL->pos) >
+				player->getEyePos().distanceSquared(b->pos))
 				break;
 			b = bL;
 			itsa = "left";
 		}
 		iL++;
-	}*/
+	}
 
-	cout << "It's a " << itsa << endl;
+	cout << "It's a " << itsa << ", angle: " << player->getCamera().rotY << " deg" << endl;
 
 	if (pb != nullptr)
 		pb->mark = false;
