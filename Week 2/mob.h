@@ -3,6 +3,7 @@
 
 #include "camera.h"
 #include "chunk.h"
+#include "vec.h"
 
 class Mob
 {
@@ -17,8 +18,12 @@ private:
 
 	bool checkCollision(vector<Block::BlockContext> collisionBoxes, Block*(*f)(Block::BlockContext b));
 public:
+	float const accelY = 25.0f;
+	float speedY = 0;
+
 	Mob(Chunk& world);
-	Camera& getEyes();
+	Camera& getCamera();
+	Vec3f getEyePos();
 	GLfloat getMobHeight() const { return mobBlockHeight; }
 	bool isFloored() { return floored; };
 	void move(float angleDeg, float factor, float elapsedTime);

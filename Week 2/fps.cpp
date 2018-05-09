@@ -100,7 +100,7 @@ Block* lookAtFrontSide(GLfloat diffZ)
 	return rayCast.checkFrontBack(diffZ);
 }
 
-Block* lookAtLeftSide(GLfloat diffX)
+/*Block* lookAtLeftSide(GLfloat diffX)
 {
 	float blockX = player->getEyes().posX - roundf(player->getEyes().posX);
 	float realX = (diffX - 0.49f - blockX) / cosf((-player->getEyes().rotY + 90) / 180 * M_PI);
@@ -109,7 +109,7 @@ Block* lookAtLeftSide(GLfloat diffX)
 	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * realX + player->getEyes().posZ;
 
 	return chunk.getBlock(roundf(rayXSteve), roundf(player->getEyes().posY + diffY), roundf(rayZSteve));
-}
+}*/
 
 void display()
 {
@@ -122,7 +122,7 @@ void display()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	player->getEyes().applyTransform();
+	player->getCamera().applyTransform();
 
 	chunk.update();
 
@@ -184,7 +184,7 @@ void display()
 		iBa--;
 	}*/
 
-	int iL = 1;
+	/*int iL = 1;
 	Block* bL = nullptr;
 	while (iL <= 8 && (bL == nullptr || bL->isTransparent))
 	{
@@ -197,7 +197,7 @@ void display()
 			itsa = "left";
 		}
 		iL++;
-	}
+	}*/
 
 	cout << "It's a " << itsa << endl;
 
@@ -224,7 +224,7 @@ void idle()
 	if (keys['d']) player->move(90, deltaTime*speed, deltaTime);
 	if (keys['w']) player->move(0, deltaTime*speed, deltaTime);
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
-	if (keys[' '] && player->isFloored()) player->getEyes().speedY = 8.0f;
+	if (keys[' '] && player->isFloored()) player->speedY = 8.0f;
 
 	player->update(deltaTime);
 
@@ -238,12 +238,12 @@ void mousePassiveMotion(int x, int y)
 	int dy = y - height / 2;
 	if ((dx != 0 || dy != 0) && abs(dx) < 400 && abs(dy) < 400 && !justMovedMouse)
 	{
-		player->getEyes().rotY += dx * 0.3f;
-		player->getEyes().rotX += dy * 0.3f;
-		if (player->getEyes().rotX < -90)
-			player->getEyes().rotX = -90;
-		else if (player->getEyes().rotX > 90)
-			player->getEyes().rotX = 90;
+		player->getCamera().rotY += dx * 0.3f;
+		player->getCamera().rotX += dy * 0.3f;
+		if (player->getCamera().rotX < -90)
+			player->getCamera().rotX = -90;
+		else if (player->getCamera().rotX > 90)
+			player->getCamera().rotX = 90;
 	}
 	if (!justMovedMouse)
 	{
@@ -324,10 +324,10 @@ int main(int argc, char* argv[])
 	cout << "Loading textures done" << endl;
 
 	cout << "Spawning Steve..." << endl;
-	Camera& camera = player->getEyes();
-	camera.posX = 0.0f;
-	camera.posY = 0.5f;
-	camera.posZ = 0.0f;
+	Camera& camera = player->getCamera();
+	camera.pos.x = 0.0f;
+	camera.pos.y = 0.5f;
+	camera.pos.z = 0.0f;
 	Block* spawnBlock;
 	Block* firstBlock = chunk.getBlock(0);
 	Block* secondBlock;
@@ -361,9 +361,9 @@ int main(int argc, char* argv[])
 		}
 
 		cout << "  Found space!" << endl;
-		camera.posX = spawnBlock->x;
-		camera.posY = spawnBlock->y + player->getMobHeight() + 0.5f;
-		camera.posZ = spawnBlock->z;
+		camera.pos.x = spawnBlock->x;
+		camera.pos.y = spawnBlock->y + player->getMobHeight() + 0.5f;
+		camera.pos.z = spawnBlock->z;
 		break;
 	}
 
