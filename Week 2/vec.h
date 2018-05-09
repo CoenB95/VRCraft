@@ -16,4 +16,5 @@ public:
 	Vec3f(float x, float y, float z);
 	float& operator [](int);
 	float distanceSquared(Vec3f& other);
+	void set(float x, float y, float z);
 };

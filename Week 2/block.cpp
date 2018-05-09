@@ -47,10 +47,9 @@ Block::Block(float w, float h, float d, BlockSide* top, BlockSide* front, BlockS
 	rightSide(right),
 	backSide(back),
 	leftSide(left),
-	bottomSide(bottom)
+	bottomSide(bottom),
+	pos(0, 0, 0)
 {
-	this->x = 0;
-	this->y = 0;
 	this->hw = w / 2;
 	this->hh = h / 2;
 	this->hd = d / 2;
@@ -58,7 +57,7 @@ Block::Block(float w, float h, float d, BlockSide* top, BlockSide* front, BlockS
 
 void Block::draw()
 {
-	glTranslatef((float)x, 0.0f, (float)y);
+	glTranslatef((float)pos.x, 0.0f, (float)pos.y);
 
 	glBegin(GL_TRIANGLES);
 	drawRaw();
@@ -70,9 +69,9 @@ void Block::drawRaw()
 	if (isTransparent && !mark)
 		return;
 
-	GLfloat x = this->x * this->hw * 2;
-	GLfloat y = this->y * this->hh * 2;
-	GLfloat z = this->z * this->hd * 2;
+	GLfloat x = this->pos.x * this->hw * 2;
+	GLfloat y = this->pos.y * this->hh * 2;
+	GLfloat z = this->pos.z * this->hd * 2;
 
 	if (frontSide->shouldRender)
 	{
@@ -149,20 +148,13 @@ void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat
 string Block::getPositionString() const
 {
 	stringstream ss;
-	ss << "x=" << x << ", y=" << y << ", z=" << z;
+	ss << "x=" << pos.x << ", y=" << pos.y << ", z=" << pos.z;
 	return ss.str();
 }
 
 Block* Block::randomTick(Block::BlockContext& adjacentBlocks)
 {
 	return nullptr;
-}
-
-void Block::setPosition(int x, int y, int z)
-{
-	this->x = x;
-	this->y = y;
-	this->z = z;
 }
 
 string Block::toString() const

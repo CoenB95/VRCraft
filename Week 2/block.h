@@ -5,6 +5,7 @@
 #include <string>
 
 #include "color.h"
+#include "vec.h"
 
 using namespace std;
 
@@ -64,7 +65,7 @@ public:
 	BlockSide* rightSide;
 	BlockSide* topSide;
 
-	int x, y, z;
+	Vec3f pos;
 	bool isTransparent = false;
 	bool mark = false;
 
@@ -81,7 +82,6 @@ public:
 	virtual Block* randomTick(Block::BlockContext& adjacentBlocks);
 	void setColor(Color4f color);
 	void setColors(Color4f front, Color4f top, Color4f right, Color4f back, Color4f bottom, Color4f left);
-	void setPosition(int x, int y, int z);
 	virtual string toString() const;
 };
 

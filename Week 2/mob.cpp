@@ -115,10 +115,10 @@ void Mob::update(float elapsedTime)
 	eyes.pos.y += speedY * elapsedTime;
 
 	floored = curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
-		eyes.pos.y - mobBlockHeight < curFloor->y + 0.5f;
+		eyes.pos.y - mobBlockHeight < curFloor->pos.y + 0.5f;
 	if (floored)
 	{
-		eyes.pos.y = (curFloor->y + 0.5f + mobBlockHeight);
+		eyes.pos.y = (curFloor->pos.y + 0.5f + mobBlockHeight);
 		speedY = 0;
 	}
 }

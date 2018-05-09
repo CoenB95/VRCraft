@@ -161,7 +161,8 @@ void display()
 		bF = lookAtFrontSide(iF);
 		if (bF != nullptr && !bF->isTransparent)
 		{
-			if (b != nullptr && bF->z > b->z)
+			if (b != nullptr && player->getEyePos().distanceSquared(bF->pos) > 
+				player->getEyePos().distanceSquared(b->pos))
 				break;
 			b = bF;
 			itsa = "front";
@@ -361,9 +362,9 @@ int main(int argc, char* argv[])
 		}
 
 		cout << "  Found space!" << endl;
-		camera.pos.x = spawnBlock->x;
-		camera.pos.y = spawnBlock->y + player->getMobHeight() + 0.5f;
-		camera.pos.z = spawnBlock->z;
+		camera.pos.x = spawnBlock->pos.x;
+		camera.pos.y = spawnBlock->pos.y + player->getMobHeight() + 0.5f;
+		camera.pos.z = spawnBlock->pos.z;
 		break;
 	}
 
