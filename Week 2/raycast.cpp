@@ -2,6 +2,8 @@
 #define _USE_MATH_DEFINES
 #endif // !_USE_MATH_DEFINES
 
+#define M_PI_F (float)M_PI
+
 #include <cmath>
 #include <iostream>
 
@@ -37,12 +39,12 @@ Block* RayCast::checkFrontBack(int diffZ)
 	if (!forwards) blockZ *= -1;
 
 	// Calculate the distace to a plane perpendicular to the z-axis using the horizontal rotation.
-	float distance = abs(((float)diffZ - 0.49f - blockZ) / sinf((-cam.rotY + 90.0f) / 180.0f * M_PI));
+	float distance = abs(((float)diffZ - 0.49f - blockZ) / sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F));
 
 	// Resolve the hit block's coordinates.
-	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI);
-	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI);
-	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI);
+	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
+	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F);
+	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
 
 	return world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ));
 }
@@ -57,12 +59,12 @@ Block* RayCast::checkLeftRight(int diffX)
 	if (!right) blockX *= -1;
 
 	// Calculate the distace to a plane perpendicular to the x-axis using the horizontal rotation.
-	float distance = abs(((float)diffX - 0.49f - blockX) / cosf((-cam.rotY + 90.0f) / 180.0f * M_PI));
+	float distance = abs(((float)diffX - 0.49f - blockX) / cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F));
 
 	// Resolve the hit block's coordinates.
-	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI);
-	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI);
-	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI);
+	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
+	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F);
+	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
 
 	return world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ));
 }
@@ -76,12 +78,12 @@ Block* RayCast::checkTopBottom(int diffY)
 	float blockY = cam.pos.y - roundf(cam.pos.y);
 
 	// Calculate the distace to a plane perpendicular to the y-axis using the vertical rotation.
-	float distance = abs(((float)diffY + offset - blockY) / tanf((-cam.rotX + 00.0f) / 180.0f * M_PI));
+	float distance = abs(((float)diffY + offset - blockY) / tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F));
 
 	// Resolve the hit block's coordinates.
-	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI);
-	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI);
-	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI);
+	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
+	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F);
+	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
 
 	return world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ));
 }

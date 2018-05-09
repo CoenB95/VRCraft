@@ -61,7 +61,7 @@ void Chunk::drawRaw()
 	}
 }
 
-Block::BlockContext& Chunk::getAdjacentBlocks(Block* base)
+Block::BlockContext Chunk::getAdjacentBlocks(Block* base)
 {
 	int i = getBlockIndex(base);
 	Block::BlockContext context = Block::BlockContext(
@@ -83,6 +83,11 @@ Block* Chunk::getBlock(int index)
 	return blocks[index];
 }
 
+Block* Chunk::getBlock(float x, float y, float z)
+{
+	return getBlock((int)x, (int)y, (int)z);
+}
+
 Block* Chunk::getBlock(int x, int y, int z)
 {
 	Block** ptr = getBlockPtr(x, y, z);
@@ -91,7 +96,7 @@ Block* Chunk::getBlock(int x, int y, int z)
 
 int Chunk::getBlockIndex(Block* block)
 {
-	return getBlockIndex(block->pos.x, block->pos.y, block->pos.z);
+	return getBlockIndex((int)block->pos.x, (int)block->pos.y, (int)block->pos.z);
 }
 
 int Chunk::getBlockIndex(int x, int y, int z)
@@ -131,7 +136,7 @@ void Chunk::update()
 		blocksChanged = false;
 		for (int i = 0; i < newBlocks.size(); i++)
 		{
-			Block** block = getBlockPtr(newBlocks[i]->pos.x, newBlocks[i]->pos.y, newBlocks[i]->pos.z);
+			Block** block = getBlockPtr((int)newBlocks[i]->pos.x, (int)newBlocks[i]->pos.y, (int)newBlocks[i]->pos.z);
 			delete *block;
 			*block = newBlocks[i];
 		}

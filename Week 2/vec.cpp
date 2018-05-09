@@ -31,6 +31,11 @@ float Vec3f::distanceSquared(Vec3f &other)
 	return SQ(other.x - this->x) + SQ(other.z - this->z);
 }
 
+void Vec3f::set(int x, int y, int z)
+{
+	set((float)x, (float)y, (float)z);
+}
+
 void Vec3f::set(float x, float y, float z)
 {
 	this->x = x;
