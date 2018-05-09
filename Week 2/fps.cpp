@@ -89,53 +89,11 @@ void display()
 	chunk.update();
 
 	RayCast rayCast(player, chunk);
-	string itsa = "top";
-
-	int iT = 1;
-	Block* b = nullptr;
-	while (iT <= 8 && (b == nullptr || b->isTransparent))
-	{
-		b = rayCast.checkTopBottom(iT);
-		iT++;
-	}
-
-	int iF = 1;
-	Block* bF = nullptr;
-	while (iF <= 8 && (bF == nullptr || bF->isTransparent))
-	{
-		bF = rayCast.checkFrontBack(iF);
-		if (bF != nullptr && !bF->isTransparent)
-		{
-			if (b != nullptr && player->getEyePos().distanceSquared(bF->pos) > 
-				player->getEyePos().distanceSquared(b->pos))
-				break;
-			b = bF;
-			itsa = rayCast.checkAngleInsideRange(player->getCamera().rotY, 270, 90) ? "front" : "back";
-		}
-		iF++;
-	}
-
-	int iL = 1;
-	Block* bL = nullptr;
-	while (iL <= 8 && (bL == nullptr || bL->isTransparent))
-	{
-		bL = rayCast.checkLeftRight(iL);
-		if (bL != nullptr && !bL->isTransparent)
-		{
-			if (b != nullptr && player->getEyePos().distanceSquared(bL->pos) >
-				player->getEyePos().distanceSquared(b->pos))
-				break;
-			b = bL;
-			itsa = "left";
-		}
-		iL++;
-	}
-
-	cout << "It's a " << itsa << ", angle: " << player->getCamera().rotY << " deg" << endl;
+	Block* b = rayCast.pickBlock();
 
 	if (pb != nullptr)
 		pb->mark = false;
-	if (b != nullptr)// && !b->isTransparent)
+	if (b != nullptr && !b->isTransparent)
 		b->mark = true;
 	pb = b;
 

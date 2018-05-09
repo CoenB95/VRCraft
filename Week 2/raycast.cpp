@@ -85,3 +85,55 @@ Block* RayCast::checkTopBottom(int diffY)
 
 	return world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ));
 }
+
+Block* RayCast::pickBlock()
+{
+	Block* b = nullptr;
+
+	int iT = 1;
+	Block* bT = nullptr;
+	while (iT <= 8 && (bT == nullptr || bT->isTransparent))
+	{
+		bT = checkTopBottom(iT);
+		if (bT != nullptr && !bT->isTransparent)
+		{
+			if (b != nullptr && player->getEyePos().distanceSquared(bT->pos) >
+				player->getEyePos().distanceSquared(b->pos))
+				break;
+			b = bT;
+		}
+		iT++;
+	}
+
+	int iF = 1;
+	Block* bF = nullptr;
+	while (iF <= 8 && (bF == nullptr || bF->isTransparent))
+	{
+		bF = checkFrontBack(iF);
+		if (bF != nullptr && !bF->isTransparent)
+		{
+			if (b != nullptr && player->getEyePos().distanceSquared(bF->pos) >
+				player->getEyePos().distanceSquared(b->pos))
+				break;
+			b = bF;
+		}
+		iF++;
+	}
+
+	int iL = 1;
+	Block* bL = nullptr;
+	while (iL <= 8 && (bL == nullptr || bL->isTransparent))
+	{
+		bL = checkLeftRight(iL);
+		if (bL != nullptr && !bL->isTransparent)
+		{
+			if (b != nullptr && player->getEyePos().distanceSquared(bL->pos) >
+				player->getEyePos().distanceSquared(b->pos))
+				break;
+			b = bL;
+		}
+		iL++;
+	}
+
+	return b;
+}
