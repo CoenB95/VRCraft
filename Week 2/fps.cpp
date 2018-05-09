@@ -16,6 +16,7 @@
 #include "camera.h"
 #include "chunk.h"
 #include "mob.h"
+#include "raycast.h"
 #include "stb_image.h"
 
 float lastFrameTime = 0;
@@ -74,25 +75,29 @@ void drawCube()
 
 Block* lookAtTop(GLfloat diffY)
 {
-	if (player->getEyes().rotX <= 0)
+	/*if (player->getEyes().rotX <= 0)
 		return nullptr;
 
 	float r1 = (player->getMobHeight() - diffY) / tanf(player->getEyes().rotX / 180 * M_PI);
 	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posX;
 	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * r1 + player->getEyes().posZ;
 
-	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY - player->getMobHeight() + diffY, roundf(rayZSteve));
+	return chunk.getBlock(roundf(rayXSteve), player->getEyes().posY - player->getMobHeight() + diffY, roundf(rayZSteve));*/
+	RayCast rayCast(player, chunk);
+	return rayCast.checkTopBottom(diffY);
 }
 
 Block* lookAtFrontSide(GLfloat diffZ)
 {
-	float blockZ = player->getEyes().posZ - roundf(player->getEyes().posZ);
+	/*float blockZ = player->getEyes().posZ - roundf(player->getEyes().posZ);
 	float realZ = (diffZ - 0.49f - blockZ) / sinf((-player->getEyes().rotY + 90) / 180 * M_PI);
 	float diffY = -tanf(player->getEyes().rotX / 180 * M_PI) * realZ;
 	float rayXSteve = cosf((-player->getEyes().rotY + 90) / 180 * M_PI) * realZ + player->getEyes().posX;
 	float rayZSteve = sinf((-player->getEyes().rotY + 90) / 180 * M_PI) * realZ + player->getEyes().posZ;
 
-	return chunk.getBlock(roundf(rayXSteve), roundf(player->getEyes().posY + diffY), roundf(rayZSteve));
+	return chunk.getBlock(roundf(rayXSteve), roundf(player->getEyes().posY + diffY), roundf(rayZSteve));*/
+	RayCast rayCast(player, chunk);
+	return rayCast.checkFrontBack(diffZ);
 }
 
 Block* lookAtLeftSide(GLfloat diffX)
@@ -124,14 +129,30 @@ void display()
 	/*Block* b = lookAtFrontSide(1);
 	if (b == nullptr || b->isTransparent)
 		b = lookAtFrontSide(2);*/
+	string itsa = "top";
 
-	int iT = 0;
+	int iT = -1;
 	Block* b = nullptr;
-	while (iT > -8 && (b == nullptr || b->isTransparent))
+	while (iT >= -8 && (b == nullptr || b->isTransparent))
 	{
 		b = lookAtTop(iT);
 		iT--;
 	}
+
+	/*int iBo = 1;
+	Block* bBo = nullptr;
+	while (iBo <= 8 && (bBo == nullptr || bBo->isTransparent))
+	{
+		bBo = lookAtTop(iBo);
+		if (bBo != nullptr && !bBo->isTransparent)
+		{
+			if (b != nullptr && bBo->y > b->y)
+				break;
+			b = bBo;
+			itsa = "bottom";
+		}
+		iBo++;
+	}*/
 
 	int iF = 1;
 	Block* bF = nullptr;
@@ -143,9 +164,25 @@ void display()
 			if (b != nullptr && bF->z > b->z)
 				break;
 			b = bF;
+			itsa = "front";
 		}
 		iF++;
 	}
+
+	/*int iBa = -1;
+	Block* bBa = nullptr;
+	while (iBa >= -8 && (bBa == nullptr || bBa->isTransparent))
+	{
+		bBa = lookAtFrontSide(iBa);
+		if (bBa != nullptr && !bBa->isTransparent)
+		{
+			if (b != nullptr && bBa->z > b->z)
+				break;
+			b = bBa;
+			itsa = "back";
+		}
+		iBa--;
+	}*/
 
 	int iL = 1;
 	Block* bL = nullptr;
@@ -157,15 +194,16 @@ void display()
 			if (b != nullptr && bL->x > b->x)
 				break;
 			b = bL;
+			itsa = "left";
 		}
 		iL++;
 	}
 
-	cout << "Checked " << (-iT) << " tops, " << iL-1 << " lefts and " << iF-1 << " fronts" << endl;
+	cout << "It's a " << itsa << endl;
 
 	if (pb != nullptr)
 		pb->mark = false;
-	if (b != nullptr && !b->isTransparent)
+	if (b != nullptr)// && !b->isTransparent)
 		b->mark = true;
 	pb = b;
 

@@ -26,6 +26,7 @@
     <ClCompile Include="color.cpp" />
     <ClCompile Include="fps.cpp" />
     <ClCompile Include="mob.cpp" />
+    <ClCompile Include="raycast.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="block.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="chunk.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="raycast.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="mob.h" />
     <ClInclude Include="stb_perlin.h" />
