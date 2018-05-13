@@ -6,7 +6,8 @@
 
 #include <windows.h>
 #include <gl/GL.h>
-#include "Vec.h"
+#include "vec.h"
+
 class Texture
 {
 private:

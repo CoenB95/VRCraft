@@ -1,8 +1,5 @@
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#endif
 
-#include "ObjModel.h"
+#include "model.h"
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -210,7 +207,7 @@ void ObjModel::draw()
 				if (vertex.texcoord >= 0)
 					glTexCoord2f(texcoords[vertex.texcoord].x, 1 - texcoords[vertex.texcoord].y);
 
-				glVertex3fv(vertices[vertex.position].v);
+				glVertex3fv(vertices[vertex.position].values);
 			}
 		}
 		glEnd();

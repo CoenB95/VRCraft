@@ -27,8 +27,8 @@
     <ClCompile Include="fps.cpp" />
     <ClCompile Include="mob.cpp" />
     <ClCompile Include="raycast.cpp" />
-    <ClCompile Include="objectModels\ObjModel.cpp" />
-    <ClCompile Include="objectModels\Vec.cpp" />
+    <ClCompile Include="model.cpp" />
+    <ClCompile Include="vec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="block.h" />
@@ -36,12 +36,12 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="chunk.h" />
     <ClInclude Include="color.h" />
-    <ClInclude Include="vec.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="raycast.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="mob.h" />
-    <ClInclude Include="objectModels\ObjModel.h" />
-    <ClInclude Include="objectModels\Vec.h" />
+    <ClInclude Include="model.h" />
+    <ClInclude Include="vec.h" />
     <ClInclude Include="stb_perlin.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
