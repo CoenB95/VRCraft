@@ -184,12 +184,6 @@ ObjModel::~ObjModel(void)
 
 void ObjModel::draw()
 {
-	//foreach group in groups
-	//  set material texture, if available
-	//  set material color, if available
-	//  foreach face in group
-	//    foreach vertex in face
-	//      emit vertex
 	for (ObjModel::ObjGroup* group : groups)
 	{
 		if (group->materialIndex < 0)
