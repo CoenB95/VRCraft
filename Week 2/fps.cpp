@@ -156,7 +156,14 @@ void keyboard(unsigned char key, int, int)
 {
 	if (key == 27)
 		exit(0);
+
 	keys[key] = true;
+}
+
+void keyboardSpecial(int keyCode, int, int)
+{
+	if (keyCode == GLUT_KEY_F5)
+		player->getCamera().toggleType();
 }
 
 void keyboardUp(unsigned char key, int,int)
@@ -173,12 +180,14 @@ int main(int argc, char* argv[])
 
 	memset(keys, 0, sizeof(keys));
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
 	glutIdleFunc(idle);
 	glutDisplayFunc(display);
 	glutReshapeFunc([](int w, int h) { width = w; height = h; glViewport(0, 0, w, h); });
 	glutKeyboardFunc(keyboard);
 	glutKeyboardUpFunc(keyboardUp);
+	glutSpecialFunc(keyboardSpecial);
 	glutPassiveMotionFunc(mousePassiveMotion);
 
 	glutWarpPointer(width / 2, height / 2);
