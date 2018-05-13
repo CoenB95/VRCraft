@@ -39,7 +39,10 @@
     <ClCompile Include="raycast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vec.cpp">
+    <ClCompile Include="objectModels\ObjModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objectModels\Vec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,7 +74,10 @@
     <ClInclude Include="raycast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vec.h">
+    <ClInclude Include="objectModels\ObjModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objectModels\Vec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
