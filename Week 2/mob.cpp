@@ -27,27 +27,32 @@ Mob::Mob(Chunk& world) : eyes(), world(world)
 	i = 0;
 }
 
-Camera& Mob::getEyes()
+Camera& Mob::getCamera()
 {
 	return eyes;
+}
+
+Vec3f Mob::getEyePos()
+{
+	return eyes.pos;
 }
 
 // 0 degrees = North, towards positive Z
 void Mob::move(float angleDeg, float factor, float elapsedTime)
 {
-	float chunkX = roundf(eyes.posX / world.blockSize);
-	float chunkZ = roundf(eyes.posZ / world.blockSize);
-	float blockX = eyes.posX - chunkX * world.blockSize;
-	float blockZ = eyes.posZ - chunkZ * world.blockSize;
+	float chunkX = roundf(eyes.pos.x);
+	float chunkZ = roundf(eyes.pos.z);
+	float blockX = eyes.pos.x - chunkX;
+	float blockZ = eyes.pos.z - chunkZ;
 	float deltaX = (float)cos((-90 + eyes.rotY + angleDeg) / 360 * M_PI * 2) * factor;
 	float deltaZ = (float)sin((90 + eyes.rotY + angleDeg) / 360 * M_PI * 2) * factor;
-	blockX += deltaX / world.blockSize;
-	blockZ += deltaZ / world.blockSize;
+	blockX += deltaX;
+	blockZ += deltaZ;
 
 	Block* curFloor = world.getBlock(
-		roundf(eyes.posX / world.blockSize),
-		roundf(eyes.posY - mobBlockHeight * world.blockSize) / world.blockSize - 1,
-		roundf(eyes.posZ / world.blockSize));
+		chunkX,
+		roundf(eyes.pos.y - mobBlockHeight) - 1,
+		chunkZ);
 
 	if (curFloor == nullptr)
 	{
@@ -87,16 +92,16 @@ void Mob::move(float angleDeg, float factor, float elapsedTime)
 			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.back; }) && blockZ > d) blockZ = d;
 		}
 	}
-	eyes.posX = (chunkX + blockX) * world.blockSize;
-	eyes.posZ = (chunkZ + blockZ) * world.blockSize;
+	eyes.pos.x = (chunkX + blockX);
+	eyes.pos.z = (chunkZ + blockZ);
 }
 
 void Mob::update(float elapsedTime)
 {
 	Block* curFloor = world.getBlock(
-		roundf(eyes.posX / world.blockSize),
-		roundf(eyes.posY - mobBlockHeight * world.blockSize) / world.blockSize - 1,
-		roundf(eyes.posZ / world.blockSize));
+		roundf(eyes.pos.x),
+		roundf(eyes.pos.y - mobBlockHeight) - 1,
+		roundf(eyes.pos.z));
 
 	if (lastFloor != nullptr)
 		lastFloor->mark = false;
@@ -106,15 +111,15 @@ void Mob::update(float elapsedTime)
 
 	lastFloor = curFloor;
 
-	eyes.speedY -= eyes.accelY * elapsedTime;
-	eyes.posY += eyes.speedY * elapsedTime;
+	speedY -= accelY * elapsedTime;
+	eyes.pos.y += speedY * elapsedTime;
 
 	floored = curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
-		eyes.posY - mobBlockHeight * world.blockSize < curFloor->y + 0.5f;
+		eyes.pos.y - mobBlockHeight < curFloor->pos.y + 0.5f;
 	if (floored)
 	{
-		eyes.posY = (curFloor->y + 0.5f + mobBlockHeight) * world.blockSize;
-		eyes.speedY = 0;
+		eyes.pos.y = (curFloor->pos.y + 0.5f + mobBlockHeight);
+		speedY = 0;
 	}
 }
 

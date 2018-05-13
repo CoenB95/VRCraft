@@ -16,15 +16,15 @@ private:
 	bool blocksChanged = true;
 public:
 	int width, height, depth;
-	float blockSize = 1.0f;
 
 	Chunk(int width, int height, int depth);
 
 	void draw();
 	void drawRaw();
-	Block::BlockContext& getAdjacentBlocks(Block* base);
+	Block::BlockContext getAdjacentBlocks(Block* base);
 	Block* getBlock(int index);
 	Block* getBlock(int x, int y, int z);
+	Block* getBlock(float x, float y, float z);
 	int getBlockIndex(Block* block);
 	int getBlockIndex(int x, int y, int z);
 	Block** getBlockPtr(int x, int y, int z);

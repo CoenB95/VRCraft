@@ -23,7 +23,7 @@ Block* GrassBlock::randomTick(Block::BlockContext& adjacentBlocks)
 	{
 		DirtBlock* dirt = new DirtBlock();
 		dirt->isTransparent = isTransparent;
-		dirt->setPosition(x, y, z);
+		dirt->pos.set(pos.x, pos.y, pos.z);
 		return dirt;
 	}
 

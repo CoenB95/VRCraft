@@ -22,7 +22,7 @@ Chunk::Chunk(int width, int height, int depth)
 			{
 				Block* block = new GrassBlock();
 				block->isTransparent = stb_perlin_noise3((float)x / width * 2 - 1, (float)y / height * 2 - 1, (float)z / depth * 2 - 1, 0, 0, 0) < 0.0f;
-				block->setPosition(x, y, z);
+				block->pos.set(x, y, z);
 				blocks.push_back(block);
 			}
 		}
@@ -44,7 +44,7 @@ Chunk::Chunk(int width, int height, int depth)
 void Chunk::draw()
 {
 	glPushMatrix();
-	glTranslatef((float)0.0f, -1.0f + blockDrawSize / 2, 0.0f);
+	glTranslatef(0.0f, 0.0f, 0.0f);
 
 	glBegin(GL_TRIANGLES);
 	drawRaw();
@@ -61,16 +61,16 @@ void Chunk::drawRaw()
 	}
 }
 
-Block::BlockContext& Chunk::getAdjacentBlocks(Block* base)
+Block::BlockContext Chunk::getAdjacentBlocks(Block* base)
 {
 	int i = getBlockIndex(base);
 	Block::BlockContext context = Block::BlockContext(
-		getBlock(blocks[i]->x, blocks[i]->y + 1, blocks[i]->z),
-		getBlock(blocks[i]->x, blocks[i]->y, blocks[i]->z - 1),
-		getBlock(blocks[i]->x + 1, blocks[i]->y, blocks[i]->z),
-		getBlock(blocks[i]->x, blocks[i]->y, blocks[i]->z + 1),
-		getBlock(blocks[i]->x - 1, blocks[i]->y, blocks[i]->z),
-		getBlock(blocks[i]->x, blocks[i]->y - 1, blocks[i]->z)
+		getBlock(blocks[i]->pos.x, blocks[i]->pos.y + 1, blocks[i]->pos.z),
+		getBlock(blocks[i]->pos.x, blocks[i]->pos.y, blocks[i]->pos.z - 1),
+		getBlock(blocks[i]->pos.x + 1, blocks[i]->pos.y, blocks[i]->pos.z),
+		getBlock(blocks[i]->pos.x, blocks[i]->pos.y, blocks[i]->pos.z + 1),
+		getBlock(blocks[i]->pos.x - 1, blocks[i]->pos.y, blocks[i]->pos.z),
+		getBlock(blocks[i]->pos.x, blocks[i]->pos.y - 1, blocks[i]->pos.z)
 	);
 	return context;
 }
@@ -83,6 +83,11 @@ Block* Chunk::getBlock(int index)
 	return blocks[index];
 }
 
+Block* Chunk::getBlock(float x, float y, float z)
+{
+	return getBlock((int)x, (int)y, (int)z);
+}
+
 Block* Chunk::getBlock(int x, int y, int z)
 {
 	Block** ptr = getBlockPtr(x, y, z);
@@ -91,7 +96,7 @@ Block* Chunk::getBlock(int x, int y, int z)
 
 int Chunk::getBlockIndex(Block* block)
 {
-	return getBlockIndex(block->x, block->y, block->z);
+	return getBlockIndex((int)block->pos.x, (int)block->pos.y, (int)block->pos.z);
 }
 
 int Chunk::getBlockIndex(int x, int y, int z)
@@ -131,7 +136,7 @@ void Chunk::update()
 		blocksChanged = false;
 		for (int i = 0; i < newBlocks.size(); i++)
 		{
-			Block** block = getBlockPtr(newBlocks[i]->x, newBlocks[i]->y, newBlocks[i]->z);
+			Block** block = getBlockPtr((int)newBlocks[i]->pos.x, (int)newBlocks[i]->pos.y, (int)newBlocks[i]->pos.z);
 			delete *block;
 			*block = newBlocks[i];
 		}

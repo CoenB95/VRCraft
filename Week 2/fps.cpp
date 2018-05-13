@@ -16,6 +16,7 @@
 #include "camera.h"
 #include "chunk.h"
 #include "mob.h"
+#include "raycast.h"
 #include "stb_image.h"
 
 float lastFrameTime = 0;
@@ -26,6 +27,7 @@ int width, height;
 Chunk chunk(50, 20, 50);
 
 Mob* player = new Steve(chunk);
+Block* pb = nullptr;
 
 bool keys[255];
 
@@ -71,7 +73,6 @@ void drawCube()
 	glEnd();
 }
 
-
 void display()
 {
 	glClearColor(0.6f, 0.6f, 1, 1);
@@ -83,9 +84,19 @@ void display()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	player->getEyes().applyTransform();
+	player->getCamera().applyTransform();
 
 	chunk.update();
+
+	RayCast rayCast(player, chunk);
+	Block* b = rayCast.pickBlock();
+
+	if (pb != nullptr)
+		pb->mark = false;
+	if (b != nullptr && !b->isTransparent)
+		b->mark = true;
+	pb = b;
+
 	chunk.draw();
 
 	glutSwapBuffers();
@@ -103,7 +114,7 @@ void idle()
 	if (keys['d']) player->move(90, deltaTime*speed, deltaTime);
 	if (keys['w']) player->move(0, deltaTime*speed, deltaTime);
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
-	if (keys[' '] && player->isFloored()) player->getEyes().speedY = 8.0f;
+	if (keys[' '] && player->isFloored()) player->speedY = 8.0f;
 
 	player->update(deltaTime);
 
@@ -117,8 +128,12 @@ void mousePassiveMotion(int x, int y)
 	int dy = y - height / 2;
 	if ((dx != 0 || dy != 0) && abs(dx) < 400 && abs(dy) < 400 && !justMovedMouse)
 	{
-		player->getEyes().rotY += dx * 0.3f;
-		player->getEyes().rotX += dy * 0.3f;
+		player->getCamera().rotY += dx * 0.3f;
+		player->getCamera().rotX += dy * 0.3f;
+		if (player->getCamera().rotX < -90)
+			player->getCamera().rotX = -90;
+		else if (player->getCamera().rotX > 90)
+			player->getCamera().rotX = 90;
 	}
 	if (!justMovedMouse)
 	{
@@ -199,10 +214,10 @@ int main(int argc, char* argv[])
 	cout << "Loading textures done" << endl;
 
 	cout << "Spawning Steve..." << endl;
-	Camera& camera = player->getEyes();
-	camera.posX = 0.0f;
-	camera.posY = 0.5f;
-	camera.posZ = 0.0f;
+	Camera& camera = player->getCamera();
+	camera.pos.x = 0.0f;
+	camera.pos.y = 0.5f;
+	camera.pos.z = 0.0f;
 	Block* spawnBlock;
 	Block* firstBlock = chunk.getBlock(0);
 	Block* secondBlock;
@@ -236,9 +251,9 @@ int main(int argc, char* argv[])
 		}
 
 		cout << "  Found space!" << endl;
-		camera.posX = spawnBlock->x * chunk.blockSize;
-		camera.posY = spawnBlock->y * chunk.blockSize + 5 * chunk.blockSize;
-		camera.posZ = spawnBlock->z * chunk.blockSize;
+		camera.pos.x = spawnBlock->pos.x;
+		camera.pos.y = spawnBlock->pos.y + player->getMobHeight() + 0.5f;
+		camera.pos.z = spawnBlock->pos.z;
 		break;
 	}
 
