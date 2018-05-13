@@ -35,7 +35,7 @@ void Camera::applyTransform()
 		// Look from a point slightly in front, to ourselves.
 		gluLookAt(
 			pos.x + cosf(rotRadX) * cosf(rotRadY) * thirdPersonDistance,
-			pos.y + sinf(rotRadX) * thirdPersonDistance,
+			pos.y - sinf(rotRadX) * thirdPersonDistance,
 			-pos.z + cosf(rotRadX) * sinf(rotRadY) * thirdPersonDistance,
 			pos.x, pos.y, -pos.z, 0, 1, 0);
 		break;
