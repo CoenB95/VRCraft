@@ -49,7 +49,7 @@ PickResult RayCast::checkFrontBack(int diffZ)
 	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
 
 	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
-		forwards ? PickResult::FRONT_SIDE : PickResult::BACK_SIDE);
+		forwards ? Block::BlockContext::FRONT_SIDE : Block::BlockContext::BACK_SIDE);
 }
 
 PickResult RayCast::checkLeftRight(int diffX)
@@ -70,7 +70,7 @@ PickResult RayCast::checkLeftRight(int diffX)
 	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
 
 	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
-		right ? PickResult::LEFT_SIDE : PickResult::RIGHT_SIDE);
+		right ? Block::BlockContext::LEFT_SIDE : Block::BlockContext::RIGHT_SIDE);
 }
 
 PickResult RayCast::checkTopBottom(int diffY)
@@ -91,7 +91,7 @@ PickResult RayCast::checkTopBottom(int diffY)
 	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
 
 	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
-		upwards ? PickResult::TOP_SIDE : PickResult::BOTTOM_SIDE);
+		upwards ? Block::BlockContext::TOP_SIDE : Block::BlockContext::BOTTOM_SIDE);
 }
 
 PickResult RayCast::pickBlock()
@@ -146,17 +146,17 @@ PickResult RayCast::pickBlock()
 	cout << "Hit side: ";
 	switch (b.side)
 	{
-	case PickResult::TOP_SIDE:
+	case Block::BlockContext::TOP_SIDE:
 		cout << "Top"; break;
-	case PickResult::FRONT_SIDE:
+	case Block::BlockContext::FRONT_SIDE:
 		cout << "Front"; break;
-	case PickResult::RIGHT_SIDE:
+	case Block::BlockContext::RIGHT_SIDE:
 		cout << "Right"; break;
-	case PickResult::BOTTOM_SIDE:
+	case Block::BlockContext::BOTTOM_SIDE:
 		cout << "Bottom"; break;
-	case PickResult::BACK_SIDE:
+	case Block::BlockContext::BACK_SIDE:
 		cout << "Back"; break;
-	case PickResult::LEFT_SIDE:
+	case Block::BlockContext::LEFT_SIDE:
 		cout << "Left"; break;
 	default:
 		cout << "Unknown"; break;

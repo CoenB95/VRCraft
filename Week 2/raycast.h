@@ -8,13 +8,6 @@ class Mob;
 class PickResult
 {
 public:
-	static const char TOP_SIDE		= 0;
-	static const char FRONT_SIDE	= 1;
-	static const char RIGHT_SIDE	= 2;
-	static const char BOTTOM_SIDE	= 3;
-	static const char BACK_SIDE		= 4;
-	static const char LEFT_SIDE		= 5;
-
 	Block* block;
 	char side;
 

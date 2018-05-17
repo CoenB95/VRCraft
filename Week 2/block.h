@@ -46,6 +46,13 @@ public:
 	class BlockContext
 	{
 	public:
+		static const char TOP_SIDE = 0;
+		static const char FRONT_SIDE = 1;
+		static const char RIGHT_SIDE = 2;
+		static const char BACK_SIDE = 3;
+		static const char LEFT_SIDE = 4;
+		static const char BOTTOM_SIDE = 5;
+
 		Block* top;
 		Block* front;
 		Block* right;
@@ -53,6 +60,7 @@ public:
 		Block* left;
 		Block* bottom;
 		BlockContext(Block* top, Block* front, Block* right, Block* back, Block* left, Block* bottom);
+		Block* operator [](int index);
 	};
 
 public:

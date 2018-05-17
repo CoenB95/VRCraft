@@ -170,6 +170,20 @@ Block::BlockContext::BlockContext(Block* top, Block* front, Block* right, Block*
 
 }
 
+Block* Block::BlockContext::operator [](int index)
+{
+	switch (index)
+	{
+	case TOP_SIDE: return top;
+	case FRONT_SIDE: return front;
+	case RIGHT_SIDE: return right;
+	case BACK_SIDE: return back;
+	case LEFT_SIDE: return left;
+	case BOTTOM_SIDE: return bottom;
+	default: return nullptr;
+	}
+}
+
 // === SimpleBlockSide ===
 
 SimpleBlockSide::SimpleBlockSide(Color4f color) : color(color)

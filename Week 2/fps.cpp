@@ -155,10 +155,12 @@ void mousePassiveMotion(int x, int y)
 
 void onMousePressed(int button, int state, int x, int y)
 {
-	if (button == GLUT_RIGHT_BUTTON)
+	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
+		Block::BlockContext context = chunk.getAdjacentBlocks(pickedBlock.block);
+		Block* airBlock = context[pickedBlock.side];
 		Block* b = new GrassBlock();
-		b->pos.set(pickedBlock.block->pos);
+		b->pos.set(airBlock->pos);
 		chunk.notifyBlockChanged(b);
 	}
 }
