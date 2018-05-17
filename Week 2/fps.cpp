@@ -157,11 +157,25 @@ void onMousePressed(int button, int state, int x, int y)
 {
 	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
-		Block::BlockContext context = chunk.getAdjacentBlocks(pickedBlock.block);
-		Block* airBlock = context[pickedBlock.side];
-		Block* b = new GrassBlock();
-		b->pos.set(airBlock->pos);
-		chunk.notifyBlockChanged(b);
+		if (pickedBlock.block != nullptr)
+		{
+			Block::BlockContext context = chunk.getAdjacentBlocks(pickedBlock.block);
+			Block* airBlock = context[pickedBlock.side];
+			Block* b = new GrassBlock();
+			b->pos.set(airBlock->pos);
+			chunk.notifyBlockChanged(b);
+		}
+	}
+
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+		if (pickedBlock.block != nullptr)
+		{
+			Block* b = new GrassBlock();
+			b->isTransparent = true;
+			b->pos.set(pickedBlock.block->pos);
+			chunk.notifyBlockChanged(b);
+		}
 	}
 }
 
