@@ -2,8 +2,24 @@
 
 #define SQDIST(a,b) (a * a + b * b)
 
-#include "chunk.h"
-#include "mob.h"
+class Chunk;
+class Mob;
+
+class PickResult
+{
+public:
+	static const char TOP_SIDE		= 0;
+	static const char FRONT_SIDE	= 1;
+	static const char RIGHT_SIDE	= 2;
+	static const char BOTTOM_SIDE	= 3;
+	static const char BACK_SIDE		= 4;
+	static const char LEFT_SIDE		= 5;
+
+	Block* block;
+	char side;
+
+	PickResult(Block* block, char side);
+};
 
 class RayCast
 {
@@ -12,12 +28,12 @@ private:
 	Chunk& world;
 
 	bool checkAngleInsideRange(float angle, float min, float max);
-	Block* checkFrontBack(int diffZ);
-	Block* checkLeftRight(int diffX);
-	Block* checkTopBottom(int diffY);
+	PickResult checkFrontBack(int diffZ);
+	PickResult checkLeftRight(int diffX);
+	PickResult checkTopBottom(int diffY);
 
 public:
 	RayCast(Mob* player, Chunk& world);
 
-	Block* pickBlock();
+	PickResult pickBlock();
 };

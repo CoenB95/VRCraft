@@ -28,7 +28,7 @@ GLuint terrainTextureId;
 Chunk chunk(50, 20, 50);
 
 Mob* player = new Steve(chunk);
-Block* pb = nullptr;
+PickResult pb(nullptr, -1);
 ObjModel* model = nullptr;
 
 bool keys[255];
@@ -91,12 +91,12 @@ void display()
 	chunk.update();
 
 	RayCast rayCast(player, chunk);
-	Block* b = rayCast.pickBlock();
+	PickResult b = rayCast.pickBlock();
 
-	if (pb != nullptr)
-		pb->mark = false;
-	if (b != nullptr && !b->isTransparent)
-		b->mark = true;
+	if (pb.block != nullptr)
+		pb.block->mark = false;
+	if (b.block != nullptr && !b.block->isTransparent)
+		b.block->mark = true;
 	pb = b;
 
 	glBindTexture(GL_TEXTURE_2D, terrainTextureId);

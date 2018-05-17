@@ -8,6 +8,8 @@
 #include <iostream>
 
 #include "block.h"
+#include "chunk.h"
+#include "mob.h"
 #include "raycast.h"
 
 RayCast::RayCast(Mob* player, Chunk& world) : player(player), world(world)
@@ -29,7 +31,7 @@ bool RayCast::checkAngleInsideRange(float angle, float min, float max)
 	}
 }
 
-Block* RayCast::checkFrontBack(int diffZ)
+PickResult RayCast::checkFrontBack(int diffZ)
 {
 	Camera& cam = player->getCamera();
 	bool forwards = checkAngleInsideRange(cam.rotY, 270, 90);
@@ -46,10 +48,11 @@ Block* RayCast::checkFrontBack(int diffZ)
 	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F);
 	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
 
-	return world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ));
+	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
+		forwards ? PickResult::FRONT_SIDE : PickResult::BACK_SIDE);
 }
 
-Block* RayCast::checkLeftRight(int diffX)
+PickResult RayCast::checkLeftRight(int diffX)
 {
 	Camera& cam = player->getCamera();
 	bool right = checkAngleInsideRange(cam.rotY, 0, 180);
@@ -66,12 +69,14 @@ Block* RayCast::checkLeftRight(int diffX)
 	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F);
 	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
 
-	return world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ));
+	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
+		right ? PickResult::LEFT_SIDE : PickResult::RIGHT_SIDE);
 }
 
-Block* RayCast::checkTopBottom(int diffY)
+PickResult RayCast::checkTopBottom(int diffY)
 {
 	Camera& cam = player->getCamera();
+	bool upwards = checkAngleInsideRange(cam.rotX, 0, 180);
 	float offset = diffY >= 0 ? -0.49f : +0.49f;
 
 	// Normalize the player's position in the block.
@@ -85,22 +90,23 @@ Block* RayCast::checkTopBottom(int diffY)
 	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F);
 	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
 
-	return world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ));
+	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
+		upwards ? PickResult::TOP_SIDE : PickResult::BOTTOM_SIDE);
 }
 
-Block* RayCast::pickBlock()
+PickResult RayCast::pickBlock()
 {
-	Block* b = nullptr;
+	PickResult b(nullptr, -1);
 
 	int iT = 1;
-	Block* bT = nullptr;
-	while (iT <= 8 && (bT == nullptr || bT->isTransparent))
+	PickResult bT(nullptr, -1);
+	while (iT <= 8 && (bT.block == nullptr || bT.block->isTransparent))
 	{
 		bT = checkTopBottom(iT);
-		if (bT != nullptr && !bT->isTransparent)
+		if (bT.block != nullptr && !bT.block->isTransparent)
 		{
-			if (b != nullptr && player->getEyePos().distanceSquared(bT->pos) >
-				player->getEyePos().distanceSquared(b->pos))
+			if (b.block != nullptr && player->getEyePos().distanceSquared(bT.block->pos) >
+				player->getEyePos().distanceSquared(b.block->pos))
 				break;
 			b = bT;
 		}
@@ -108,14 +114,14 @@ Block* RayCast::pickBlock()
 	}
 
 	int iF = 1;
-	Block* bF = nullptr;
-	while (iF <= 8 && (bF == nullptr || bF->isTransparent))
+	PickResult bF(nullptr, -1);
+	while (iF <= 8 && (bF.block == nullptr || bF.block->isTransparent))
 	{
 		bF = checkFrontBack(iF);
-		if (bF != nullptr && !bF->isTransparent)
+		if (bF.block != nullptr && !bF.block->isTransparent)
 		{
-			if (b != nullptr && player->getEyePos().distanceSquared(bF->pos) >
-				player->getEyePos().distanceSquared(b->pos))
+			if (b.block != nullptr && player->getEyePos().distanceSquared(bF.block->pos) >
+				player->getEyePos().distanceSquared(b.block->pos))
 				break;
 			b = bF;
 		}
@@ -123,19 +129,44 @@ Block* RayCast::pickBlock()
 	}
 
 	int iL = 1;
-	Block* bL = nullptr;
-	while (iL <= 8 && (bL == nullptr || bL->isTransparent))
+	PickResult bL(nullptr, -1);
+	while (iL <= 8 && (bL.block == nullptr || bL.block->isTransparent))
 	{
 		bL = checkLeftRight(iL);
-		if (bL != nullptr && !bL->isTransparent)
+		if (bL.block != nullptr && !bL.block->isTransparent)
 		{
-			if (b != nullptr && player->getEyePos().distanceSquared(bL->pos) >
-				player->getEyePos().distanceSquared(b->pos))
+			if (b.block != nullptr && player->getEyePos().distanceSquared(bL.block->pos) >
+				player->getEyePos().distanceSquared(b.block->pos))
 				break;
 			b = bL;
 		}
 		iL++;
 	}
 
+	cout << "Hit side: ";
+	switch (b.side)
+	{
+	case PickResult::TOP_SIDE:
+		cout << "Top"; break;
+	case PickResult::FRONT_SIDE:
+		cout << "Front"; break;
+	case PickResult::RIGHT_SIDE:
+		cout << "Right"; break;
+	case PickResult::BOTTOM_SIDE:
+		cout << "Bottom"; break;
+	case PickResult::BACK_SIDE:
+		cout << "Back"; break;
+	case PickResult::LEFT_SIDE:
+		cout << "Left"; break;
+	default:
+		cout << "Unknown"; break;
+	}
+	cout << endl;
+
 	return b;
+}
+
+PickResult::PickResult(Block* block, char side) : block(block), side(side)
+{
+
 }
