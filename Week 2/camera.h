@@ -14,7 +14,7 @@ public:
 	float rotX = 0;
 	float rotY = 0;
 	float thirdPersonDistance = 3.0f;
-	int type = CAMERA_TYPE_THIRD_PERSON_FRONT;
+	int type = CAMERA_TYPE_FIRST_PERSON;
 
 	void applyTransform();
 	void setType(int type) { this->type = type; }
