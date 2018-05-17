@@ -29,7 +29,7 @@ GLuint terrainTextureId;
 Chunk chunk(50, 20, 50);
 
 Mob* player = new Steve(chunk);
-Block* pickedBlock = nullptr;
+PickResult pickedBlock(nullptr, -1);
 ObjModel* model = nullptr;
 
 bool keys[255];
@@ -92,12 +92,12 @@ void display()
 	chunk.update();
 
 	RayCast rayCast(player, chunk);
-	Block* b = rayCast.pickBlock();
+	PickResult b = rayCast.pickBlock();
 
-	if (pickedBlock != nullptr)
-		pickedBlock->mark = false;
-	if (b != nullptr && !b->isTransparent)
-		b->mark = true;
+	if (pickedBlock.block != nullptr)
+		pickedBlock.block->mark = false;
+	if (b.block != nullptr && !b.block->isTransparent)
+		b.block->mark = true;
 	pickedBlock = b;
 
 	glBindTexture(GL_TEXTURE_2D, terrainTextureId);
@@ -158,7 +158,7 @@ void onMousePressed(int button, int state, int x, int y)
 	if (button == GLUT_RIGHT_BUTTON)
 	{
 		Block* b = new GrassBlock();
-		b->pos.set(pickedBlock->pos);
+		b->pos.set(pickedBlock.block->pos);
 		chunk.notifyBlockChanged(b);
 	}
 }
