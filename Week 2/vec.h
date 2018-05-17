@@ -18,6 +18,7 @@ public:
 	float distanceSquared(Vec3f& other);
 	void set(int x, int y, int z);
 	void set(float x, float y, float z);
+	void set(Vec3f pos);
 };
 
 class Vec2f

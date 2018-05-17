@@ -43,6 +43,11 @@ void Vec3f::set(float x, float y, float z)
 	this->z = z;
 }
 
+void Vec3f::set(Vec3f pos)
+{
+	set(pos.x, pos.y, pos.z);
+}
+
 Vec2f::Vec2f(float x, float y)
 {
 	this->x = x;

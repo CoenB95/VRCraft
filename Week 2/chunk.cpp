@@ -35,8 +35,7 @@ Chunk::Chunk(int width, int height, int depth)
 		Block* newBlock = blocks[i]->randomTick(context);
 		if (newBlock != nullptr)
 		{
-			newBlocks.push_back(newBlock);
-			blocksChanged = true;
+			notifyBlockChanged(newBlock);
 		}
 	}
 }
@@ -126,7 +125,6 @@ void Chunk::notifyBlockChanged(Block* newBlock)
 {
 	newBlocks.push_back(newBlock);
 	blocksChanged = true;
-	delete newBlock;
 }
 
 void Chunk::update()

@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "block.h"
+#include "block_grass.h"
 #include "camera.h"
 #include "chunk.h"
 #include "mob.h"
@@ -28,7 +29,7 @@ GLuint terrainTextureId;
 Chunk chunk(50, 20, 50);
 
 Mob* player = new Steve(chunk);
-Block* pb = nullptr;
+Block* pickedBlock = nullptr;
 ObjModel* model = nullptr;
 
 bool keys[255];
@@ -93,11 +94,11 @@ void display()
 	RayCast rayCast(player, chunk);
 	Block* b = rayCast.pickBlock();
 
-	if (pb != nullptr)
-		pb->mark = false;
+	if (pickedBlock != nullptr)
+		pickedBlock->mark = false;
 	if (b != nullptr && !b->isTransparent)
 		b->mark = true;
-	pb = b;
+	pickedBlock = b;
 
 	glBindTexture(GL_TEXTURE_2D, terrainTextureId);
 	chunk.draw();
@@ -152,6 +153,16 @@ void mousePassiveMotion(int x, int y)
 		justMovedMouse = false;
 }
 
+void onMousePressed(int button, int state, int x, int y)
+{
+	if (button == GLUT_RIGHT_BUTTON)
+	{
+		Block* b = new GrassBlock();
+		b->pos.set(pickedBlock->pos);
+		chunk.notifyBlockChanged(b);
+	}
+}
+
 void keyboard(unsigned char key, int, int)
 {
 	if (key == 27)
@@ -187,6 +198,7 @@ int main(int argc, char* argv[])
 	glutReshapeFunc([](int w, int h) { width = w; height = h; glViewport(0, 0, w, h); });
 	glutKeyboardFunc(keyboard);
 	glutKeyboardUpFunc(keyboardUp);
+	glutMouseFunc(onMousePressed);
 	glutSpecialFunc(keyboardSpecial);
 	glutPassiveMotionFunc(mousePassiveMotion);
 
