@@ -41,7 +41,7 @@ PickResult RayCast::checkFrontBack(int diffZ)
 	if (!forwards) blockZ *= -1;
 
 	// Calculate the distace to a plane perpendicular to the z-axis using the horizontal rotation.
-	float distance = abs(((float)diffZ - 0.49f - blockZ) / sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F));
+	float distance = abs(((float)diffZ - 0.499f - blockZ) / sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F));
 
 	// Resolve the hit block's coordinates.
 	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
@@ -62,7 +62,7 @@ PickResult RayCast::checkLeftRight(int diffX)
 	if (!right) blockX *= -1;
 
 	// Calculate the distace to a plane perpendicular to the x-axis using the horizontal rotation.
-	float distance = abs(((float)diffX - 0.49f - blockX) / cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F));
+	float distance = abs(((float)diffX - 0.499f - blockX) / cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F));
 
 	// Resolve the hit block's coordinates.
 	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
@@ -76,14 +76,14 @@ PickResult RayCast::checkLeftRight(int diffX)
 PickResult RayCast::checkTopBottom(int diffY)
 {
 	Camera& cam = player->getCamera();
-	bool upwards = checkAngleInsideRange(cam.rotX, 0, 180);
-	float offset = diffY >= 0 ? -0.49f : +0.49f;
+	bool downwards = checkAngleInsideRange(cam.rotX, 180, 0);
 
 	// Normalize the player's position in the block.
 	float blockY = cam.pos.y - roundf(cam.pos.y);
+	if (!downwards) blockY *= -1;
 
 	// Calculate the distace to a plane perpendicular to the y-axis using the vertical rotation.
-	float distance = abs(((float)diffY + offset - blockY) / tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F));
+	float distance = abs(((float)diffY -0.499f - blockY) / tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F));
 
 	// Resolve the hit block's coordinates.
 	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
@@ -91,7 +91,7 @@ PickResult RayCast::checkTopBottom(int diffY)
 	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
 
 	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
-		upwards ? Block::BlockContext::TOP_SIDE : Block::BlockContext::BOTTOM_SIDE);
+		downwards ? Block::BlockContext::BOTTOM_SIDE : Block::BlockContext::TOP_SIDE);
 }
 
 PickResult RayCast::pickBlock()
