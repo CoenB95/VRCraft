@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "block.h"
-#include "block_grass.h"
+#include "block_stone.h"
 #include "camera.h"
 #include "chunk.h"
 #include "mob.h"
@@ -161,7 +161,7 @@ void onMousePressed(int button, int state, int x, int y)
 		{
 			Block::BlockContext context = chunk.getAdjacentBlocks(pickedBlock.block);
 			Block* airBlock = context[pickedBlock.side];
-			Block* b = new GrassBlock();
+			Block* b = new CobblestoneBlock();
 			b->pos.set(airBlock->pos);
 			chunk.notifyBlockChanged(b);
 		}
@@ -171,7 +171,7 @@ void onMousePressed(int button, int state, int x, int y)
 	{
 		if (pickedBlock.block != nullptr)
 		{
-			Block* b = new GrassBlock();
+			Block* b = new StoneBlock();
 			b->isTransparent = true;
 			b->pos.set(pickedBlock.block->pos);
 			chunk.notifyBlockChanged(b);

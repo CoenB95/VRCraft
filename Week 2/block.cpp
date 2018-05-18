@@ -18,36 +18,22 @@ using namespace std;
 
 const GLfloat Block::TILE_SIZE = 1.0f / 256.0f * 16.0f;
 
-Block::Block() : Block(1, 1, 1)
-{
-	
-}
-
-Block::Block(float w, float h, float d) : Block(w, h, d,
-	new TexturedBlockSide(0, 0, 1, 1),
-	new TexturedBlockSide(3, 0, 1, 1),
-	new TexturedBlockSide(3, 0, 1, 1),
-	new TexturedBlockSide(3, 0, 1, 1),
-	new TexturedBlockSide(3, 0, 1, 1),
-	new TexturedBlockSide(2, 0, 1, 1))
-{
-
-}
-
 Block::Block(BlockSide* top, BlockSide* front, BlockSide* right,
-	BlockSide* back, BlockSide* left, BlockSide* bottom) : Block(1, 1, 1, top, front, right, back, left, bottom)
+	BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName)
+	: Block(1, 1, 1, top, front, right, back, left, bottom, typeName)
 {
 
 }
 
 Block::Block(float w, float h, float d, BlockSide* top, BlockSide* front, BlockSide* right,
-	BlockSide* back, BlockSide* left, BlockSide* bottom) :
+	BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName) :
 	topSide(top),
 	frontSide(front),
 	rightSide(right),
 	backSide(back),
 	leftSide(left),
 	bottomSide(bottom),
+	typeName(typeName),
 	pos(0, 0, 0)
 {
 	this->hw = w / 2;
@@ -160,7 +146,7 @@ Block* Block::randomTick(Block::BlockContext& adjacentBlocks)
 string Block::toString() const
 {
 	stringstream ss;
-	ss << (isTransparent ? "Air" : "Block") << "{" << getPositionString() << "}";
+	ss << (isTransparent ? "Air" : typeName) << "{" << getPositionString() << "}";
 	return ss.str();
 }
 
@@ -198,10 +184,10 @@ void SimpleBlockSide::applyTexture(GLfloat texX, GLfloat texY)
 
 // === TexturedBlockSide ===
 
-TexturedBlockSide::TexturedBlockSide(GLfloat texX, GLfloat texY, GLfloat texW, GLfloat texH)
+TexturedBlockSide::TexturedBlockSide(GLint texX, GLint texY, GLfloat texW, GLfloat texH)
 {
-	this->x = texX * Block::TILE_SIZE;
-	this->y = texY * Block::TILE_SIZE;
+	this->x = (GLfloat)texX * Block::TILE_SIZE;
+	this->y = (GLfloat)texY * Block::TILE_SIZE;
 	this->w = texW * Block::TILE_SIZE;
 	this->h = texH * Block::TILE_SIZE;
 }

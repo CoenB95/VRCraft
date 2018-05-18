@@ -33,7 +33,7 @@ class TexturedBlockSide : public BlockSide
 private:
 	GLfloat x, y, w, h;
 public:
-	TexturedBlockSide(GLfloat texX, GLfloat texY, GLfloat texW, GLfloat texH);
+	TexturedBlockSide(GLint texX, GLint texY, GLfloat texW = 1.0f, GLfloat texH = 1.0f);
 	void applyTexture(GLfloat texX, GLfloat texY) override;
 };
 
@@ -42,6 +42,8 @@ class Block
 private:
 	GLfloat hw, hh, hd;
 	void drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY);
+	string typeName;
+
 public:
 	class BlockContext
 	{
@@ -77,12 +79,10 @@ public:
 	bool isTransparent = false;
 	bool mark = false;
 
-	Block();
-	Block(float w, float h, float d);
 	Block(BlockSide* top, BlockSide* front, BlockSide* right,
-		BlockSide* back, BlockSide* left, BlockSide* bottom);
+		BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName = "Unknown");
 	Block(float w, float h, float d, BlockSide* top, BlockSide* front, BlockSide* right,
-		BlockSide* back, BlockSide* left, BlockSide* bottom);
+		BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName = "Unknown");
 
 	void draw();
 	void drawRaw();
