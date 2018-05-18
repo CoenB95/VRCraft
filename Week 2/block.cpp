@@ -123,10 +123,8 @@ void Block::drawRaw()
 
 void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY)
 {
-	if (mark)
-		glColor4fv(Color4f::RED.color4fv);
-	else
-		side->applyTexture(texX, texY);
+	side->applyTexture(texX, texY, mark);
+
 	// The real z-axis is inverted. Apply it here.
 	glVertex3f(x, y, -z);
 }
@@ -177,7 +175,7 @@ SimpleBlockSide::SimpleBlockSide(Color4f color) : color(color)
 
 }
 
-void SimpleBlockSide::applyTexture(GLfloat texX, GLfloat texY)
+void SimpleBlockSide::applyTexture(GLfloat texX, GLfloat texY, bool hovered)
 {
 	glColor4fv(color.color4fv);
 }
@@ -192,8 +190,11 @@ TexturedBlockSide::TexturedBlockSide(GLint texX, GLint texY, GLfloat texW, GLflo
 	this->h = texH * Block::TILE_SIZE;
 }
 
-void TexturedBlockSide::applyTexture(GLfloat texX, GLfloat texY)
+void TexturedBlockSide::applyTexture(GLfloat texX, GLfloat texY, bool hovered)
 {
-	glColor3f(1, 1, 1);
+	if (hovered)
+		glColor3f(0.8f, 0.8f, 0.8f);
+	else
+		glColor3f(1, 1, 1);
 	glTexCoord2f(x + texX * w, y + texY * h);
 }

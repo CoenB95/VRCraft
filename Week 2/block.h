@@ -15,7 +15,7 @@ class BlockSide
 {
 public:
 	bool shouldRender = true;
-	virtual void applyTexture(GLfloat texX, GLfloat texY) = 0;
+	virtual void applyTexture(GLfloat texX, GLfloat texY, bool hovered) = 0;
 };
 
 class SimpleBlockSide : public BlockSide
@@ -24,7 +24,7 @@ private:
 	Color4f color;
 public:
 	SimpleBlockSide(Color4f color);
-	void applyTexture(GLfloat texX, GLfloat texY) override;
+	void applyTexture(GLfloat texX, GLfloat texY, bool hovered) override;
 };
 
 
@@ -34,7 +34,7 @@ private:
 	GLfloat x, y, w, h;
 public:
 	TexturedBlockSide(GLint texX, GLint texY, GLfloat texW = 1.0f, GLfloat texH = 1.0f);
-	void applyTexture(GLfloat texX, GLfloat texY) override;
+	void applyTexture(GLfloat texX, GLfloat texY, bool hovered) override;
 };
 
 class Block
