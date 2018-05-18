@@ -41,3 +41,9 @@ void Camera::applyTransform()
 		break;
 	}
 }
+
+void Camera::update(float elapsedSeconds)
+{
+	rotX = (snappyness * rotX) + ((1.0f - snappyness) * targetRotX);
+	rotY = (snappyness * rotY) + ((1.0f - snappyness) * targetRotY);
+}

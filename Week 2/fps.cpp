@@ -137,12 +137,12 @@ void mousePassiveMotion(int x, int y)
 	int dy = y - height / 2;
 	if ((dx != 0 || dy != 0) && abs(dx) < 400 && abs(dy) < 400 && !justMovedMouse)
 	{
-		player->getCamera().rotY += dx * 0.3f;
-		player->getCamera().rotX += dy * 0.3f;
-		if (player->getCamera().rotX < -90)
-			player->getCamera().rotX = -90;
-		else if (player->getCamera().rotX > 90)
-			player->getCamera().rotX = 90;
+		player->getCamera().targetRotY += dx * 0.3f;
+		player->getCamera().targetRotX += dy * 0.3f;
+		if (player->getCamera().targetRotX < -90)
+			player->getCamera().targetRotX = -90;
+		else if (player->getCamera().targetRotX > 90)
+			player->getCamera().targetRotX = 90;
 	}
 	if (!justMovedMouse)
 	{

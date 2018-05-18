@@ -126,6 +126,8 @@ void Mob::update(float elapsedTime)
 		eyes.pos.y = (curCeiling->pos.y - 0.5f - (mobDiameter / 2));
 		speedY = 0;
 	}
+
+	eyes.update(elapsedTime);
 }
 
 Steve::Steve(Chunk& world) : Mob(world)
