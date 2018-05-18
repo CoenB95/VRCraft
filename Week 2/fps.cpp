@@ -161,9 +161,12 @@ void onMousePressed(int button, int state, int x, int y)
 		{
 			Block::BlockContext context = chunk.getAdjacentBlocks(pickedBlock.block);
 			Block* airBlock = context[pickedBlock.side];
-			Block* b = new CobblestoneBlock();
-			b->pos.set(airBlock->pos);
-			chunk.notifyBlockChanged(b);
+			if (airBlock != nullptr)
+			{
+				Block* b = new CobblestoneBlock();
+				b->pos.set(airBlock->pos);
+				chunk.notifyBlockChanged(b);
+			}
 		}
 	}
 
