@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "block.h"
+#include "block_stone.h"
 #include "camera.h"
 #include "chunk.h"
 #include "mob.h"
@@ -28,7 +29,7 @@ GLuint terrainTextureId;
 Chunk chunk(50, 20, 50);
 
 Mob* player = new Steve(chunk);
-Block* pb = nullptr;
+PickResult pickedBlock(nullptr, -1);
 ObjModel* model = nullptr;
 
 bool keys[255];
@@ -91,13 +92,13 @@ void display()
 	chunk.update();
 
 	RayCast rayCast(player, chunk);
-	Block* b = rayCast.pickBlock();
+	PickResult b = rayCast.pickBlock();
 
-	if (pb != nullptr)
-		pb->mark = false;
-	if (b != nullptr && !b->isTransparent)
-		b->mark = true;
-	pb = b;
+	if (pickedBlock.block != nullptr)
+		pickedBlock.block->mark = false;
+	if (b.block != nullptr && !b.block->isTransparent)
+		b.block->mark = true;
+	pickedBlock = b;
 
 	glBindTexture(GL_TEXTURE_2D, terrainTextureId);
 	chunk.draw();
@@ -152,6 +153,35 @@ void mousePassiveMotion(int x, int y)
 		justMovedMouse = false;
 }
 
+void onMousePressed(int button, int state, int x, int y)
+{
+	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+	{
+		if (pickedBlock.block != nullptr)
+		{
+			Block::BlockContext context = chunk.getAdjacentBlocks(pickedBlock.block);
+			Block* airBlock = context[pickedBlock.side];
+			if (airBlock != nullptr)
+			{
+				Block* b = new CobblestoneBlock();
+				b->pos.set(airBlock->pos);
+				chunk.notifyBlockChanged(b);
+			}
+		}
+	}
+
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+		if (pickedBlock.block != nullptr)
+		{
+			Block* b = new StoneBlock();
+			b->isTransparent = true;
+			b->pos.set(pickedBlock.block->pos);
+			chunk.notifyBlockChanged(b);
+		}
+	}
+}
+
 void keyboard(unsigned char key, int, int)
 {
 	if (key == 27)
@@ -187,6 +217,7 @@ int main(int argc, char* argv[])
 	glutReshapeFunc([](int w, int h) { width = w; height = h; glViewport(0, 0, w, h); });
 	glutKeyboardFunc(keyboard);
 	glutKeyboardUpFunc(keyboardUp);
+	glutMouseFunc(onMousePressed);
 	glutSpecialFunc(keyboardSpecial);
 	glutPassiveMotionFunc(mousePassiveMotion);
 

@@ -4,14 +4,12 @@
 #include<string>
 
 #include "block.h"
-#include "chunk.h"
 
 class GrassBlock : public Block
 {
 public:
 	GrassBlock();
 	Block* randomTick(Block::BlockContext& adjacentBlocks) override;
-	string toString() const override;
 };
 
 class DirtBlock : public Block
