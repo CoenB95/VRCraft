@@ -149,21 +149,6 @@ void Chunk::update()
 			blocks[i]->backSide->shouldRender = context.back == nullptr || context.back->isTransparent;
 			blocks[i]->leftSide->shouldRender = context.left == nullptr || context.left->isTransparent;
 			blocks[i]->bottomSide->shouldRender = context.bottom == nullptr || context.bottom->isTransparent;
-
-			/*blocks[i]->bottomSide->shouldRender = i / (width * depth) == 0 ||
-				(i - width * depth) >= 0 && blocks[(i - width * depth)]->isTransparent;
-
-			blocks[i]->frontSide->shouldRender = i / width % depth == depth - 1 ||
-				(i + width) < width * depth * height && blocks[(i + width)]->isTransparent;
-
-			blocks[i]->leftSide->shouldRender = i % width == 0 ||
-				(i - 1) >= 0 && blocks[(i - 1)]->isTransparent;
-
-			blocks[i]->rightSide->shouldRender = i % width == width - 1 ||
-				(i + 1) < width * depth * height && blocks[(i + 1)]->isTransparent;
-
-			blocks[i]->topSide->shouldRender = i / (width * depth) == height - 1 ||
-				(i + width * depth) < width * depth * height && blocks[(i + width * depth)]->isTransparent;*/
 		}
 	}
 }

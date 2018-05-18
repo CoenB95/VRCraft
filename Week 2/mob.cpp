@@ -103,13 +103,10 @@ void Mob::update(float elapsedTime)
 		roundf(eyes.pos.y - mobBlockHeight) - 1,
 		roundf(eyes.pos.z));
 
-	if (lastFloor != nullptr)
-		lastFloor->mark = false;
-
-	if (curFloor != nullptr)
-		curFloor->mark = true;
-
-	lastFloor = curFloor;
+	Block* curCeiling = world.getBlock(
+		roundf(eyes.pos.x),
+		roundf(eyes.pos.y) + 1,
+		roundf(eyes.pos.z));
 
 	speedY -= accelY * elapsedTime;
 	eyes.pos.y += speedY * elapsedTime;
@@ -119,6 +116,14 @@ void Mob::update(float elapsedTime)
 	if (floored)
 	{
 		eyes.pos.y = (curFloor->pos.y + 0.5f + mobBlockHeight);
+		speedY = 0;
+	}
+
+	ceiled = curCeiling != nullptr && !world.isBlockTransparent(curCeiling) &&
+		eyes.pos.y > curCeiling->pos.y - 0.5f - (mobDiameter / 2);
+	if (ceiled)
+	{
+		eyes.pos.y = (curCeiling->pos.y - 0.5f - (mobDiameter / 2));
 		speedY = 0;
 	}
 }

@@ -9,10 +9,10 @@ class Mob
 {
 private:
 	Camera eyes;
+	bool ceiled = false;
 	bool floored = false;
-	Block* lastFloor;
 	GLfloat mobBlockHeight = 1.5f;
-	GLfloat mobDiameter = 0.25f;
+	GLfloat mobDiameter = 0.30f;
 	// TODO: replace with 'World' (multiple chunks)
 	Chunk& world;
 
