@@ -15,7 +15,7 @@ class BlockSide
 {
 public:
 	bool shouldRender = true;
-	virtual void applyTexture(GLfloat texX, GLfloat texY, bool hovered) = 0;
+	virtual void applyTexture(GLfloat texX, GLfloat texY) = 0;
 };
 
 class SimpleBlockSide : public BlockSide
@@ -24,17 +24,18 @@ private:
 	Color4f color;
 public:
 	SimpleBlockSide(Color4f color);
-	void applyTexture(GLfloat texX, GLfloat texY, bool hovered) override;
+	void applyTexture(GLfloat texX, GLfloat texY) override;
 };
 
 
 class TexturedBlockSide : public BlockSide
 {
 private:
+	Color4f color;
 	GLfloat x, y, w, h;
 public:
-	TexturedBlockSide(GLint texX, GLint texY, GLfloat texW = 1.0f, GLfloat texH = 1.0f);
-	void applyTexture(GLfloat texX, GLfloat texY, bool hovered) override;
+	TexturedBlockSide(GLint texX, GLint texY, GLfloat texW = 1.0f, GLfloat texH = 1.0f, Color4f color = Color4f::WHITE);
+	void applyTexture(GLfloat texX, GLfloat texY) override;
 };
 
 class Block
@@ -67,6 +68,9 @@ public:
 
 public:
 	static const GLfloat TILE_SIZE;
+	static const GLfloat SCALE_BLOCK;
+	static const GLfloat SCALE_BLOCK_OVERLAY;
+	static const GLfloat SCALE_ITEM;
 
 	BlockSide* backSide;
 	BlockSide* bottomSide;
@@ -77,15 +81,13 @@ public:
 
 	Vec3f pos;
 	bool isTransparent = false;
-	bool mark = false;
 
 	Block(BlockSide* top, BlockSide* front, BlockSide* right,
-		BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName = "Unknown");
-	Block(float w, float h, float d, BlockSide* top, BlockSide* front, BlockSide* right,
-		BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName = "Unknown");
+		BlockSide* back, BlockSide* left, BlockSide* bottom,
+		string typeName = "Unknown", GLfloat scale = SCALE_BLOCK);
 
 	void draw();
-	void drawRaw();
+	void drawRaw(bool offset = true);
 	string getPositionString() const;
 	virtual Block* randomTick(Block::BlockContext& adjacentBlocks);
 	void setColor(Color4f color);
@@ -115,5 +117,14 @@ inline void Block::setColors(Color4f front, Color4f top, Color4f right, Color4f 
 	rightSide = new SimpleBlockSide(right);
 	topSide = new SimpleBlockSide(top);
 }
+
+class SelectionBlock : public Block
+{
+private:
+	float resistance = 10.0f;
+	float curTime = 0.0f;
+public:
+	SelectionBlock(float breakage);
+};
 
 #endif // BLOCK_H

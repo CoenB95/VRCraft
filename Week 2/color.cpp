@@ -22,3 +22,4 @@ const Color4f Color4f::GREEN(0, 1, 0);
 const Color4f Color4f::MAGENTA(1, 0, 1);
 const Color4f Color4f::RED(1, 0, 0);
 const Color4f Color4f::YELLOW(1, 1, 0);
+const Color4f Color4f::WHITE(1, 1, 1);

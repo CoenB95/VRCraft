@@ -21,6 +21,7 @@ public:
 	static const Color4f MAGENTA;
 	static const Color4f RED;
 	static const Color4f YELLOW;
+	static const Color4f WHITE;
 };
 
 #endif // !COLOR_H

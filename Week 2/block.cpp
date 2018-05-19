@@ -17,16 +17,12 @@
 using namespace std;
 
 const GLfloat Block::TILE_SIZE = 1.0f / 256.0f * 16.0f;
+const GLfloat Block::SCALE_BLOCK = 1.0f;
+const GLfloat Block::SCALE_BLOCK_OVERLAY = 1.001f;
+const GLfloat Block::SCALE_ITEM = 0.3f;
 
 Block::Block(BlockSide* top, BlockSide* front, BlockSide* right,
-	BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName)
-	: Block(1, 1, 1, top, front, right, back, left, bottom, typeName)
-{
-
-}
-
-Block::Block(float w, float h, float d, BlockSide* top, BlockSide* front, BlockSide* right,
-	BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName) :
+	BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName, GLfloat scale) :
 	topSide(top),
 	frontSide(front),
 	rightSide(right),
@@ -36,28 +32,31 @@ Block::Block(float w, float h, float d, BlockSide* top, BlockSide* front, BlockS
 	typeName(typeName),
 	pos(0, 0, 0)
 {
-	this->hw = w / 2;
-	this->hh = h / 2;
-	this->hd = d / 2;
+	this->hw = scale / 2;
+	this->hh = scale / 2;
+	this->hd = scale / 2;
 }
 
 void Block::draw()
 {
-	glTranslatef((float)pos.x, 0.0f, (float)pos.y);
+	glPushMatrix();
 
+	glTranslatef(pos.x, pos.y, -pos.z);
 	glBegin(GL_TRIANGLES);
-	drawRaw();
+	drawRaw(false);
 	glEnd();
+
+	glPopMatrix();
 }
 
-void Block::drawRaw()
+void Block::drawRaw(bool offset)
 {
-	if (isTransparent && !mark)
+	if (isTransparent)
 		return;
 
-	GLfloat x = this->pos.x * this->hw * 2;
-	GLfloat y = this->pos.y * this->hh * 2;
-	GLfloat z = this->pos.z * this->hd * 2;
+	GLfloat x = (offset ? this->pos.x : 0) * this->hw * 2;
+	GLfloat y = (offset ? this->pos.y : 0) * this->hh * 2;
+	GLfloat z = (offset ? this->pos.z : 0) * this->hd * 2;
 
 	if (frontSide->shouldRender)
 	{
@@ -123,7 +122,7 @@ void Block::drawRaw()
 
 void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY)
 {
-	side->applyTexture(texX, texY, mark);
+	side->applyTexture(texX, texY);
 
 	// The real z-axis is inverted. Apply it here.
 	glVertex3f(x, y, -z);
@@ -175,14 +174,15 @@ SimpleBlockSide::SimpleBlockSide(Color4f color) : color(color)
 
 }
 
-void SimpleBlockSide::applyTexture(GLfloat texX, GLfloat texY, bool hovered)
+void SimpleBlockSide::applyTexture(GLfloat texX, GLfloat texY)
 {
 	glColor4fv(color.color4fv);
 }
 
 // === TexturedBlockSide ===
 
-TexturedBlockSide::TexturedBlockSide(GLint texX, GLint texY, GLfloat texW, GLfloat texH)
+TexturedBlockSide::TexturedBlockSide(GLint texX, GLint texY, GLfloat texW, GLfloat texH, Color4f color)
+	: color(color)
 {
 	this->x = (GLfloat)texX * Block::TILE_SIZE;
 	this->y = (GLfloat)texY * Block::TILE_SIZE;
@@ -190,11 +190,21 @@ TexturedBlockSide::TexturedBlockSide(GLint texX, GLint texY, GLfloat texW, GLflo
 	this->h = texH * Block::TILE_SIZE;
 }
 
-void TexturedBlockSide::applyTexture(GLfloat texX, GLfloat texY, bool hovered)
+void TexturedBlockSide::applyTexture(GLfloat texX, GLfloat texY)
 {
-	if (hovered)
-		glColor3f(0.8f, 0.8f, 0.8f);
-	else
-		glColor3f(1, 1, 1);
+	glColor4fv(color.color4fv);
 	glTexCoord2f(x + texX * w, y + texY * h);
+}
+
+SelectionBlock::SelectionBlock(float breakage) : Block(
+	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
+	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
+	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
+	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
+	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
+	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
+	"Breakage ",
+	SCALE_BLOCK_OVERLAY)
+{
+
 }

@@ -30,6 +30,7 @@ Chunk chunk(50, 20, 50);
 
 Mob* player = new Steve(chunk);
 PickResult pickedBlock(nullptr, -1);
+SelectionBlock selectionBlock(0.0f);
 ObjModel* model = nullptr;
 
 bool keys[255];
@@ -94,19 +95,34 @@ void display()
 	RayCast rayCast(player, chunk);
 	PickResult b = rayCast.pickBlock();
 
-	if (pickedBlock.block != nullptr)
-		pickedBlock.block->mark = false;
-	if (b.block != nullptr && !b.block->isTransparent)
-		b.block->mark = true;
-	pickedBlock = b;
+	//if (pickedBlock.block != nullptr)
+		//pickedBlock.block->mark = false;
+	//if (b.block != nullptr && !b.block->isTransparent)
+		//b.block->mark = true;
 
+	if (lastUpdate >= 5.0f)
+		lastUpdate = 0.0f;
+	selectionBlock = SelectionBlock(lastUpdate / 5.0f);
+
+	pickedBlock = b;
+	if (pickedBlock.block != nullptr)
+		selectionBlock.pos.set(pickedBlock.block->pos);
+
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, terrainTextureId);
 	chunk.draw();
 
+	if (pickedBlock.block != nullptr)
+	{
+		selectionBlock.draw();
+	}
+
+	glPushMatrix();
 	glTranslatef(player->getEyePos().x, player->getEyePos().y - player->getMobHeight(), -player->getEyePos().z );
 	glRotatef(-player->getCamera().rotY + 90, 0, 1, 0);
 	glScalef(0.2f, 0.2f, 0.2f);
 	model->draw();
+	glPopMatrix();
 
 	glutSwapBuffers();
 }
@@ -211,6 +227,8 @@ int main(int argc, char* argv[])
 	memset(keys, 0, sizeof(keys));
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glutIdleFunc(idle);
 	glutDisplayFunc(display);

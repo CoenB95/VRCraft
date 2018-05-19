@@ -194,6 +194,7 @@ void ObjModel::draw()
 			material->texture->apply();
 
 		glBegin(GL_TRIANGLES);
+		glColor3f(1, 1, 1);
 		for (ObjModel::Face face : group->faces)
 		{
 			for (ObjModel::Vertex vertex : face.vertices)
