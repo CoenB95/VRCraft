@@ -12,38 +12,38 @@ void Camera::applyTransform()
 {
 	// NOTE: The real z-axis is inverted. So apply it here.
 
-	float rotRadX = (rotX) / 180.0f * M_PI;
-	float rotRadY = (rotY - 90.0f) / 180.0f * M_PI;
+	float rotRadX = (rotateX) / 180.0f * M_PI;
+	float rotRadY = (rotateY - 90.0f) / 180.0f * M_PI;
 
 	switch (type)
 	{
 	case CAMERA_TYPE_FIRST_PERSON:
 		// Look from ourselves, to a point slightly in front.
-		glRotatef(rotX, 1, 0, 0);
-		glRotatef(rotY, 0, 1, 0);
-		glTranslatef(-pos.x, -pos.y, pos.z);
+		glRotatef(rotateX, 1, 0, 0);
+		glRotatef(rotateY, 0, 1, 0);
+		glTranslatef(-position.x, -position.y, position.z);
 		break;
 	case CAMERA_TYPE_THIRD_PERSON:
 		// Look from a point slightly behind, to ourselves.
 		gluLookAt(
-			pos.x - cosf(rotRadX) * cosf(rotRadY) * thirdPersonDistance,
-			pos.y + sinf(rotRadX) * thirdPersonDistance,
-			-pos.z - cosf(rotRadX) * sinf(rotRadY) * thirdPersonDistance,
-			pos.x, pos.y, -pos.z, 0, 1, 0);
+			position.x - cosf(rotRadX) * cosf(rotRadY) * thirdPersonDistance,
+			position.y + sinf(rotRadX) * thirdPersonDistance,
+			-position.z - cosf(rotRadX) * sinf(rotRadY) * thirdPersonDistance,
+			position.x, position.y, -position.z, 0, 1, 0);
 		break;
 	case CAMERA_TYPE_THIRD_PERSON_FRONT:
 		// Look from a point slightly in front, to ourselves.
 		gluLookAt(
-			pos.x + cosf(rotRadX) * cosf(rotRadY) * thirdPersonDistance,
-			pos.y - sinf(rotRadX) * thirdPersonDistance,
-			-pos.z + cosf(rotRadX) * sinf(rotRadY) * thirdPersonDistance,
-			pos.x, pos.y, -pos.z, 0, 1, 0);
+			position.x + cosf(rotRadX) * cosf(rotRadY) * thirdPersonDistance,
+			position.y - sinf(rotRadX) * thirdPersonDistance,
+			-position.z + cosf(rotRadX) * sinf(rotRadY) * thirdPersonDistance,
+			position.x, position.y, -position.z, 0, 1, 0);
 		break;
 	}
 }
 
-void Camera::update(float elapsedSeconds)
+/*void Camera::update(float elapsedSeconds)
 {
-	rotX = (snappyness * rotX) + ((1.0f - snappyness) * targetRotX);
-	rotY = (snappyness * rotY) + ((1.0f - snappyness) * targetRotY);
-}
+	//rotateX = (snappyness * rotateX) + ((1.0f - snappyness) * targetRotX);
+	//rotateY = (snappyness * rotateY) + ((1.0f - snappyness) * targetRotY);
+}*/

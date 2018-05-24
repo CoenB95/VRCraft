@@ -28,6 +28,7 @@ int width, height;
 GLuint terrainTextureId;
 Chunk chunk(50, 20, 50);
 
+Camera* camera = new Camera();
 Mob* player = new Steve(chunk);
 PickResult pickedBlock(nullptr, -1);
 SelectionBlock selectionBlock(0.0f);
@@ -88,7 +89,7 @@ void display()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	player->getCamera().applyTransform();
+	camera->applyTransform();
 
 	chunk.update();
 
@@ -118,8 +119,8 @@ void display()
 	}
 
 	glPushMatrix();
-	glTranslatef(player->getEyePos().x, player->getEyePos().y - player->getMobHeight(), -player->getEyePos().z );
-	glRotatef(-player->getCamera().rotY + 90, 0, 1, 0);
+	glTranslatef(player->position.x, player->position.y, -player->position.z );
+	glRotatef(-player->rotateY + 90, 0, 1, 0);
 	glScalef(0.2f, 0.2f, 0.2f);
 	model->draw();
 	glPopMatrix();
@@ -134,12 +135,12 @@ void idle()
 	lastFrameTime = frameTime;
 	lastUpdate += deltaTime;
 
-	const float speed = 3;
+	const float speed = 4.0f;
 	if (keys['a']) player->move(270, deltaTime*speed, deltaTime);
 	if (keys['d']) player->move(90, deltaTime*speed, deltaTime);
 	if (keys['w']) player->move(0, deltaTime*speed, deltaTime);
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
-	if (keys[' '] && player->isFloored()) player->speedY = 8.0f;
+	if (keys[' '] && player->isFloored()) player->verticalSpeed = 8.0f;
 
 	player->update(deltaTime);
 
@@ -153,12 +154,12 @@ void mousePassiveMotion(int x, int y)
 	int dy = y - height / 2;
 	if ((dx != 0 || dy != 0) && abs(dx) < 400 && abs(dy) < 400 && !justMovedMouse)
 	{
-		player->getCamera().targetRotY += dx * 0.3f;
-		player->getCamera().targetRotX += dy * 0.3f;
-		if (player->getCamera().targetRotX < -90)
-			player->getCamera().targetRotX = -90;
-		else if (player->getCamera().targetRotX > 90)
-			player->getCamera().targetRotX = 90;
+		camera->rotateY += dx * 0.3f;
+		camera->rotateX += dy * 0.3f;
+		if (camera->rotateX < -90)
+			camera->rotateX = -90;
+		else if (camera->rotateX > 90)
+			camera->rotateX = 90;
 	}
 	if (!justMovedMouse)
 	{
@@ -209,7 +210,7 @@ void keyboard(unsigned char key, int, int)
 void keyboardSpecial(int keyCode, int, int)
 {
 	if (keyCode == GLUT_KEY_F5)
-		player->getCamera().toggleType();
+		camera->toggleType();
 }
 
 void keyboardUp(unsigned char key, int,int)
@@ -280,10 +281,6 @@ int main(int argc, char* argv[])
 	cout << "Loading textures done" << endl;
 
 	cout << "Spawning Steve..." << endl;
-	Camera& camera = player->getCamera();
-	camera.pos.x = 0.0f;
-	camera.pos.y = 0.5f;
-	camera.pos.z = 0.0f;
 	Block* spawnBlock;
 	Block* firstBlock = chunk.getBlock(0);
 	Block* secondBlock;
@@ -317,9 +314,9 @@ int main(int argc, char* argv[])
 		}
 
 		cout << "  Found space!" << endl;
-		camera.pos.x = spawnBlock->pos.x;
-		camera.pos.y = spawnBlock->pos.y + player->getMobHeight() + 0.5f;
-		camera.pos.z = spawnBlock->pos.z;
+		player->position.x = spawnBlock->pos.x;
+		player->position.y = spawnBlock->pos.y + 0.5f;
+		player->position.z = spawnBlock->pos.z;
 		break;
 	}
 

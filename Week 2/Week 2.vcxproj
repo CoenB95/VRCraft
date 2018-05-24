@@ -24,8 +24,11 @@
     <ClCompile Include="block_stone.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="chunk.cpp" />
+    <ClCompile Include="collisioncomponent.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="fps.cpp" />
+    <ClCompile Include="gameobject.cpp" />
+    <ClCompile Include="gameobjectcompenent.cpp" />
     <ClCompile Include="mob.cpp" />
     <ClCompile Include="raycast.cpp" />
     <ClCompile Include="model.cpp" />
@@ -37,7 +40,10 @@
     <ClInclude Include="block_stone.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="chunk.h" />
+    <ClInclude Include="collisioncomponent.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="gameobject.h" />
+    <ClInclude Include="gameobjectcomponent.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="raycast.h" />
     <ClInclude Include="main.h" />
