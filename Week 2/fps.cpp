@@ -143,6 +143,7 @@ void idle()
 	if (keys[' '] && player->isFloored()) player->verticalSpeed = 8.0f;
 
 	player->update(deltaTime);
+	camera->position = player->eyePosition;
 
 	glutPostRedisplay();
 }
