@@ -106,10 +106,10 @@ void SimpleGravityComponent::update(float elapsedTime)
 	parentObject->position.y += verticalSpeed * elapsedTime;
 
 	floored = curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
-		parentObject->position.y - mobBlockHeight < curFloor->pos.y + 0.5f;
+		parentObject->position.y < curFloor->pos.y + 0.5f;
 	if (floored)
 	{
-		parentObject->position.y = (curFloor->pos.y + 0.5f + mobBlockHeight);
+		parentObject->position.y = (curFloor->pos.y + 0.5f);
 		verticalSpeed = 0;
 	}
 
