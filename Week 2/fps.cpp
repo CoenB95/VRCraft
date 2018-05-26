@@ -161,6 +161,9 @@ void mousePassiveMotion(int x, int y)
 			camera->rotateX = -90;
 		else if (camera->rotateX > 90)
 			camera->rotateX = 90;
+
+		player->rotateX = camera->rotateX;
+		player->rotateY = camera->rotateY;
 	}
 	if (!justMovedMouse)
 	{

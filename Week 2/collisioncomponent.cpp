@@ -10,6 +10,7 @@
 #include "collisioncomponent.h"
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
+#include "mob.h"
 #include "vec.h"
 
 BlockCollisionComponent::BlockCollisionComponent(Chunk& world) : GameObjectComponent(), world(world)
@@ -32,6 +33,10 @@ bool BlockCollisionComponent::checkCollision(vector<Block::BlockContext> collisi
 // 0 degrees = North, towards positive Z
 void BlockCollisionComponent::move(float angleDeg, float factor, float elapsedTime)
 {
+	Mob* mob = dynamic_cast<Mob*>(parentObject);
+	if (mob == nullptr)
+		return;
+
 	float chunkX = roundf(parentObject->position.x);
 	float chunkZ = roundf(parentObject->position.z);
 	float blockX = parentObject->position.x - chunkX;
@@ -52,7 +57,7 @@ void BlockCollisionComponent::move(float angleDeg, float factor, float elapsedTi
 		Block* tempBlock = world.getAdjacentBlocks(curFloor).top;
 		if (tempBlock != nullptr)
 		{
-			for (int h = 0; h < mobBlockHeight; h++)
+			for (int h = 0; h < mob->mobHeight; h++)
 			{
 				if (tempBlock == nullptr)
 					break;
@@ -63,7 +68,7 @@ void BlockCollisionComponent::move(float angleDeg, float factor, float elapsedTi
 			}
 
 			// The distance that should be kept from any walls
-			GLfloat d = 0.5f - mobDiameter / 2;
+			GLfloat d = 0.5f - mob->mobDiameter / 2;
 
 			// Collision checking
 			// Left
@@ -92,6 +97,10 @@ SimpleGravityComponent::SimpleGravityComponent(Chunk& world) : GameObjectCompone
 
 void SimpleGravityComponent::update(float elapsedTime)
 {
+	Mob* mob = dynamic_cast<Mob*>(parentObject);
+	if (mob == nullptr)
+		return;
+
 	Block* curFloor = world.getBlock(
 		roundf(parentObject->position.x),
 		roundf(parentObject->position.y) - 1,
@@ -99,7 +108,7 @@ void SimpleGravityComponent::update(float elapsedTime)
 
 	Block* curCeiling = world.getBlock(
 		roundf(parentObject->position.x),
-		roundf(parentObject->position.y + mobBlockHeight) + 1,
+		roundf(parentObject->position.y + mob->mobHeight) + 1,
 		roundf(parentObject->position.z));
 
 	verticalSpeed -= verticalAcceleration * elapsedTime;
@@ -114,10 +123,10 @@ void SimpleGravityComponent::update(float elapsedTime)
 	}
 
 	ceiled = curCeiling != nullptr && !world.isBlockTransparent(curCeiling) &&
-		parentObject->position.y > curCeiling->pos.y - 0.5f - (mobDiameter / 2);
+		parentObject->position.y > curCeiling->pos.y - 0.5f - (mob->mobDiameter / 2);
 	if (ceiled)
 	{
-		parentObject->position.y = (curCeiling->pos.y - 0.5f - (mobDiameter / 2));
+		parentObject->position.y = (curCeiling->pos.y - 0.5f - (mob->mobDiameter / 2));
 		verticalSpeed = 0;
 	}
 }

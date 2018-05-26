@@ -21,7 +21,7 @@ void Mob::move(float angleDeg, float factor, float elapsedTime)
 void Mob::update(float elapsedSeconds)
 {
 	GameObject::update(elapsedSeconds);
-	eyePosition = Vec3f(position.x, position.y + mobBlockHeight, position.z);
+	eyePosition = Vec3f(position.x, position.y + mobHeight, position.z);
 }
 
 Steve::Steve(Chunk& world) : Mob(world)
