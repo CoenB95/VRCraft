@@ -2,15 +2,18 @@
 
 #include "collisioncomponent.h"
 #include "gameobjectcomponent.h"
+#include "followcomponent.h"
 #include "mob.h"
 
 using namespace std;
 
-Mob::Mob(Chunk& world) : world(world), collision(world), floorDetection(world), force()
+Mob::Mob(Chunk& world) : world(world), collision(world), eyes(), floorDetection(world), force()
 {
 	addComponent(&force);
 	addComponent(&floorDetection);
 	addComponent(&collision);
+
+	eyes.addComponent(FollowComponent::rotatingAndTranslating(this, 0.0f)->withOffset(Vec3f(0.0f, mobHeight, 0.0f)));
 }
 
 void Mob::jump()
@@ -29,8 +32,10 @@ void Mob::move(float angleDeg, float factor, float elapsedTime)
 void Mob::update(float elapsedSeconds)
 {
 	force.addForce(Vec3f(0.0f, -0.35f, 0.0f));
+
 	GameObject::update(elapsedSeconds);
-	eyePosition = Vec3f(position.x, position.y + mobHeight, position.z);
+	eyes.update(elapsedSeconds);
+	
 	if (floorDetection.isFloored())
 		force.clearForces();
 }

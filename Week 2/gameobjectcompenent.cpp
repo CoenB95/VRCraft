@@ -34,24 +34,3 @@ void SpinComponent::update(float elapsedSeconds)
 		value -= 360.0f;
 	parentObject->rotateY = value;
 }
-
-FollowSmoothComponent::FollowSmoothComponent(GameObject* host, float snappyness)
-	: GameObjectComponent(), host(&host->position), snappyness(snappyness)
-{
-
-}
-
-FollowSmoothComponent::FollowSmoothComponent(Vec3f* host, float snappyness)
-	: GameObjectComponent(), host(host), snappyness(snappyness)
-{
-
-}
-
-void FollowSmoothComponent::update(float elapsedSeconds)
-{
-	Vec3f prev = parentObject->position;
-	parentObject->position = Vec3f(
-		(1.0f - snappyness) * prev.x + snappyness * host->x,
-		(1.0f - snappyness) * prev.y + snappyness * host->y,
-		(1.0f - snappyness) * prev.z + snappyness * host->z);
-}

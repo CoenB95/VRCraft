@@ -16,6 +16,7 @@
 #include "block_stone.h"
 #include "camera.h"
 #include "chunk.h"
+#include "followcomponent.h"
 #include "mob.h"
 #include "model.h"
 #include "raycast.h"
@@ -28,7 +29,7 @@ int width, height;
 GLuint terrainTextureId;
 Chunk chunk(50, 20, 50);
 
-Camera* camera = new Camera();
+Camera* camera;
 Mob* player = new Steve(chunk);
 
 PickResult pickedBlock(nullptr, -1);
@@ -114,12 +115,15 @@ void display()
 		selectionBlock.draw();
 	}
 
-	glPushMatrix();
-	glTranslatef(player->position.x, player->position.y, -player->position.z );
-	glRotatef(-player->rotateY + 90, 0, 1, 0);
-	glScalef(0.2f, 0.2f, 0.2f);
-	model->draw();
-	glPopMatrix();
+	if (camera->type != Camera::CAMERA_TYPE_FIRST_PERSON)
+	{
+		glPushMatrix();
+		glTranslatef(player->position.x, player->position.y, -player->position.z);
+		glRotatef(-player->rotateY + 90, 0, 1, 0);
+		glScalef(0.2f, 0.2f, 0.2f);
+		model->draw();
+		glPopMatrix();
+	}
 
 	glutSwapBuffers();
 }
@@ -139,7 +143,7 @@ void idle()
 	if (keys[' ']) player->jump();
 
 	player->update(deltaTime);
-	camera->position = player->eyePosition;
+	camera->update(deltaTime);
 
 	glutPostRedisplay();
 }
@@ -151,15 +155,12 @@ void mousePassiveMotion(int x, int y)
 	int dy = y - height / 2;
 	if ((dx != 0 || dy != 0) && abs(dx) < 400 && abs(dy) < 400 && !justMovedMouse)
 	{
-		camera->rotateY += dx * 0.3f;
-		camera->rotateX += dy * 0.3f;
-		if (camera->rotateX < -90)
-			camera->rotateX = -90;
-		else if (camera->rotateX > 90)
-			camera->rotateX = 90;
-
-		player->rotateX = camera->rotateX;
-		player->rotateY = camera->rotateY;
+		player->rotateY += dx * 0.3f;
+		player->rotateX += dy * 0.3f;
+		if (player->rotateX < -89.9f)
+			player->rotateX = -89.9f;
+		else if (player->rotateX > 89.9f)
+			player->rotateX = 89.9f;
 	}
 	if (!justMovedMouse)
 	{
@@ -241,6 +242,9 @@ int main(int argc, char* argv[])
 	glutPassiveMotionFunc(mousePassiveMotion);
 
 	glutWarpPointer(width / 2, height / 2);
+
+	camera = new Camera();
+	camera->addComponent(FollowComponent::rotatingAndTranslating(&player->eyes, 0.8f));
 
 	model = new ObjModel("models/steve/steve.obj");
 

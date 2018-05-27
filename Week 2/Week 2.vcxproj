@@ -26,6 +26,7 @@
     <ClCompile Include="chunk.cpp" />
     <ClCompile Include="collisioncomponent.cpp" />
     <ClCompile Include="color.cpp" />
+    <ClCompile Include="followcomponent.cpp" />
     <ClCompile Include="forcecomponent.cpp" />
     <ClCompile Include="fps.cpp" />
     <ClCompile Include="gameobject.cpp" />
@@ -43,6 +44,7 @@
     <ClInclude Include="chunk.h" />
     <ClInclude Include="collisioncomponent.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="followcomponent.h" />
     <ClInclude Include="forcecomponent.h" />
     <ClInclude Include="gameobject.h" />
     <ClInclude Include="gameobjectcomponent.h" />

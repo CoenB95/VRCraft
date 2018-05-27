@@ -8,11 +8,15 @@
 #include "gameobject.h"
 #include "vec.h"
 
+class MobEyes : public GameObject
+{
+
+};
+
 class Mob : public GameObject
 {
 private:
 	bool ceiled = false;
-	
 	
 	// TODO: replace with 'World' (multiple chunks)
 	Chunk& world;
@@ -24,7 +28,7 @@ public:
 	const GLfloat mobHeight = 1.5f;
 	const GLfloat mobDiameter = 0.30f;
 
-	Vec3f eyePosition;
+	MobEyes eyes;
 
 	Mob(Chunk& world);
 	void jump();

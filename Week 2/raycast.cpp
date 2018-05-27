@@ -33,7 +33,7 @@ bool RayCast::checkAngleInsideRange(float angle, float min, float max)
 
 PickResult RayCast::checkFrontBack(int diffZ)
 {
-	Vec3f cam = player->eyePosition;
+	Vec3f cam = player->eyes.position;
 	bool forwards = checkAngleInsideRange(player->rotateY, 270, 90);
 
 	// Normalize the player's position in the block.
@@ -54,7 +54,7 @@ PickResult RayCast::checkFrontBack(int diffZ)
 
 PickResult RayCast::checkLeftRight(int diffX)
 {
-	Vec3f cam = player->eyePosition;
+	Vec3f cam = player->eyes.position;
 	bool right = checkAngleInsideRange(player->rotateY, 0, 180);
 
 	// Normalize the player's position in the block.
@@ -75,7 +75,7 @@ PickResult RayCast::checkLeftRight(int diffX)
 
 PickResult RayCast::checkTopBottom(int diffY)
 {
-	Vec3f cam = player->eyePosition;
+	Vec3f cam = player->eyes.position;
 	bool downwards = checkAngleInsideRange(player->rotateX, 180, 0);
 
 	// Normalize the player's position in the block.
@@ -105,8 +105,8 @@ PickResult RayCast::pickBlock()
 		bT = checkTopBottom(iT);
 		if (bT.block != nullptr && !bT.block->isTransparent)
 		{
-			if (b.block != nullptr && player->eyePosition.distanceSquared(bT.block->pos) >
-				player->eyePosition.distanceSquared(b.block->pos))
+			if (b.block != nullptr && player->eyes.position.distanceSquared(bT.block->pos) >
+				player->eyes.position.distanceSquared(b.block->pos))
 				break;
 			b = bT;
 		}
@@ -120,8 +120,8 @@ PickResult RayCast::pickBlock()
 		bF = checkFrontBack(iF);
 		if (bF.block != nullptr && !bF.block->isTransparent)
 		{
-			if (b.block != nullptr && player->eyePosition.distanceSquared(bF.block->pos) >
-				player->eyePosition.distanceSquared(b.block->pos))
+			if (b.block != nullptr && player->eyes.position.distanceSquared(bF.block->pos) >
+				player->eyes.position.distanceSquared(b.block->pos))
 				break;
 			b = bF;
 		}
@@ -135,8 +135,8 @@ PickResult RayCast::pickBlock()
 		bL = checkLeftRight(iL);
 		if (bL.block != nullptr && !bL.block->isTransparent)
 		{
-			if (b.block != nullptr && player->eyePosition.distanceSquared(bL.block->pos) >
-				player->eyePosition.distanceSquared(b.block->pos))
+			if (b.block != nullptr && player->eyes.position.distanceSquared(bL.block->pos) >
+				player->eyes.position.distanceSquared(b.block->pos))
 				break;
 			b = bL;
 		}

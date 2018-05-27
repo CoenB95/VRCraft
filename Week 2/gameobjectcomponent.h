@@ -30,14 +30,3 @@ public:
 	SpinComponent(float degreesPerSec);
 	void update(float elapsedSeconds) override;
 };
-
-class FollowSmoothComponent : public GameObjectComponent
-{
-private:
-	Vec3f* host;
-	float snappyness;
-public:
-	FollowSmoothComponent(GameObject* host, float snappyness);
-	FollowSmoothComponent(Vec3f* host, float snappyness);
-	void update(float elapsedSeconds) override;
-};

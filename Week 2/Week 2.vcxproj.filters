@@ -60,6 +60,9 @@
     <ClCompile Include="forcecomponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="followcomponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -111,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="forcecomponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="followcomponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
