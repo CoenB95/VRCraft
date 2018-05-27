@@ -14,6 +14,7 @@ class GameObject
 private:
 	DrawComponent* drawComponent;
 	vector<GameObjectComponent*> components;
+
 public:
 	Vec3f position;
 	// The amount of rotation around the x-axis, in degrees.

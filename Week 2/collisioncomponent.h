@@ -16,17 +16,28 @@ public:
 	void update(float elapsedSecond) override;
 };
 
-class SimpleGravityComponent : public GameObjectComponent
+class FloorCollisionComponent : public GameObjectComponent
 {
 private:
-	Chunk & world;
-	bool ceiled = false;
+	Chunk& world;
+	Block* curFloor;
 	bool floored = false;
-	float verticalAcceleration = 25.0f;
-	float verticalMaxSpeed = 25.0f;
-	float verticalSpeed = 0.0f;
 
 public:
-	SimpleGravityComponent(Chunk& world);
+	FloorCollisionComponent(Chunk& world);
+	bool isFloored() { return floored; }
+	void update(float elapsedSecond) override;
+};
+
+class CeilingCollisionComponent : public GameObjectComponent
+{
+private:
+	Chunk& world;
+	Block* curCeiling;
+	bool ceiled = false;
+
+public:
+	CeilingCollisionComponent(Chunk& world);
+	bool isCeiled() { return ceiled; }
 	void update(float elapsedSecond) override;
 };

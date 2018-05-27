@@ -30,6 +30,7 @@ Chunk chunk(50, 20, 50);
 
 Camera* camera = new Camera();
 Mob* player = new Steve(chunk);
+
 PickResult pickedBlock(nullptr, -1);
 SelectionBlock selectionBlock(0.0f);
 ObjModel* model = nullptr;
@@ -96,11 +97,6 @@ void display()
 	RayCast rayCast(player, chunk);
 	PickResult b = rayCast.pickBlock();
 
-	//if (pickedBlock.block != nullptr)
-		//pickedBlock.block->mark = false;
-	//if (b.block != nullptr && !b.block->isTransparent)
-		//b.block->mark = true;
-
 	if (lastUpdate >= 5.0f)
 		lastUpdate = 0.0f;
 	selectionBlock = SelectionBlock(lastUpdate / 5.0f);
@@ -140,7 +136,7 @@ void idle()
 	if (keys['d']) player->move(90, deltaTime*speed, deltaTime);
 	if (keys['w']) player->move(0, deltaTime*speed, deltaTime);
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
-	if (keys[' '] && player->isFloored()) player->verticalSpeed = 8.0f;
+	if (keys[' ']) player->jump();
 
 	player->update(deltaTime);
 	camera->position = player->eyePosition;
@@ -319,7 +315,7 @@ int main(int argc, char* argv[])
 
 		cout << "  Found space!" << endl;
 		player->position.x = spawnBlock->pos.x;
-		player->position.y = spawnBlock->pos.y + 0.5f;
+		player->position.y = spawnBlock->pos.y + 1.0f;
 		player->position.z = spawnBlock->pos.z;
 		break;
 	}

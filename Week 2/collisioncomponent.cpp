@@ -90,43 +90,49 @@ void BlockCollisionComponent::update(float elapsedSeconds)
 	
 }
 
-SimpleGravityComponent::SimpleGravityComponent(Chunk& world) : GameObjectComponent(), world(world)
+FloorCollisionComponent::FloorCollisionComponent(Chunk& world) : GameObjectComponent(), world(world)
 {
 
 }
 
-void SimpleGravityComponent::update(float elapsedTime)
+void FloorCollisionComponent::update(float elapsedTime)
 {
 	Mob* mob = dynamic_cast<Mob*>(parentObject);
 	if (mob == nullptr)
 		return;
 
-	Block* curFloor = world.getBlock(
+	floored = curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
+		parentObject->position.y < curFloor->pos.y + 0.5f;
+
+	if (floored)
+		parentObject->position.y = (curFloor->pos.y + 0.5f);
+
+	curFloor = world.getBlock(
 		roundf(parentObject->position.x),
 		roundf(parentObject->position.y) - 1,
 		roundf(parentObject->position.z));
+}
 
-	Block* curCeiling = world.getBlock(
-		roundf(parentObject->position.x),
-		roundf(parentObject->position.y + mob->mobHeight) + 1,
-		roundf(parentObject->position.z));
+CeilingCollisionComponent::CeilingCollisionComponent(Chunk& world) : GameObjectComponent(), world(world)
+{
 
-	verticalSpeed -= verticalAcceleration * elapsedTime;
-	parentObject->position.y += verticalSpeed * elapsedTime;
+}
 
-	floored = curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
-		parentObject->position.y < curFloor->pos.y + 0.5f;
-	if (floored)
-	{
-		parentObject->position.y = (curFloor->pos.y + 0.5f);
-		verticalSpeed = 0;
-	}
+void CeilingCollisionComponent::update(float elapsedTime)
+{
+	Mob* mob = dynamic_cast<Mob*>(parentObject);
+	if (mob == nullptr)
+		return;
 
 	ceiled = curCeiling != nullptr && !world.isBlockTransparent(curCeiling) &&
 		parentObject->position.y > curCeiling->pos.y - 0.5f - (mob->mobDiameter / 2);
 	if (ceiled)
 	{
 		parentObject->position.y = (curCeiling->pos.y - 0.5f - (mob->mobDiameter / 2));
-		verticalSpeed = 0;
 	}
+
+	curCeiling = world.getBlock(
+		roundf(parentObject->position.x),
+		roundf(parentObject->position.y + mob->mobHeight) + 1,
+		roundf(parentObject->position.z));
 }
