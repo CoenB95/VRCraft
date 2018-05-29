@@ -16,6 +16,7 @@
 #include "block_stone.h"
 #include "camera.h"
 #include "chunk.h"
+#include "followcomponent.h"
 #include "mob.h"
 #include "model.h"
 #include "raycast.h"
@@ -28,7 +29,9 @@ int width, height;
 GLuint terrainTextureId;
 Chunk chunk(50, 20, 50);
 
+Camera* camera;
 Mob* player = new Steve(chunk);
+
 PickResult pickedBlock(nullptr, -1);
 SelectionBlock selectionBlock(0.0f);
 ObjModel* model = nullptr;
@@ -88,17 +91,12 @@ void display()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	player->getCamera().applyTransform();
+	camera->applyTransform();
 
 	chunk.update();
 
 	RayCast rayCast(player, chunk);
 	PickResult b = rayCast.pickBlock();
-
-	//if (pickedBlock.block != nullptr)
-		//pickedBlock.block->mark = false;
-	//if (b.block != nullptr && !b.block->isTransparent)
-		//b.block->mark = true;
 
 	if (lastUpdate >= 5.0f)
 		lastUpdate = 0.0f;
@@ -117,12 +115,15 @@ void display()
 		selectionBlock.draw();
 	}
 
-	glPushMatrix();
-	glTranslatef(player->getEyePos().x, player->getEyePos().y - player->getMobHeight(), -player->getEyePos().z );
-	glRotatef(-player->getCamera().rotY + 90, 0, 1, 0);
-	glScalef(0.2f, 0.2f, 0.2f);
-	model->draw();
-	glPopMatrix();
+	if (camera->type != Camera::CAMERA_TYPE_FIRST_PERSON)
+	{
+		glPushMatrix();
+		glTranslatef(player->position.x, player->position.y, -player->position.z);
+		glRotatef(-player->rotateY + 90, 0, 1, 0);
+		glScalef(0.2f, 0.2f, 0.2f);
+		model->draw();
+		glPopMatrix();
+	}
 
 	glutSwapBuffers();
 }
@@ -134,14 +135,15 @@ void idle()
 	lastFrameTime = frameTime;
 	lastUpdate += deltaTime;
 
-	const float speed = 3;
+	const float speed = 4.0f;
 	if (keys['a']) player->move(270, deltaTime*speed, deltaTime);
 	if (keys['d']) player->move(90, deltaTime*speed, deltaTime);
 	if (keys['w']) player->move(0, deltaTime*speed, deltaTime);
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
-	if (keys[' '] && player->isFloored()) player->speedY = 8.0f;
+	if (keys[' ']) player->jump();
 
 	player->update(deltaTime);
+	camera->update(deltaTime);
 
 	glutPostRedisplay();
 }
@@ -153,12 +155,12 @@ void mousePassiveMotion(int x, int y)
 	int dy = y - height / 2;
 	if ((dx != 0 || dy != 0) && abs(dx) < 400 && abs(dy) < 400 && !justMovedMouse)
 	{
-		player->getCamera().targetRotY += dx * 0.3f;
-		player->getCamera().targetRotX += dy * 0.3f;
-		if (player->getCamera().targetRotX < -90)
-			player->getCamera().targetRotX = -90;
-		else if (player->getCamera().targetRotX > 90)
-			player->getCamera().targetRotX = 90;
+		player->rotateY += dx * 0.3f;
+		player->rotateX += dy * 0.3f;
+		if (player->rotateX < -89.9f)
+			player->rotateX = -89.9f;
+		else if (player->rotateX > 89.9f)
+			player->rotateX = 89.9f;
 	}
 	if (!justMovedMouse)
 	{
@@ -209,7 +211,7 @@ void keyboard(unsigned char key, int, int)
 void keyboardSpecial(int keyCode, int, int)
 {
 	if (keyCode == GLUT_KEY_F5)
-		player->getCamera().toggleType();
+		camera->toggleType();
 }
 
 void keyboardUp(unsigned char key, int,int)
@@ -240,6 +242,9 @@ int main(int argc, char* argv[])
 	glutPassiveMotionFunc(mousePassiveMotion);
 
 	glutWarpPointer(width / 2, height / 2);
+
+	camera = new Camera();
+	camera->addComponent(FollowComponent::rotatingAndTranslating(&player->eyes, 0.8f));
 
 	model = new ObjModel("models/steve/steve.obj");
 
@@ -280,10 +285,6 @@ int main(int argc, char* argv[])
 	cout << "Loading textures done" << endl;
 
 	cout << "Spawning Steve..." << endl;
-	Camera& camera = player->getCamera();
-	camera.pos.x = 0.0f;
-	camera.pos.y = 0.5f;
-	camera.pos.z = 0.0f;
 	Block* spawnBlock;
 	Block* firstBlock = chunk.getBlock(0);
 	Block* secondBlock;
@@ -317,9 +318,9 @@ int main(int argc, char* argv[])
 		}
 
 		cout << "  Found space!" << endl;
-		camera.pos.x = spawnBlock->pos.x;
-		camera.pos.y = spawnBlock->pos.y + player->getMobHeight() + 0.5f;
-		camera.pos.z = spawnBlock->pos.z;
+		player->position.x = spawnBlock->pos.x;
+		player->position.y = spawnBlock->pos.y + 1.0f;
+		player->position.z = spawnBlock->pos.z;
 		break;
 	}
 

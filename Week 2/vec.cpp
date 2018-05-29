@@ -21,6 +21,19 @@ Vec3f::Vec3f(const Vec3f& other)
 	this->z = other.z;
 }
 
+void Vec3f::operator +=(Vec3f other)
+{
+	this->x += other.x;
+	this->y += other.y;
+	this->z += other.z;
+}
+
+Vec3f& Vec3f::operator *(float other)
+{
+	Vec3f result(x * other, y * other, z * other);
+	return result;
+}
+
 float& Vec3f::operator [](int index)
 {
 	return values[index];

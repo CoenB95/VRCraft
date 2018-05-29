@@ -3,31 +3,37 @@
 
 #include "camera.h"
 #include "chunk.h"
+#include "collisioncomponent.h"
+#include "forcecomponent.h"
+#include "gameobject.h"
 #include "vec.h"
 
-class Mob
+class MobEyes : public GameObject
+{
+
+};
+
+class Mob : public GameObject
 {
 private:
-	Camera eyes;
 	bool ceiled = false;
-	bool floored = false;
-	GLfloat mobBlockHeight = 1.5f;
-	GLfloat mobDiameter = 0.30f;
+	
 	// TODO: replace with 'World' (multiple chunks)
 	Chunk& world;
+	BlockCollisionComponent collision;
+	FloorCollisionComponent floorDetection;
+	ForceComponent force;
 
-	bool checkCollision(vector<Block::BlockContext> collisionBoxes, Block*(*f)(Block::BlockContext b));
 public:
-	float const accelY = 25.0f;
-	float speedY = 0;
+	const GLfloat mobHeight = 1.5f;
+	const GLfloat mobDiameter = 0.30f;
+
+	MobEyes eyes;
 
 	Mob(Chunk& world);
-	Camera& getCamera();
-	Vec3f getEyePos();
-	GLfloat getMobHeight() const { return mobBlockHeight; }
-	bool isFloored() { return floored; };
+	void jump();
 	void move(float angleDeg, float factor, float elapsedTime);
-	void update(float elapsedTime);
+	void update(float elapsedSeconds) override;
 };
 
 class Steve : public Mob

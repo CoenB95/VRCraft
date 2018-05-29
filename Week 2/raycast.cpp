@@ -33,20 +33,20 @@ bool RayCast::checkAngleInsideRange(float angle, float min, float max)
 
 PickResult RayCast::checkFrontBack(int diffZ)
 {
-	Camera& cam = player->getCamera();
-	bool forwards = checkAngleInsideRange(cam.rotY, 270, 90);
+	Vec3f cam = player->eyes.position;
+	bool forwards = checkAngleInsideRange(player->rotateY, 270, 90);
 
 	// Normalize the player's position in the block.
-	float blockZ = cam.pos.z - roundf(cam.pos.z);
+	float blockZ = cam.z - roundf(cam.z);
 	if (!forwards) blockZ *= -1;
 
 	// Calculate the distace to a plane perpendicular to the z-axis using the horizontal rotation.
-	float distance = abs(((float)diffZ - 0.499f - blockZ) / sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F));
+	float distance = abs(((float)diffZ - 0.499f - blockZ) / sinf((-player->rotateY + 90.0f) / 180.0f * M_PI_F));
 
 	// Resolve the hit block's coordinates.
-	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
-	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F);
-	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
+	float hitX = cam.x + distance * cosf((-player->rotateY + 90.0f) / 180.0f * M_PI_F);
+	float hitY = cam.y + distance * tanf((-player->rotateX + 00.0f) / 180.0f * M_PI_F);
+	float hitZ = cam.z + distance * sinf((-player->rotateY + 90.0f) / 180.0f * M_PI_F);
 
 	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
 		forwards ? Block::BlockContext::FRONT_SIDE : Block::BlockContext::BACK_SIDE);
@@ -54,20 +54,20 @@ PickResult RayCast::checkFrontBack(int diffZ)
 
 PickResult RayCast::checkLeftRight(int diffX)
 {
-	Camera& cam = player->getCamera();
-	bool right = checkAngleInsideRange(cam.rotY, 0, 180);
+	Vec3f cam = player->eyes.position;
+	bool right = checkAngleInsideRange(player->rotateY, 0, 180);
 
 	// Normalize the player's position in the block.
-	float blockX = cam.pos.x - roundf(cam.pos.x);
+	float blockX = cam.x - roundf(cam.x);
 	if (!right) blockX *= -1;
 
 	// Calculate the distace to a plane perpendicular to the x-axis using the horizontal rotation.
-	float distance = abs(((float)diffX - 0.499f - blockX) / cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F));
+	float distance = abs(((float)diffX - 0.499f - blockX) / cosf((-player->rotateY + 90.0f) / 180.0f * M_PI_F));
 
 	// Resolve the hit block's coordinates.
-	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
-	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F);
-	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
+	float hitX = cam.x + distance * cosf((-player->rotateY + 90.0f) / 180.0f * M_PI_F);
+	float hitY = cam.y + distance * tanf((-player->rotateX + 00.0f) / 180.0f * M_PI_F);
+	float hitZ = cam.z + distance * sinf((-player->rotateY + 90.0f) / 180.0f * M_PI_F);
 
 	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
 		right ? Block::BlockContext::LEFT_SIDE : Block::BlockContext::RIGHT_SIDE);
@@ -75,20 +75,20 @@ PickResult RayCast::checkLeftRight(int diffX)
 
 PickResult RayCast::checkTopBottom(int diffY)
 {
-	Camera& cam = player->getCamera();
-	bool downwards = checkAngleInsideRange(cam.rotX, 180, 0);
+	Vec3f cam = player->eyes.position;
+	bool downwards = checkAngleInsideRange(player->rotateX, 180, 0);
 
 	// Normalize the player's position in the block.
-	float blockY = cam.pos.y - roundf(cam.pos.y);
+	float blockY = cam.y - roundf(cam.y);
 	if (!downwards) blockY *= -1;
 
 	// Calculate the distace to a plane perpendicular to the y-axis using the vertical rotation.
-	float distance = abs(((float)diffY -0.499f - blockY) / tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F));
+	float distance = abs(((float)diffY -0.499f - blockY) / tanf((-player->rotateX + 00.0f) / 180.0f * M_PI_F));
 
 	// Resolve the hit block's coordinates.
-	float hitX = cam.pos.x + distance * cosf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
-	float hitY = cam.pos.y + distance * tanf((-cam.rotX + 00.0f) / 180.0f * M_PI_F);
-	float hitZ = cam.pos.z + distance * sinf((-cam.rotY + 90.0f) / 180.0f * M_PI_F);
+	float hitX = cam.x + distance * cosf((-player->rotateY + 90.0f) / 180.0f * M_PI_F);
+	float hitY = cam.y + distance * tanf((-player->rotateX + 00.0f) / 180.0f * M_PI_F);
+	float hitZ = cam.z + distance * sinf((-player->rotateY + 90.0f) / 180.0f * M_PI_F);
 
 	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
 		downwards ? Block::BlockContext::BOTTOM_SIDE : Block::BlockContext::TOP_SIDE);
@@ -105,8 +105,8 @@ PickResult RayCast::pickBlock()
 		bT = checkTopBottom(iT);
 		if (bT.block != nullptr && !bT.block->isTransparent)
 		{
-			if (b.block != nullptr && player->getEyePos().distanceSquared(bT.block->pos) >
-				player->getEyePos().distanceSquared(b.block->pos))
+			if (b.block != nullptr && player->eyes.position.distanceSquared(bT.block->pos) >
+				player->eyes.position.distanceSquared(b.block->pos))
 				break;
 			b = bT;
 		}
@@ -120,8 +120,8 @@ PickResult RayCast::pickBlock()
 		bF = checkFrontBack(iF);
 		if (bF.block != nullptr && !bF.block->isTransparent)
 		{
-			if (b.block != nullptr && player->getEyePos().distanceSquared(bF.block->pos) >
-				player->getEyePos().distanceSquared(b.block->pos))
+			if (b.block != nullptr && player->eyes.position.distanceSquared(bF.block->pos) >
+				player->eyes.position.distanceSquared(b.block->pos))
 				break;
 			b = bF;
 		}
@@ -135,8 +135,8 @@ PickResult RayCast::pickBlock()
 		bL = checkLeftRight(iL);
 		if (bL.block != nullptr && !bL.block->isTransparent)
 		{
-			if (b.block != nullptr && player->getEyePos().distanceSquared(bL.block->pos) >
-				player->getEyePos().distanceSquared(b.block->pos))
+			if (b.block != nullptr && player->eyes.position.distanceSquared(bL.block->pos) >
+				player->eyes.position.distanceSquared(b.block->pos))
 				break;
 			b = bL;
 		}
