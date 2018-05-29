@@ -12,17 +12,17 @@ class GameObjectComponent;
 class GameObject
 {
 private:
-	DrawComponent* drawComponent;
+	DrawComponent* drawComponent = nullptr;
 	vector<GameObjectComponent*> components;
 
 public:
 	Vec3f position;
 	// The amount of rotation around the x-axis, in degrees.
-	float rotateX;
+	float rotateX = 0.0f;
 	// The amount of rotation around the y-axis, in degrees.
-	float rotateY;
+	float rotateY = 0.0f;
 	// The amount of rotation around the z-axis, in degrees.
-	float rotateZ;
+	float rotateZ = 0.0f;
 
 	GameObject();
 	void addComponent(GameObjectComponent* component);

@@ -2,10 +2,6 @@
 #define _USE_MATH_DEFINES
 #endif // !_USE_MATH_DEFINES
 
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#endif // !STB_IMAGE_IMPLEMENTATION
-
 #include <GL/freeglut.h>
 #include <cstdio>
 #include <cmath>
@@ -20,10 +16,11 @@
 #include "mob.h"
 #include "model.h"
 #include "raycast.h"
-#include "stb_image.h"
 
 float lastFrameTime = 0;
 float lastUpdate = 0;
+
+vector<GameObject*> gameObjects3D;
 
 int width, height;
 GLuint terrainTextureId;
@@ -31,54 +28,13 @@ Chunk chunk(50, 20, 50);
 
 Camera* camera;
 Mob* player = new Steve(chunk);
+CobblestoneBlock thrownBlock;
 
 PickResult pickedBlock(nullptr, -1);
 SelectionBlock selectionBlock(0.0f);
 ObjModel* model = nullptr;
 
 bool keys[255];
-
-
-void drawCube()
-{
-	glBegin(GL_QUADS);
-	glColor3f(1, 0, 0);
-	glVertex3f(-1, -1, -1);
-	glVertex3f(1, -1, -1);
-	glVertex3f(1, 1, -1);
-	glVertex3f(-1, 1, -1);
-
-	glColor3f(1, 1, 0);
-	glVertex3f(-1, -1, 1);
-	glVertex3f(1, -1, 1);
-	glVertex3f(1, 1, 1);
-	glVertex3f(-1, 1, 1);
-
-	glColor3f(0, 0, 1);
-	glVertex3f(-1, -1, -1);
-	glVertex3f(-1, 1, -1);
-	glVertex3f(-1, 1, 1);
-	glVertex3f(-1, -1, 1);
-
-	glColor3f(1, -1, 1);
-	glVertex3f(1, -1, -1);
-	glVertex3f(1, 1, -1);
-	glVertex3f(1, 1, 1);
-	glVertex3f(1, -1, 1);
-
-	glColor3f(0, 1, 0);
-	glVertex3f(-1, -1, -1);
-	glVertex3f(1, -1, -1);
-	glVertex3f(1, -1, 1);
-	glVertex3f(-1, -1, 1);
-
-	glColor3f(1, 1, 0);
-	glVertex3f(-1, 1, -1);
-	glVertex3f(1, 1, -1);
-	glVertex3f(1, 1, 1);
-	glVertex3f(-1, 1, 1);
-	glEnd();
-}
 
 void display()
 {
@@ -87,13 +43,14 @@ void display()
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0f, (float)width/height, 0.1, 30);
+	gluPerspective(60.0f, (float)width/height, 0.1, 300);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	camera->applyTransform();
 
-	chunk.update();
+	for (GameObject* object : gameObjects3D)
+		object->draw();
 
 	RayCast rayCast(player, chunk);
 	PickResult b = rayCast.pickBlock();
@@ -104,11 +61,7 @@ void display()
 
 	pickedBlock = b;
 	if (pickedBlock.block != nullptr)
-		selectionBlock.pos.set(pickedBlock.block->pos);
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, terrainTextureId);
-	chunk.draw();
+		selectionBlock.position = pickedBlock.block->position;
 
 	if (pickedBlock.block != nullptr)
 	{
@@ -142,8 +95,8 @@ void idle()
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
 	if (keys[' ']) player->jump();
 
-	player->update(deltaTime);
-	camera->update(deltaTime);
+	for (GameObject* object : gameObjects3D)
+		object->update(deltaTime);
 
 	glutPostRedisplay();
 }
@@ -182,7 +135,7 @@ void onMousePressed(int button, int state, int x, int y)
 			if (airBlock != nullptr)
 			{
 				Block* b = new CobblestoneBlock();
-				b->pos.set(airBlock->pos);
+				b->position = airBlock->position;
 				chunk.notifyBlockChanged(b);
 			}
 		}
@@ -194,7 +147,7 @@ void onMousePressed(int button, int state, int x, int y)
 		{
 			Block* b = new StoneBlock();
 			b->isTransparent = true;
-			b->pos.set(pickedBlock.block->pos);
+			b->position = pickedBlock.block->position;
 			chunk.notifyBlockChanged(b);
 		}
 	}
@@ -248,41 +201,15 @@ int main(int argc, char* argv[])
 
 	model = new ObjModel("models/steve/steve.obj");
 
-	cout << "Loading textures... " << endl;
+	thrownBlock.setScale(Block::SCALE_ITEM);
+	thrownBlock.addComponent(new SpinComponent(50.0f));
 
-	int imageWidth, imageHeight, imageComponents;
-	stbi_uc* image = stbi_load("terrain.png", &imageWidth, &imageHeight, &imageComponents, 0);
+	gameObjects3D.push_back(&chunk);
+	gameObjects3D.push_back(player);
+	gameObjects3D.push_back(&thrownBlock);
+	gameObjects3D.push_back(camera);
 
-	if (image == nullptr)
-	{
-		cout << "Could not load textures" << endl << "  Reason: " << stbi_failure_reason() << endl;
-	}
-	else
-	{
-		cout << "Image size: " << imageWidth << "x" << imageHeight << endl;
-
-		glGenTextures(1, &terrainTextureId);
-		glBindTexture(GL_TEXTURE_2D, terrainTextureId);
-
-		glTexImage2D(GL_TEXTURE_2D,
-			0,					//level
-			GL_RGBA,			//internal format
-			imageWidth,			//width
-			imageHeight,		//height
-			0,					//border
-			GL_RGBA,			//data format
-			GL_UNSIGNED_BYTE,	//data type
-			image);				//data
-
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		glEnable(GL_TEXTURE_2D);
-
-		stbi_image_free(image);
-	}
-
-	cout << "Loading textures done" << endl;
+	ChunkDrawComponent::loadTextures();
 
 	cout << "Spawning Steve..." << endl;
 	Block* spawnBlock;
@@ -318,11 +245,13 @@ int main(int argc, char* argv[])
 		}
 
 		cout << "  Found space!" << endl;
-		player->position.x = spawnBlock->pos.x;
-		player->position.y = spawnBlock->pos.y + 1.0f;
-		player->position.z = spawnBlock->pos.z;
+		player->position.x = spawnBlock->position.x;
+		player->position.y = spawnBlock->position.y + 1.0f;
+		player->position.z = spawnBlock->position.z;
 		break;
 	}
+
+	thrownBlock.position = player->position;
 
 	glutMainLoop();
 

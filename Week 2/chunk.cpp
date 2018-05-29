@@ -1,3 +1,7 @@
+#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#endif // !STB_IMAGE_IMPLEMENTATION
+
 #include <GL/freeglut.h>
 #include <cstddef>
 #include <iostream>
@@ -6,6 +10,7 @@
 
 #include "block_grass.h"
 #include "chunk.h"
+#include "stb_image.h"
 #include "stb_perlin.h"
 
 Chunk::Chunk(int width, int height, int depth)
@@ -22,7 +27,7 @@ Chunk::Chunk(int width, int height, int depth)
 			{
 				Block* block = new GrassBlock();
 				block->isTransparent = stb_perlin_noise3((float)x / width * 2 - 1, (float)y / height * 2 - 1, (float)z / depth * 2 - 1, 0, 0, 0) < 0.0f;
-				block->pos.set(x, y, z);
+				block->position = Vec3f(x, y, z);
 				blocks.push_back(block);
 			}
 		}
@@ -38,18 +43,8 @@ Chunk::Chunk(int width, int height, int depth)
 			notifyBlockChanged(newBlock);
 		}
 	}
-}
 
-void Chunk::draw()
-{
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, 0.0f);
-
-	glBegin(GL_TRIANGLES);
-	drawRaw();
-	glEnd();
-
-	glPopMatrix();
+	addComponent(new ChunkDrawComponent());
 }
 
 void Chunk::drawRaw()
@@ -64,12 +59,12 @@ Block::BlockContext Chunk::getAdjacentBlocks(Block* base)
 {
 	int i = getBlockIndex(base);
 	Block::BlockContext context = Block::BlockContext(
-		getBlock(blocks[i]->pos.x, blocks[i]->pos.y + 1, blocks[i]->pos.z),
-		getBlock(blocks[i]->pos.x, blocks[i]->pos.y, blocks[i]->pos.z - 1),
-		getBlock(blocks[i]->pos.x + 1, blocks[i]->pos.y, blocks[i]->pos.z),
-		getBlock(blocks[i]->pos.x, blocks[i]->pos.y, blocks[i]->pos.z + 1),
-		getBlock(blocks[i]->pos.x - 1, blocks[i]->pos.y, blocks[i]->pos.z),
-		getBlock(blocks[i]->pos.x, blocks[i]->pos.y - 1, blocks[i]->pos.z)
+		getBlock(blocks[i]->position.x, blocks[i]->position.y + 1, blocks[i]->position.z),
+		getBlock(blocks[i]->position.x, blocks[i]->position.y, blocks[i]->position.z - 1),
+		getBlock(blocks[i]->position.x + 1, blocks[i]->position.y, blocks[i]->position.z),
+		getBlock(blocks[i]->position.x, blocks[i]->position.y, blocks[i]->position.z + 1),
+		getBlock(blocks[i]->position.x - 1, blocks[i]->position.y, blocks[i]->position.z),
+		getBlock(blocks[i]->position.x, blocks[i]->position.y - 1, blocks[i]->position.z)
 	);
 	return context;
 }
@@ -95,7 +90,7 @@ Block* Chunk::getBlock(int x, int y, int z)
 
 int Chunk::getBlockIndex(Block* block)
 {
-	return getBlockIndex((int)block->pos.x, (int)block->pos.y, (int)block->pos.z);
+	return getBlockIndex((int)block->position.x, (int)block->position.y, (int)block->position.z);
 }
 
 int Chunk::getBlockIndex(int x, int y, int z)
@@ -127,14 +122,16 @@ void Chunk::notifyBlockChanged(Block* newBlock)
 	blocksChanged = true;
 }
 
-void Chunk::update()
+void Chunk::update(float elapsedSeconds)
 {
+	GameObject::update(elapsedSeconds);
+
 	if (blocksChanged)
 	{
 		blocksChanged = false;
 		for (int i = 0; i < newBlocks.size(); i++)
 		{
-			Block** block = getBlockPtr((int)newBlocks[i]->pos.x, (int)newBlocks[i]->pos.y, (int)newBlocks[i]->pos.z);
+			Block** block = getBlockPtr((int)newBlocks[i]->position.x, (int)newBlocks[i]->position.y, (int)newBlocks[i]->position.z);
 			delete *block;
 			*block = newBlocks[i];
 		}
@@ -151,4 +148,67 @@ void Chunk::update()
 			blocks[i]->bottomSide->shouldRender = context.bottom == nullptr || context.bottom->isTransparent;
 		}
 	}
+}
+
+ChunkDrawComponent::ChunkDrawComponent() : DrawComponent()
+{
+
+}
+
+GLuint ChunkDrawComponent::terrainTextureId = -1;
+
+void ChunkDrawComponent::draw()
+{
+	if (terrainTextureId < 0)
+		return;
+
+	Chunk* chunk = dynamic_cast<Chunk*>(parentObject);
+	if (chunk == nullptr)
+		return;
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, terrainTextureId);
+
+	glBegin(GL_TRIANGLES);
+	chunk->drawRaw();
+	glEnd();
+}
+
+void ChunkDrawComponent::loadTextures()
+{
+	cout << "Loading textures... " << endl;
+
+	int imageWidth, imageHeight, imageComponents;
+	stbi_uc* image = stbi_load("terrain.png", &imageWidth, &imageHeight, &imageComponents, 0);
+
+	if (image == nullptr)
+	{
+		cout << "Could not load textures" << endl << "  Reason: " << stbi_failure_reason() << endl;
+	}
+	else
+	{
+		cout << "Image size: " << imageWidth << "x" << imageHeight << endl;
+
+		glGenTextures(1, &terrainTextureId);
+		glBindTexture(GL_TEXTURE_2D, terrainTextureId);
+
+		glTexImage2D(GL_TEXTURE_2D,
+			0,					//level
+			GL_RGBA,			//internal format
+			imageWidth,			//width
+			imageHeight,		//height
+			0,					//border
+			GL_RGBA,			//data format
+			GL_UNSIGNED_BYTE,	//data type
+			image);				//data
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glEnable(GL_TEXTURE_2D);
+
+		stbi_image_free(image);
+	}
+
+	cout << "Loading textures done" << endl;
 }

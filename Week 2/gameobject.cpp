@@ -33,11 +33,11 @@ void GameObject::draw()
 	{
 		glPushMatrix();
 		
-		glTranslatef(position.x, position.y, position.z);
+		glTranslatef(position.x, position.y, -position.z);
 		
-		glRotatef(rotateY, 0, 1, 0);
 		glRotatef(rotateZ, 0, 0, 1);
 		glRotatef(rotateX, 1, 0, 0);
+		glRotatef(rotateY, 0, 1, 0);
 
 		drawComponent->draw();
 

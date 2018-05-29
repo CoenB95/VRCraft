@@ -105,8 +105,8 @@ PickResult RayCast::pickBlock()
 		bT = checkTopBottom(iT);
 		if (bT.block != nullptr && !bT.block->isTransparent)
 		{
-			if (b.block != nullptr && player->eyes.position.distanceSquared(bT.block->pos) >
-				player->eyes.position.distanceSquared(b.block->pos))
+			if (b.block != nullptr && player->eyes.position.distanceSquared(bT.block->position) >
+				player->eyes.position.distanceSquared(b.block->position))
 				break;
 			b = bT;
 		}
@@ -120,8 +120,8 @@ PickResult RayCast::pickBlock()
 		bF = checkFrontBack(iF);
 		if (bF.block != nullptr && !bF.block->isTransparent)
 		{
-			if (b.block != nullptr && player->eyes.position.distanceSquared(bF.block->pos) >
-				player->eyes.position.distanceSquared(b.block->pos))
+			if (b.block != nullptr && player->eyes.position.distanceSquared(bF.block->position) >
+				player->eyes.position.distanceSquared(b.block->position))
 				break;
 			b = bF;
 		}
@@ -135,8 +135,8 @@ PickResult RayCast::pickBlock()
 		bL = checkLeftRight(iL);
 		if (bL.block != nullptr && !bL.block->isTransparent)
 		{
-			if (b.block != nullptr && player->eyes.position.distanceSquared(bL.block->pos) >
-				player->eyes.position.distanceSquared(b.block->pos))
+			if (b.block != nullptr && player->eyes.position.distanceSquared(bL.block->position) >
+				player->eyes.position.distanceSquared(b.block->position))
 				break;
 			b = bL;
 		}

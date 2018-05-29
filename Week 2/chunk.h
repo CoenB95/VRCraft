@@ -4,10 +4,11 @@
 #include <vector>
 
 #include "block.h"
+#include "gameobject.h"
 
 using namespace std;
 
-class Chunk
+class Chunk : public GameObject
 {
 private:
 	float blockDrawSize = 1.0f;
@@ -19,7 +20,6 @@ public:
 
 	Chunk(int width, int height, int depth);
 
-	void draw();
 	void drawRaw();
 	Block::BlockContext getAdjacentBlocks(Block* base);
 	Block* getBlock(int index);
@@ -30,7 +30,19 @@ public:
 	Block** getBlockPtr(int x, int y, int z);
 	bool isBlockTransparent(Block* block);
 	void notifyBlockChanged(Block* newBlock);
-	void update();
+	void update(float elapsedSeconds) override;
+};
+
+class ChunkDrawComponent : public DrawComponent
+{
+private:
+	static GLuint terrainTextureId;
+
+public:
+	ChunkDrawComponent();
+	void draw() override;
+	static void loadTextures();
+	void update(float elapsedSeconds) override {};
 };
 
 #endif // !CHUNK_H

@@ -102,10 +102,10 @@ void FloorCollisionComponent::update(float elapsedTime)
 		return;
 
 	floored = curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
-		parentObject->position.y < curFloor->pos.y + 0.5f;
+		parentObject->position.y < curFloor->position.y + 0.5f;
 
 	if (floored)
-		parentObject->position.y = (curFloor->pos.y + 0.5f);
+		parentObject->position.y = (curFloor->position.y + 0.5f);
 
 	curFloor = world.getBlock(
 		roundf(parentObject->position.x),
@@ -125,10 +125,10 @@ void CeilingCollisionComponent::update(float elapsedTime)
 		return;
 
 	ceiled = curCeiling != nullptr && !world.isBlockTransparent(curCeiling) &&
-		parentObject->position.y > curCeiling->pos.y - 0.5f - (mob->mobDiameter / 2);
+		parentObject->position.y > curCeiling->position.y - 0.5f - (mob->mobDiameter / 2);
 	if (ceiled)
 	{
-		parentObject->position.y = (curCeiling->pos.y - 0.5f - (mob->mobDiameter / 2));
+		parentObject->position.y = (curCeiling->position.y - 0.5f - (mob->mobDiameter / 2));
 	}
 
 	curCeiling = world.getBlock(

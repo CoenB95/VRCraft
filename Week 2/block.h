@@ -5,6 +5,8 @@
 #include <string>
 
 #include "color.h"
+#include "gameobject.h"
+#include "gameobjectcomponent.h"
 #include "vec.h"
 
 using namespace std;
@@ -38,7 +40,7 @@ public:
 	void applyTexture(GLfloat texX, GLfloat texY) override;
 };
 
-class Block
+class Block : public GameObject
 {
 private:
 	GLfloat hw, hh, hd;
@@ -79,19 +81,18 @@ public:
 	BlockSide* rightSide;
 	BlockSide* topSide;
 
-	Vec3f pos;
 	bool isTransparent = false;
 
 	Block(BlockSide* top, BlockSide* front, BlockSide* right,
 		BlockSide* back, BlockSide* left, BlockSide* bottom,
 		string typeName = "Unknown", GLfloat scale = SCALE_BLOCK);
 
-	void draw();
 	void drawRaw(bool offset = true);
 	string getPositionString() const;
 	virtual Block* randomTick(Block::BlockContext& adjacentBlocks);
 	void setColor(Color4f color);
 	void setColors(Color4f front, Color4f top, Color4f right, Color4f back, Color4f bottom, Color4f left);
+	void setScale(GLfloat scale);
 	virtual string toString() const;
 };
 
@@ -117,6 +118,13 @@ inline void Block::setColors(Color4f front, Color4f top, Color4f right, Color4f 
 	rightSide = new SimpleBlockSide(right);
 	topSide = new SimpleBlockSide(top);
 }
+
+class BlockDrawComponent : public DrawComponent
+{
+public:
+	void draw() override;
+	void update(float elapsedSeconds) override {};
+};
 
 class SelectionBlock : public Block
 {

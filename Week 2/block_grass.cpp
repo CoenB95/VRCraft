@@ -24,7 +24,7 @@ Block* GrassBlock::randomTick(Block::BlockContext& adjacentBlocks)
 	{
 		DirtBlock* dirt = new DirtBlock();
 		dirt->isTransparent = isTransparent;
-		dirt->pos.set(pos.x, pos.y, pos.z);
+		dirt->position = Vec3f(position.x, position.y, position.z);
 		return dirt;
 	}
 

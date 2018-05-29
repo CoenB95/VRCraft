@@ -23,30 +23,18 @@ const GLfloat Block::SCALE_ITEM = 0.3f;
 
 Block::Block(BlockSide* top, BlockSide* front, BlockSide* right,
 	BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName, GLfloat scale) :
+	GameObject(),
 	topSide(top),
 	frontSide(front),
 	rightSide(right),
 	backSide(back),
 	leftSide(left),
 	bottomSide(bottom),
-	typeName(typeName),
-	pos(0, 0, 0)
+	typeName(typeName)
 {
-	this->hw = scale / 2;
-	this->hh = scale / 2;
-	this->hd = scale / 2;
-}
+	setScale(scale);
 
-void Block::draw()
-{
-	glPushMatrix();
-
-	glTranslatef(pos.x, pos.y, -pos.z);
-	glBegin(GL_TRIANGLES);
-	drawRaw(false);
-	glEnd();
-
-	glPopMatrix();
+	addComponent(new BlockDrawComponent());
 }
 
 void Block::drawRaw(bool offset)
@@ -54,9 +42,9 @@ void Block::drawRaw(bool offset)
 	if (isTransparent)
 		return;
 
-	GLfloat x = (offset ? this->pos.x : 0) * this->hw * 2;
-	GLfloat y = (offset ? this->pos.y : 0) * this->hh * 2;
-	GLfloat z = (offset ? this->pos.z : 0) * this->hd * 2;
+	GLfloat x = (offset ? this->position.x : 0);
+	GLfloat y = (offset ? this->position.y : 0);
+	GLfloat z = (offset ? this->position.z : 0);
 
 	if (frontSide->shouldRender)
 	{
@@ -131,13 +119,20 @@ void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat
 string Block::getPositionString() const
 {
 	stringstream ss;
-	ss << "x=" << pos.x << ", y=" << pos.y << ", z=" << pos.z;
+	ss << "x=" << position.x << ", y=" << position.y << ", z=" << position.z;
 	return ss.str();
 }
 
 Block* Block::randomTick(Block::BlockContext& adjacentBlocks)
 {
 	return nullptr;
+}
+
+void Block::setScale(GLfloat scale)
+{
+	this->hw = scale / 2;
+	this->hh = scale / 2;
+	this->hd = scale / 2;
 }
 
 string Block::toString() const
@@ -165,6 +160,17 @@ Block* Block::BlockContext::operator [](int index)
 	case BOTTOM_SIDE: return bottom;
 	default: return nullptr;
 	}
+}
+
+void BlockDrawComponent::draw()
+{
+	Block* block = dynamic_cast<Block*>(parentObject);
+	if (block == nullptr)
+		return;
+
+	glBegin(GL_TRIANGLES);
+	block->drawRaw(false);
+	glEnd();
 }
 
 // === SimpleBlockSide ===
