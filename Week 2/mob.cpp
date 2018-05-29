@@ -21,7 +21,7 @@ void Mob::jump()
 	if (!floorDetection.isFloored())
 		return;
 
-	force.addForce(Vec3f(0.0f, 7.5f, 0.0f));
+	force.addForce(Vec3f(0.0f, 10.0f, 0.0f));
 }
 
 void Mob::move(float angleDeg, float factor, float elapsedTime)
