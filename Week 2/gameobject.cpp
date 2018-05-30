@@ -11,6 +11,14 @@ GameObject::GameObject()
 
 }
 
+GameObject::GameObject(GameObject& other)
+{
+	position = other.position;
+	rotateX = other.rotateX;
+	rotateY = other.rotateY;
+	rotateZ = other.rotateZ;
+}
+
 void GameObject::addComponent(GameObjectComponent* component)
 {
 	component->setParent(this);
@@ -43,6 +51,19 @@ void GameObject::draw()
 
 		glPopMatrix();
 	}
+}
+
+void GameObject::removeAllComponents()
+{
+	for (GameObjectComponent* component : components)
+	{
+		if (component != nullptr)
+		{
+			delete component;
+		}
+	}
+
+	components.clear();
 }
 
 void GameObject::update(float elapsedSeconds)

@@ -17,7 +17,9 @@ class BlockSide
 {
 public:
 	bool shouldRender = true;
+
 	virtual void applyTexture(GLfloat texX, GLfloat texY) = 0;
+	virtual BlockSide* clone() = 0;
 };
 
 class SimpleBlockSide : public BlockSide
@@ -27,6 +29,7 @@ private:
 public:
 	SimpleBlockSide(Color4f color);
 	void applyTexture(GLfloat texX, GLfloat texY) override;
+	BlockSide* clone() override;
 };
 
 
@@ -38,6 +41,7 @@ private:
 public:
 	TexturedBlockSide(GLint texX, GLint texY, GLfloat texW = 1.0f, GLfloat texH = 1.0f, Color4f color = Color4f::WHITE);
 	void applyTexture(GLfloat texX, GLfloat texY) override;
+	BlockSide* clone() override;
 };
 
 class Block : public GameObject
@@ -86,6 +90,7 @@ public:
 	Block(BlockSide* top, BlockSide* front, BlockSide* right,
 		BlockSide* back, BlockSide* left, BlockSide* bottom,
 		string typeName = "Unknown", GLfloat scale = SCALE_BLOCK);
+	Block(Block& other);
 
 	void drawRaw(bool offset = true);
 	string getPositionString() const;

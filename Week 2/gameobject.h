@@ -25,7 +25,9 @@ public:
 	float rotateZ = 0.0f;
 
 	GameObject();
+	GameObject(GameObject& other);
 	void addComponent(GameObjectComponent* component);
 	void draw();
+	void removeAllComponents();
 	virtual void update(float elapsedSeconds);
 };

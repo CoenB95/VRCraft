@@ -145,6 +145,13 @@ void onMousePressed(int button, int state, int x, int y)
 	{
 		if (pickedBlock.block != nullptr)
 		{
+			Block* droppedItem = new Block(*pickedBlock.block);
+			droppedItem->setScale(Block::SCALE_ITEM);
+			droppedItem->position += Vec3f(0, 1, 0);
+			droppedItem->addComponent(new SpinComponent(50.0f));
+			droppedItem->addComponent(new FloorCollisionComponent(chunk));
+			gameObjects3D.push_back(droppedItem);
+			
 			Block* b = new StoneBlock();
 			b->isTransparent = true;
 			b->position = pickedBlock.block->position;
