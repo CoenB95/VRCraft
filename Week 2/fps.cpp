@@ -149,6 +149,7 @@ void onMousePressed(int button, int state, int x, int y)
 			droppedItem->setScale(Block::SCALE_ITEM);
 			droppedItem->position += Vec3f(0, 1, 0);
 			droppedItem->addComponent(new SpinComponent(50.0f));
+			droppedItem->addComponent(new SimpleGravityComponent());
 			droppedItem->addComponent(new FloorCollisionComponent(chunk));
 			gameObjects3D.push_back(droppedItem);
 			

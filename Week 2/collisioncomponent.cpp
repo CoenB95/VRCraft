@@ -97,10 +97,6 @@ FloorCollisionComponent::FloorCollisionComponent(Chunk& world) : GameObjectCompo
 
 void FloorCollisionComponent::update(float elapsedTime)
 {
-	Mob* mob = dynamic_cast<Mob*>(parentObject);
-	if (mob == nullptr)
-		return;
-
 	floored = curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
 		parentObject->position.y < curFloor->position.y + 0.5f;
 

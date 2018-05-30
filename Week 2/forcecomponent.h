@@ -15,3 +15,10 @@ public:
 	void clearForces();
 	void update(float elapsedSeconds) override;
 };
+
+class SimpleGravityComponent : public ForceComponent
+{
+public:
+	SimpleGravityComponent();
+	void update(float elapsedSeconds) override;
+};
