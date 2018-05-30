@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
 	glutWarpPointer(width / 2, height / 2);
 
 	camera = new Camera();
-	camera->addComponent(FollowComponent::rotatingAndTranslating(&player->eyes, 0.8f));
+	camera->addComponent(FollowComponent::rotatingAndTranslating(&player->eyes, 0.4f));
 
 	model = new ObjModel("models/steve/steve.obj");
 

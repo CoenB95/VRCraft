@@ -13,7 +13,7 @@ Mob::Mob(Chunk& world) : world(world), collision(world), eyes(), floorDetection(
 	addComponent(&floorDetection);
 	addComponent(&collision);
 
-	eyes.addComponent(FollowComponent::rotatingAndTranslating(this, 0.0f)->withOffset(Vec3f(0.0f, mobHeight, 0.0f)));
+	eyes.addComponent(FollowComponent::rotatingAndTranslating(this, 1.0f)->withOffset(Vec3f(0.0f, mobHeight, 0.0f)));
 }
 
 void Mob::jump()
