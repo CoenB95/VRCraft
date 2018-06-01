@@ -37,6 +37,23 @@ Block::Block(BlockSide* top, BlockSide* front, BlockSide* right,
 	addComponent(new BlockDrawComponent());
 }
 
+Block::Block(Block& other) : GameObject(other)
+{
+	topSide = other.topSide->clone();
+	frontSide = other.frontSide->clone();
+	rightSide = other.rightSide->clone();
+	backSide = other.backSide->clone();
+	leftSide = other.leftSide->clone();
+	bottomSide = other.bottomSide->clone();
+	typeName = other.typeName;
+	hw = other.hw;
+	hh = other.hh;
+	hd = other.hd;
+	isTransparent = other.isTransparent;
+
+	addComponent(new BlockDrawComponent());
+}
+
 void Block::drawRaw(bool offset)
 {
 	if (isTransparent)
@@ -185,6 +202,13 @@ void SimpleBlockSide::applyTexture(GLfloat texX, GLfloat texY)
 	glColor4fv(color.color4fv);
 }
 
+BlockSide* SimpleBlockSide::clone()
+{
+	SimpleBlockSide* copy = new SimpleBlockSide(*this);
+	copy->shouldRender = true;
+	return copy;
+}
+
 // === TexturedBlockSide ===
 
 TexturedBlockSide::TexturedBlockSide(GLint texX, GLint texY, GLfloat texW, GLfloat texH, Color4f color)
@@ -200,6 +224,17 @@ void TexturedBlockSide::applyTexture(GLfloat texX, GLfloat texY)
 {
 	glColor4fv(color.color4fv);
 	glTexCoord2f(x + texX * w, y + texY * h);
+}
+
+BlockSide* TexturedBlockSide::clone()
+{
+	//TexturedBlockSide* tbs = dynamic_cast<TexturedBlockSide*>(&other);
+	//if (tbs == nullptr)
+	//	return nullptr;
+
+	TexturedBlockSide* copy = new TexturedBlockSide(*this);
+	copy->shouldRender = true;
+	return copy;
 }
 
 SelectionBlock::SelectionBlock(float breakage) : Block(
