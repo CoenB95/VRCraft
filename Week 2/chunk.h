@@ -20,6 +20,7 @@ private:
 	vector<Stack*> removedItems;
 	bool blocksChanged = true;
 	bool itemsChanged = false;
+
 public:
 	int width, height, depth;
 
@@ -37,6 +38,7 @@ public:
 	Block** getBlockPtr(int x, int y, int z);
 	Stack* getNearbyStack(Vec3f position, float maxDistance = 1.0f);
 	bool isBlockTransparent(Block* block);
+	Stack* mergeStacks();
 	void notifyBlockChanged(Block* newBlock);
 	void notifyStackDropped(Stack* newStack);
 	void notifyStackRemoved(Stack* oldStack);

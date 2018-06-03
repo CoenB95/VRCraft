@@ -95,6 +95,10 @@ void idle()
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
 	if (keys[' ']) player->jump();
 
+	Stack* mergedStack = chunk.mergeStacks();
+	if (mergedStack != nullptr)
+		gameObjects3D.erase(find(gameObjects3D.begin(), gameObjects3D.end(), mergedStack));
+
 	for (GameObject* object : gameObjects3D)
 		object->update(deltaTime);
 

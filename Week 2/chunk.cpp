@@ -147,6 +147,24 @@ bool Chunk::isBlockTransparent(Block* block)
 	return block != nullptr && block->isTransparent;
 }
 
+Stack* Chunk::mergeStacks()
+{
+	for (int s0 = 0; s0 < items.size(); s0++)
+	{
+		for (int s1 = s0 + 1; s1 < items.size(); s1++)
+		{
+			if (items[s0]->getType()->getTypeName() == items[s1]->getType()->getTypeName() &&
+				items[s0]->position.distanceSquared(items[s1]->position) < 1)
+			{
+				items[s0]->increaseStack(items[s1]->getStackSize());
+				notifyStackRemoved(items[s1]);
+				return items[s1];
+			}
+		}
+	}
+	return nullptr;
+}
+
 void Chunk::notifyBlockChanged(Block* newBlock)
 {
 	newBlocks.push_back(newBlock);
