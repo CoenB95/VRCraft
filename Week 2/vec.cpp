@@ -28,7 +28,7 @@ void Vec3f::operator +=(Vec3f other)
 	this->z += other.z;
 }
 
-Vec3f& Vec3f::operator *(float other)
+Vec3f Vec3f::operator *(float other)
 {
 	Vec3f result(x * other, y * other, z * other);
 	return result;

@@ -143,7 +143,7 @@ PickResult RayCast::pickBlock()
 		iL++;
 	}
 
-	cout << "Hit side: ";
+	/*cout << "Hit side: ";
 	switch (b.side)
 	{
 	case Block::BlockContext::TOP_SIDE:
@@ -161,7 +161,7 @@ PickResult RayCast::pickBlock()
 	default:
 		cout << "Unknown"; break;
 	}
-	cout << endl;
+	cout << endl;*/
 
 	return b;
 }

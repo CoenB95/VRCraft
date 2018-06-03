@@ -140,4 +140,10 @@ public:
 	SelectionBlock(float breakage);
 };
 
+class AirBlock : public Block
+{
+public:
+	AirBlock();
+};
+
 #endif // BLOCK_H

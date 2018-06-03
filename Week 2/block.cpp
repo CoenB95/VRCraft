@@ -249,3 +249,15 @@ SelectionBlock::SelectionBlock(float breakage) : Block(
 {
 
 }
+
+AirBlock::AirBlock() : Block(
+	new TexturedBlockSide(0, 0),
+	new TexturedBlockSide(0, 0),
+	new TexturedBlockSide(0, 0),
+	new TexturedBlockSide(0, 0),
+	new TexturedBlockSide(0, 0),
+	new TexturedBlockSide(0, 0),
+	"Air")
+{
+
+}
