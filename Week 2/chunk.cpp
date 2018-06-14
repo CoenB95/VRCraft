@@ -47,6 +47,27 @@ Chunk::Chunk(int width, int height, int depth)
 	addComponent(new ChunkDrawComponent());
 }
 
+Stack* Chunk::destroyBlock(Block* block)
+{
+	if (block == nullptr)
+		return nullptr;
+
+	Stack* dropped = new Stack(block, *this);
+	notifyStackDropped(dropped);
+
+	Block* newAirBlock = new AirBlock();
+	newAirBlock->isTransparent = true;
+	newAirBlock->position = block->position;
+	notifyBlockChanged(newAirBlock);
+
+	return dropped;
+}
+
+void Chunk::destroyStack(Stack* stack)
+{
+	notifyStackRemoved(stack);
+}
+
 void Chunk::drawRaw()
 {
 	for (int i = 0; i < blocks.size(); i++)
@@ -111,15 +132,55 @@ Block** Chunk::getBlockPtr(int x, int y, int z)
 	return &blocks[index];
 }
 
+Stack* Chunk::getNearbyStack(Vec3f position, float maxDistance)
+{
+	for (Stack* stack : items)
+	{
+		if (position.distanceSquared(stack->position) < maxDistance)
+			return stack;
+	}
+	return nullptr;
+}
+
 bool Chunk::isBlockTransparent(Block* block)
 {
 	return block != nullptr && block->isTransparent;
+}
+
+Stack* Chunk::mergeStacks()
+{
+	for (int s0 = 0; s0 < items.size(); s0++)
+	{
+		for (int s1 = s0 + 1; s1 < items.size(); s1++)
+		{
+			if (items[s0]->getType()->getTypeName() == items[s1]->getType()->getTypeName() &&
+				items[s0]->position.distanceSquared(items[s1]->position) < 1)
+			{
+				items[s0]->increaseStack(items[s1]->getStackSize());
+				notifyStackRemoved(items[s1]);
+				return items[s1];
+			}
+		}
+	}
+	return nullptr;
 }
 
 void Chunk::notifyBlockChanged(Block* newBlock)
 {
 	newBlocks.push_back(newBlock);
 	blocksChanged = true;
+}
+
+void Chunk::notifyStackDropped(Stack* newStack)
+{
+	newItems.push_back(newStack);
+	itemsChanged = true;
+}
+
+void Chunk::notifyStackRemoved(Stack* oldStack)
+{
+	removedItems.push_back(oldStack);
+	itemsChanged = true;
 }
 
 void Chunk::update(float elapsedSeconds)
@@ -147,6 +208,24 @@ void Chunk::update(float elapsedSeconds)
 			blocks[i]->leftSide->shouldRender = context.left == nullptr || context.left->isTransparent;
 			blocks[i]->bottomSide->shouldRender = context.bottom == nullptr || context.bottom->isTransparent;
 		}
+	}
+
+	if (itemsChanged)
+	{
+		itemsChanged = false;
+		for (int i = 0; i < removedItems.size(); i++)
+		{
+			vector<Stack*>::iterator it = find(items.begin(), items.end(), removedItems[i]);
+			delete removedItems[i];
+			items.erase(it);
+		}
+		removedItems.clear();
+
+		for (int i = 0; i < newItems.size(); i++)
+		{
+			items.push_back(newItems[i]);
+		}
+		newItems.clear();
 	}
 }
 

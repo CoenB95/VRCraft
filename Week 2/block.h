@@ -94,6 +94,7 @@ public:
 
 	void drawRaw(bool offset = true);
 	string getPositionString() const;
+	inline string getTypeName() { return typeName; };
 	virtual Block* randomTick(Block::BlockContext& adjacentBlocks);
 	void setColor(Color4f color);
 	void setColors(Color4f front, Color4f top, Color4f right, Color4f back, Color4f bottom, Color4f left);
@@ -138,6 +139,12 @@ private:
 	float curTime = 0.0f;
 public:
 	SelectionBlock(float breakage);
+};
+
+class AirBlock : public Block
+{
+public:
+	AirBlock();
 };
 
 #endif // BLOCK_H

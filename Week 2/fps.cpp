@@ -95,8 +95,21 @@ void idle()
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
 	if (keys[' ']) player->jump();
 
+	Stack* mergedStack = chunk.mergeStacks();
+	if (mergedStack != nullptr)
+		gameObjects3D.erase(find(gameObjects3D.begin(), gameObjects3D.end(), mergedStack));
+
 	for (GameObject* object : gameObjects3D)
 		object->update(deltaTime);
+
+	Stack* nearby = nullptr;
+	nearby = chunk.getNearbyStack(player->position);
+	if (nearby != nullptr)
+	{
+		cout << "Picked up " << nearby->getStackSize() << " item(s) of type '" << nearby->getType()->toString() << "'" << endl;
+		chunk.destroyStack(nearby);
+		gameObjects3D.erase(find(gameObjects3D.begin(), gameObjects3D.end(), nearby));
+	}
 
 	glutPostRedisplay();
 }
@@ -144,19 +157,11 @@ void onMousePressed(int button, int state, int x, int y)
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		if (pickedBlock.block != nullptr)
-		{
-			Block* droppedItem = new Block(*pickedBlock.block);
-			droppedItem->setScale(Block::SCALE_ITEM);
-			droppedItem->position += Vec3f(0, 1, 0);
-			droppedItem->addComponent(new SpinComponent(50.0f));
-			droppedItem->addComponent(new SimpleGravityComponent());
-			droppedItem->addComponent(new FloorCollisionComponent(chunk));
-			gameObjects3D.push_back(droppedItem);
-			
-			Block* b = new StoneBlock();
-			b->isTransparent = true;
-			b->position = pickedBlock.block->position;
-			chunk.notifyBlockChanged(b);
+		{	
+			Stack* dropped = nullptr;
+			dropped = chunk.destroyBlock(pickedBlock.block);
+			if (dropped != nullptr)
+				gameObjects3D.push_back(dropped);
 		}
 	}
 }
