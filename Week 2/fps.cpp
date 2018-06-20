@@ -78,6 +78,17 @@ void display()
 		glPopMatrix();
 	}
 
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, (float)width/100.0f, (float)height/100.0f, 0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	
+	thrownBlock.rotateX = 15.0f;
+	thrownBlock.position = Vec3f(0.5f, 0.5f, 0.0f);
+	thrownBlock.draw();
+
 	glutSwapBuffers();
 }
 
@@ -101,6 +112,8 @@ void idle()
 
 	for (GameObject* object : gameObjects3D)
 		object->update(deltaTime);
+
+	thrownBlock.update(deltaTime);
 
 	Stack* nearby = nullptr;
 	nearby = chunk.getNearbyStack(player->position);
@@ -219,7 +232,7 @@ int main(int argc, char* argv[])
 
 	gameObjects3D.push_back(&chunk);
 	gameObjects3D.push_back(player);
-	gameObjects3D.push_back(&thrownBlock);
+	//gameObjects3D.push_back(&thrownBlock);
 	gameObjects3D.push_back(camera);
 
 	ChunkDrawComponent::loadTextures();
