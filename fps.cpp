@@ -8,11 +8,11 @@
 #include <iostream>
 #include <vector>
 
-#include "block.h"
-#include "block_stone.h"
+#include "Blocks/block.h"
+#include "Blocks/block_stone.h"
 #include "camera.h"
 #include "chunk.h"
-#include "followcomponent.h"
+#include "Components/followcomponent.h"
 #include "mob.h"
 #include "model.h"
 #include "raycast.h"

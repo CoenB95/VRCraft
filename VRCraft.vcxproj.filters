@@ -51,31 +51,31 @@
     <ClCompile Include="vec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gameobject.cpp">
+    <ClCompile Include="Objects\gameobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="collisioncomponent.cpp">
+    <ClCompile Include="Components\collisioncomponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="followcomponent.cpp">
+    <ClCompile Include="Components\followcomponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="forcecomponent.cpp">
+    <ClCompile Include="Components\forcecomponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="gameobjectcompenent.cpp">
+    <ClCompile Include="Components\gameobjectcompenent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="block.cpp">
+    <ClCompile Include="Blocks\block.cpp">
       <Filter>Source Files\Blocks</Filter>
     </ClCompile>
-    <ClCompile Include="block_grass.cpp">
+    <ClCompile Include="Blocks\block_grass.cpp">
       <Filter>Source Files\Blocks</Filter>
     </ClCompile>
-    <ClCompile Include="block_stone.cpp">
+    <ClCompile Include="Blocks\block_stone.cpp">
       <Filter>Source Files\Blocks</Filter>
     </ClCompile>
-    <ClCompile Include="stack.cpp">
+    <ClCompile Include="Blocks\stack.cpp">
       <Filter>Source Files\Blocks</Filter>
     </ClCompile>
   </ItemGroup>
@@ -110,31 +110,31 @@
     <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gameobject.h">
+    <ClInclude Include="Objects\gameobject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="block.h">
+    <ClInclude Include="Blocks\block.h">
       <Filter>Header Files\Blocks</Filter>
     </ClInclude>
-    <ClInclude Include="block_grass.h">
+    <ClInclude Include="Blocks\block_grass.h">
       <Filter>Header Files\Blocks</Filter>
     </ClInclude>
-    <ClInclude Include="block_stone.h">
+    <ClInclude Include="Blocks\block_stone.h">
       <Filter>Header Files\Blocks</Filter>
     </ClInclude>
-    <ClInclude Include="collisioncomponent.h">
+    <ClInclude Include="Components\collisioncomponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="followcomponent.h">
+    <ClInclude Include="Components\followcomponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="forcecomponent.h">
+    <ClInclude Include="Components\forcecomponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="gameobjectcomponent.h">
+    <ClInclude Include="Components\gameobjectcomponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="stack.h">
+    <ClInclude Include="Blocks\stack.h">
       <Filter>Header Files\Blocks</Filter>
     </ClInclude>
   </ItemGroup>

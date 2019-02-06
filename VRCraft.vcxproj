@@ -19,37 +19,37 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="block.cpp" />
-    <ClCompile Include="block_grass.cpp" />
-    <ClCompile Include="block_stone.cpp" />
+    <ClCompile Include="Blocks\block.cpp" />
+    <ClCompile Include="Blocks\block_grass.cpp" />
+    <ClCompile Include="Blocks\block_stone.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="chunk.cpp" />
-    <ClCompile Include="collisioncomponent.cpp" />
+    <ClCompile Include="Components\collisioncomponent.cpp" />
     <ClCompile Include="color.cpp" />
-    <ClCompile Include="followcomponent.cpp" />
-    <ClCompile Include="forcecomponent.cpp" />
+    <ClCompile Include="Components\followcomponent.cpp" />
+    <ClCompile Include="Components\forcecomponent.cpp" />
     <ClCompile Include="fps.cpp" />
-    <ClCompile Include="gameobject.cpp" />
-    <ClCompile Include="gameobjectcompenent.cpp" />
+    <ClCompile Include="Objects\gameobject.cpp" />
+    <ClCompile Include="Components\gameobjectcompenent.cpp" />
     <ClCompile Include="mob.cpp" />
     <ClCompile Include="raycast.cpp" />
     <ClCompile Include="model.cpp" />
-    <ClCompile Include="stack.cpp" />
+    <ClCompile Include="Blocks\stack.cpp" />
     <ClCompile Include="vec.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="block.h" />
-    <ClInclude Include="block_grass.h" />
-    <ClInclude Include="block_stone.h" />
+    <ClInclude Include="Blocks\block.h" />
+    <ClInclude Include="Blocks\block_grass.h" />
+    <ClInclude Include="Blocks\block_stone.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="chunk.h" />
-    <ClInclude Include="collisioncomponent.h" />
+    <ClInclude Include="Components\collisioncomponent.h" />
     <ClInclude Include="color.h" />
-    <ClInclude Include="followcomponent.h" />
-    <ClInclude Include="forcecomponent.h" />
-    <ClInclude Include="gameobject.h" />
-    <ClInclude Include="gameobjectcomponent.h" />
-    <ClInclude Include="stack.h" />
+    <ClInclude Include="Components\followcomponent.h" />
+    <ClInclude Include="Components\forcecomponent.h" />
+    <ClInclude Include="Objects\gameobject.h" />
+    <ClInclude Include="Components\gameobjectcomponent.h" />
+    <ClInclude Include="Blocks\stack.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="raycast.h" />
     <ClInclude Include="main.h" />
