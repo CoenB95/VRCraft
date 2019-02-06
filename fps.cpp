@@ -198,7 +198,7 @@ void keyboardUp(unsigned char key, int,int)
 	keys[key] = false;
 }
 
-int main(int argc, char* argv[])
+/*int main(int argc, char* argv[])
 {
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(800, 600);
@@ -283,4 +283,4 @@ int main(int argc, char* argv[])
 
 
 	return 0;
-}
+}*/
