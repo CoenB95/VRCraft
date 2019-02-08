@@ -2,16 +2,29 @@
 
 #include <VrLib/Application.h>
 #include <VrLib/Device.h>
+#include <VrLib/gl/shader.h>
 
 #include <list>
 
 
-class HelloWorld : public vrlib::Application
+class VrCraft : public vrlib::Application
 {
-	vrlib::DigitalDevice leftButton;
-public:
-	HelloWorld();
+	enum class Uniforms
+	{
+		modelMatrix,
+		projectionMatrix,
+		viewMatrix,
+		s_texture,
+		diffuseColor,
+		textureFactor
+	};
 
+private:
+	vrlib::gl::Shader<Uniforms>* shader;
+	vrlib::DigitalDevice leftButton;
+
+public:
+	VrCraft();
 
 	virtual void init() override;
 	virtual void draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix) override;

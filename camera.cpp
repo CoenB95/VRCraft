@@ -2,7 +2,7 @@
 #define _USE_MATH_DEFINES
 #endif // !_USE_MATH_DEFINES
 
-#include <GL/freeglut.h>
+#include <GL/glew.h>
 #include <cmath>
 #include <iostream>
 

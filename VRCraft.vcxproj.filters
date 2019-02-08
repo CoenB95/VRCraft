@@ -25,11 +25,14 @@
     <Filter Include="Source Files\Blocks">
       <UniqueIdentifier>{81b1f1a7-2931-40b0-bef4-dbf517abcf7e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Scenes">
+      <UniqueIdentifier>{6ab7c428-abb7-40a8-b047-66ef36a723eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scenes">
+      <UniqueIdentifier>{71d9840c-de02-4f75-987a-a0f42f5dcb2c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="fps.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="color.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,35 +54,41 @@
     <ClCompile Include="vec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\gameobject.cpp">
+    <ClCompile Include="gameobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components\collisioncomponent.cpp">
+    <ClCompile Include="collisioncomponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Components\followcomponent.cpp">
+    <ClCompile Include="followcomponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Components\forcecomponent.cpp">
+    <ClCompile Include="forcecomponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Components\gameobjectcompenent.cpp">
+    <ClCompile Include="gameobjectcompenent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Blocks\block.cpp">
+    <ClCompile Include="block.cpp">
       <Filter>Source Files\Blocks</Filter>
     </ClCompile>
-    <ClCompile Include="Blocks\block_grass.cpp">
+    <ClCompile Include="block_grass.cpp">
       <Filter>Source Files\Blocks</Filter>
     </ClCompile>
-    <ClCompile Include="Blocks\block_stone.cpp">
+    <ClCompile Include="block_stone.cpp">
       <Filter>Source Files\Blocks</Filter>
     </ClCompile>
-    <ClCompile Include="Blocks\stack.cpp">
+    <ClCompile Include="stack.cpp">
       <Filter>Source Files\Blocks</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_craft.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gamescene.cpp">
+      <Filter>Source Files\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,35 +122,38 @@
     <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\gameobject.h">
+    <ClInclude Include="gameobject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Blocks\block.h">
+    <ClInclude Include="block.h">
       <Filter>Header Files\Blocks</Filter>
     </ClInclude>
-    <ClInclude Include="Blocks\block_grass.h">
+    <ClInclude Include="block_grass.h">
       <Filter>Header Files\Blocks</Filter>
     </ClInclude>
-    <ClInclude Include="Blocks\block_stone.h">
+    <ClInclude Include="block_stone.h">
       <Filter>Header Files\Blocks</Filter>
     </ClInclude>
-    <ClInclude Include="Components\collisioncomponent.h">
+    <ClInclude Include="collisioncomponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Components\followcomponent.h">
+    <ClInclude Include="followcomponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Components\forcecomponent.h">
+    <ClInclude Include="forcecomponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Components\gameobjectcomponent.h">
+    <ClInclude Include="gameobjectcomponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Blocks\stack.h">
+    <ClInclude Include="stack.h">
       <Filter>Header Files\Blocks</Filter>
     </ClInclude>
-    <ClInclude Include="fps.h">
+    <ClInclude Include="vr_craft.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gamescene.h">
+      <Filter>Header Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

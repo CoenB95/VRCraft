@@ -1,7 +1,7 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
-#include <GL/freeglut.h>
+#include <GL/glew.h>
 #include <string>
 
 #include "color.h"

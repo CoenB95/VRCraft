@@ -1,5 +1,5 @@
 #include <iostream>
-#include <gl/freeglut.h>
+#include <GL/glew.h>
 
 #include "gameobject.h"
 #include "gameobjectcomponent.h"

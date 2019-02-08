@@ -2,17 +2,19 @@
 #define _USE_MATH_DEFINES
 #endif // !_USE_MATH_DEFINES
 
-#include <GL/freeglut.h>
+#include <GL/glew.h>
 #include <cstdio>
 #include <cmath>
 #include <iostream>
 #include <vector>
 
-#include "Blocks/block.h"
-#include "Blocks/block_stone.h"
+#include "vr_craft.h"
+
+#include "block.h"
+#include "block_stone.h"
 #include "camera.h"
 #include "chunk.h"
-#include "Components/followcomponent.h"
+#include "followcomponent.h"
 #include "mob.h"
 #include "model.h"
 #include "raycast.h"
@@ -36,9 +38,10 @@ ObjModel* model = nullptr;
 
 bool keys[255];
 
-void display()
+//void display()
+void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {
-	glClearColor(0.6f, 0.6f, 1, 1);
+	/*glClearColor(0.6f, 0.6f, 1, 1);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 	glMatrixMode(GL_PROJECTION);
@@ -46,13 +49,13 @@ void display()
 	gluPerspective(60.0f, (float)width/height, 0.1, 300);
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	camera->applyTransform();
+	glLoadIdentity();*/
+	//camera->applyTransform();
 
 	for (GameObject* object : gameObjects3D)
 		object->draw();
 
-	RayCast rayCast(player, chunk);
+	/*RayCast rayCast(player, chunk);
 	PickResult b = rayCast.pickBlock();
 
 	if (lastUpdate >= 5.0f)
@@ -66,9 +69,9 @@ void display()
 	if (pickedBlock.block != nullptr)
 	{
 		selectionBlock.draw();
-	}
+	}*/
 
-	if (camera->type != Camera::CAMERA_TYPE_FIRST_PERSON)
+	/*if (camera->type != Camera::CAMERA_TYPE_FIRST_PERSON)
 	{
 		glPushMatrix();
 		glTranslatef(player->position.x, player->position.y, -player->position.z);
@@ -76,9 +79,9 @@ void display()
 		glScalef(0.2f, 0.2f, 0.2f);
 		model->draw();
 		glPopMatrix();
-	}
+	}*/
 
-	glMatrixMode(GL_PROJECTION);
+	/*glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0, (float)width/100.0f, (float)height/100.0f, 0);
 
@@ -89,14 +92,17 @@ void display()
 	thrownBlock.position = Vec3f(0.5f, 0.5f, 0.0f);
 	thrownBlock.draw();
 
-	glutSwapBuffers();
+	glutSwapBuffers();*/
 }
 
-void idle()
+//void idle()
+void VrCraft::preFrame(double frameTime, double totalTime)
 {
-	float frameTime = glutGet(GLUT_ELAPSED_TIME)/1000.0f;
-	float deltaTime = frameTime - lastFrameTime;
-	lastFrameTime = frameTime;
+	//float frameTime = glutGet(GLUT_ELAPSED_TIME)/1000.0f;
+	//float deltaTime = frameTime - lastFrameTime;
+	//lastFrameTime = frameTime;
+	//lastUpdate += deltaTime;
+	float deltaTime = frameTime;
 	lastUpdate += deltaTime;
 
 	const float speed = 4.0f;
@@ -124,13 +130,13 @@ void idle()
 		gameObjects3D.erase(find(gameObjects3D.begin(), gameObjects3D.end(), nearby));
 	}
 
-	glutPostRedisplay();
+	//glutPostRedisplay();
 }
 
 bool justMovedMouse = false;
 void mousePassiveMotion(int x, int y)
 {
-	int dx = x - width / 2;
+	/*int dx = x - width / 2;
 	int dy = y - height / 2;
 	if ((dx != 0 || dy != 0) && abs(dx) < 400 && abs(dy) < 400 && !justMovedMouse)
 	{
@@ -147,12 +153,12 @@ void mousePassiveMotion(int x, int y)
 		justMovedMouse = true;
 	}
 	else
-		justMovedMouse = false;
+		justMovedMouse = false;*/
 }
 
 void onMousePressed(int button, int state, int x, int y)
 {
-	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+	/*if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
 		if (pickedBlock.block != nullptr)
 		{
@@ -176,7 +182,7 @@ void onMousePressed(int button, int state, int x, int y)
 			if (dropped != nullptr)
 				gameObjects3D.push_back(dropped);
 		}
-	}
+	}*/
 }
 
 void keyboard(unsigned char key, int, int)
@@ -189,8 +195,8 @@ void keyboard(unsigned char key, int, int)
 
 void keyboardSpecial(int keyCode, int, int)
 {
-	if (keyCode == GLUT_KEY_F5)
-		camera->toggleType();
+	//if (keyCode == GLUT_KEY_F5)
+	//	camera->toggleType();
 }
 
 void keyboardUp(unsigned char key, int,int)

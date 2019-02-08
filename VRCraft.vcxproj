@@ -19,39 +19,41 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Blocks\block.cpp" />
-    <ClCompile Include="Blocks\block_grass.cpp" />
-    <ClCompile Include="Blocks\block_stone.cpp" />
+    <ClCompile Include="block.cpp" />
+    <ClCompile Include="block_grass.cpp" />
+    <ClCompile Include="block_stone.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="chunk.cpp" />
-    <ClCompile Include="Components\collisioncomponent.cpp" />
+    <ClCompile Include="collisioncomponent.cpp" />
     <ClCompile Include="color.cpp" />
-    <ClCompile Include="Components\followcomponent.cpp" />
-    <ClCompile Include="Components\forcecomponent.cpp" />
-    <ClCompile Include="fps.cpp" />
+    <ClCompile Include="followcomponent.cpp" />
+    <ClCompile Include="forcecomponent.cpp" />
+    <ClCompile Include="gamescene.cpp" />
+    <ClCompile Include="vr_craft.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Objects\gameobject.cpp" />
-    <ClCompile Include="Components\gameobjectcompenent.cpp" />
+    <ClCompile Include="gameobject.cpp" />
+    <ClCompile Include="gameobjectcompenent.cpp" />
     <ClCompile Include="mob.cpp" />
     <ClCompile Include="raycast.cpp" />
     <ClCompile Include="model.cpp" />
-    <ClCompile Include="Blocks\stack.cpp" />
+    <ClCompile Include="stack.cpp" />
     <ClCompile Include="vec.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Blocks\block.h" />
-    <ClInclude Include="Blocks\block_grass.h" />
-    <ClInclude Include="Blocks\block_stone.h" />
+    <ClInclude Include="block.h" />
+    <ClInclude Include="block_grass.h" />
+    <ClInclude Include="block_stone.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="chunk.h" />
-    <ClInclude Include="Components\collisioncomponent.h" />
+    <ClInclude Include="collisioncomponent.h" />
     <ClInclude Include="color.h" />
-    <ClInclude Include="Components\followcomponent.h" />
-    <ClInclude Include="Components\forcecomponent.h" />
-    <ClInclude Include="fps.h" />
-    <ClInclude Include="Objects\gameobject.h" />
-    <ClInclude Include="Components\gameobjectcomponent.h" />
-    <ClInclude Include="Blocks\stack.h" />
+    <ClInclude Include="followcomponent.h" />
+    <ClInclude Include="forcecomponent.h" />
+    <ClInclude Include="gamescene.h" />
+    <ClInclude Include="vr_craft.h" />
+    <ClInclude Include="gameobject.h" />
+    <ClInclude Include="gameobjectcomponent.h" />
+    <ClInclude Include="stack.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="raycast.h" />
     <ClInclude Include="main.h" />
@@ -65,7 +67,7 @@
     <ProjectGuid>{CDA567B7-8390-40B5-B3E3-A0389560384F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Week2</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

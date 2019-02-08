@@ -2,7 +2,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #endif // !STB_IMAGE_IMPLEMENTATION
 
-#include <GL/freeglut.h>
+#include <gl/glew.h>
 #include <cstddef>
 #include <iostream>
 
