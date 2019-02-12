@@ -1,3 +1,6 @@
 [submodule "Libraries"]
 	path = Libraries
 	url = https://github.com/Borf/VrLibraries
+[submodule "VrRuntime"]
+	path = VrRuntime
+	url = https://github.com/CoenB95/VrRuntime.git
