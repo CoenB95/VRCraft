@@ -258,7 +258,7 @@ void ChunkDrawComponent::loadTextures()
 	cout << "Loading textures... " << endl;
 
 	int imageWidth, imageHeight, imageComponents;
-	stbi_uc* image = stbi_load("terrain.png", &imageWidth, &imageHeight, &imageComponents, 0);
+	stbi_uc* image = stbi_load("../models/terrain/terrain.png", &imageWidth, &imageHeight, &imageComponents, 0);
 
 	if (image == nullptr)
 	{
