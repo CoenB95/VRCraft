@@ -156,4 +156,17 @@
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\models\steve\Steve.mtl">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\models\steve\steve.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\models\terrain\terrain.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

@@ -25,19 +25,19 @@ void Camera::applyTransform()
 		break;
 	case CAMERA_TYPE_THIRD_PERSON:
 		// Look from a point slightly behind, to ourselves.
-		gluLookAt(
+		/*gluLookAt(
 			position.x - cosf(rotRadX) * cosf(rotRadY) * thirdPersonDistance,
 			position.y + sinf(rotRadX) * thirdPersonDistance,
 			-position.z - cosf(rotRadX) * sinf(rotRadY) * thirdPersonDistance,
-			position.x, position.y, -position.z, 0, 1, 0);
+			position.x, position.y, -position.z, 0, 1, 0);*/
 		break;
 	case CAMERA_TYPE_THIRD_PERSON_FRONT:
 		// Look from a point slightly in front, to ourselves.
-		gluLookAt(
+		/*gluLookAt(
 			position.x + cosf(rotRadX) * cosf(rotRadY) * thirdPersonDistance,
 			position.y - sinf(rotRadX) * thirdPersonDistance,
 			-position.z + cosf(rotRadX) * sinf(rotRadY) * thirdPersonDistance,
-			position.x, position.y, -position.z, 0, 1, 0);
+			position.x, position.y, -position.z, 0, 1, 0);*/
 		break;
 	}
 }

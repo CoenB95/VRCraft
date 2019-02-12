@@ -38,6 +38,17 @@ ObjModel* model = nullptr;
 
 bool keys[255];
 
+VrCraft::VrCraft() {
+
+}
+
+void VrCraft::init() {
+	ChunkDrawComponent::loadTextures();
+
+	gameObjects3D.push_back(&chunk);
+	gameObjects3D.push_back(player);
+}
+
 //void display()
 void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {

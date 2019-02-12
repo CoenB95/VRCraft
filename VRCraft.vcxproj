@@ -62,6 +62,13 @@
     <ClInclude Include="vec.h" />
     <ClInclude Include="stb_perlin.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\models\steve\Steve.mtl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\models\steve\steve.png" />
+    <Image Include="resources\models\terrain\terrain.png" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{CDA567B7-8390-40B5-B3E3-A0389560384F}</ProjectGuid>
