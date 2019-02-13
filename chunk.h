@@ -42,6 +42,7 @@ public:
 	void notifyBlockChanged(Block* newBlock);
 	void notifyStackDropped(Stack* newStack);
 	void notifyStackRemoved(Stack* oldStack);
+	void randomUpdateBlock(Block* block);
 	void update(float elapsedSeconds) override;
 };
 

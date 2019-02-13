@@ -33,16 +33,10 @@ Chunk::Chunk(int width, int height, int depth)
 		}
 	}
 
-	for (int i = 0; i < blocks.size(); i++)
-	{
-		Block::BlockContext context = getAdjacentBlocks(blocks[i]);
-		
-		Block* newBlock = blocks[i]->randomTick(context);
-		if (newBlock != nullptr)
-		{
-			notifyBlockChanged(newBlock);
-		}
-	}
+	//for (int i = 0; i < blocks.size(); i++)
+	//{
+		//randomUpdateBlock(blocks[i]);
+	//}
 
 	addComponent(new ChunkDrawComponent());
 }
@@ -183,9 +177,24 @@ void Chunk::notifyStackRemoved(Stack* oldStack)
 	itemsChanged = true;
 }
 
+void Chunk::randomUpdateBlock(Block* block) {
+	Block::BlockContext context = getAdjacentBlocks(block);
+
+	Block* newBlock = block->randomTick(context);
+	if (newBlock != nullptr)
+	{
+		notifyBlockChanged(newBlock);
+	}
+}
+
 void Chunk::update(float elapsedSeconds)
 {
 	GameObject::update(elapsedSeconds);
+
+	for (int i = 0; i < 5; i++) {
+		int randomTickIndex = rand() % (width * height * depth);
+		randomUpdateBlock(blocks[randomTickIndex]);
+	}
 
 	if (blocksChanged)
 	{
@@ -198,7 +207,7 @@ void Chunk::update(float elapsedSeconds)
 		}
 		newBlocks.clear();
 
-		for (int i = 0; i < blocks.size(); i++)
+		/*for (int i = 0; i < blocks.size(); i++)
 		{
 			Block::BlockContext context = getAdjacentBlocks(blocks[i]);
 			blocks[i]->topSide->shouldRender = context.top == nullptr || context.top->isTransparent;
@@ -207,7 +216,7 @@ void Chunk::update(float elapsedSeconds)
 			blocks[i]->backSide->shouldRender = context.back == nullptr || context.back->isTransparent;
 			blocks[i]->leftSide->shouldRender = context.left == nullptr || context.left->isTransparent;
 			blocks[i]->bottomSide->shouldRender = context.bottom == nullptr || context.bottom->isTransparent;
-		}
+		}*/
 	}
 
 	if (itemsChanged)
