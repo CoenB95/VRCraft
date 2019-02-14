@@ -33,10 +33,16 @@ Chunk::Chunk(int width, int height, int depth)
 		}
 	}
 
-	//for (int i = 0; i < blocks.size(); i++)
-	//{
-		//randomUpdateBlock(blocks[i]);
-	//}
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		Block::BlockContext context = getAdjacentBlocks(blocks[i]);
+		blocks[i]->topSide->shouldRender = context.top == nullptr || context.top->isTransparent;
+		blocks[i]->frontSide->shouldRender = context.front == nullptr || context.front->isTransparent;
+		blocks[i]->rightSide->shouldRender = context.right == nullptr || context.right->isTransparent;
+		blocks[i]->backSide->shouldRender = context.back == nullptr || context.back->isTransparent;
+		blocks[i]->leftSide->shouldRender = context.left == nullptr || context.left->isTransparent;
+		blocks[i]->bottomSide->shouldRender = context.bottom == nullptr || context.bottom->isTransparent;
+	}
 
 	addComponent(new ChunkDrawComponent());
 }
@@ -267,7 +273,7 @@ void ChunkDrawComponent::loadTextures()
 	cout << "Loading textures... " << endl;
 
 	int imageWidth, imageHeight, imageComponents;
-	stbi_uc* image = stbi_load("../models/terrain/terrain.png", &imageWidth, &imageHeight, &imageComponents, 0);
+	stbi_uc* image = stbi_load("data/VrCraft/models/terrain/terrain.png", &imageWidth, &imageHeight, &imageComponents, 0);
 
 	if (image == nullptr)
 	{
