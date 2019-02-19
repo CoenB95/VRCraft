@@ -19,13 +19,13 @@ public:
 	int increaseStack(int amount = 1);
 };
 
-class ChildDrawComponent : public DrawComponent
+class ChildDrawComponent : public GameObjectComponent
 {
 private:
 	GameObject* child;
 
 public:
 	ChildDrawComponent(GameObject* child);
-	void draw() override;
-	void update(float elapsedSeconds) override;
+	void onDraw() override;
+	void onUpdate(float elapsedSeconds) override;
 };

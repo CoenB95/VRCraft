@@ -6,19 +6,9 @@ GameObjectComponent::GameObjectComponent()
 
 }
 
-GameObjectComponent::GameObjectComponent(GameObject* parent) : parentObject(parent)
-{
-
-}
-
-DrawComponent::DrawComponent() : GameObjectComponent()
-{
-
-}
-
-DrawComponent::DrawComponent(GameObject* parent) : GameObjectComponent(parent)
-{
-
+void GameObjectComponent::setParent(GameObject* newParent) {
+	parentObject = newParent;
+	onAttach(parentObject);
 }
 
 SpinComponent::SpinComponent(float degreesPerSec) : GameObjectComponent(),
@@ -27,7 +17,7 @@ degreesPerSec(degreesPerSec)
 
 }
 
-void SpinComponent::update(float elapsedSeconds)
+void SpinComponent::onUpdate(float elapsedSeconds)
 {
 	value += degreesPerSec * elapsedSeconds;
 	while (value >= 360.0f)

@@ -23,21 +23,24 @@ void GameObject::addComponent(GameObjectComponent* component)
 {
 	component->setParent(this);
 
-	DrawComponent* dc = dynamic_cast<DrawComponent*>(component);
+	/*DrawComponent* dc = dynamic_cast<DrawComponent*>(component);
 	if (dc != nullptr)
 	{
 		if (drawComponent != nullptr)
 			cout << "Warning: multiple draw-components supplied." << endl;
 
 		drawComponent = dc;
-	}
+	}*/
 
 	this->components.push_back(component);
 }
 
 void GameObject::draw()
 {
-	if (drawComponent != nullptr)
+	for (GameObjectComponent* component : components)
+		component->onDraw();
+	
+	/*if (drawComponent != nullptr)
 	{
 		glPushMatrix();
 		
@@ -50,26 +53,20 @@ void GameObject::draw()
 		drawComponent->draw();
 
 		glPopMatrix();
-	}
+	}*/
 }
 
-void GameObject::removeAllComponents()
-{
+void GameObject::removeAllComponents() {
 	for (GameObjectComponent* component : components)
 	{
 		if (component != nullptr)
-		{
 			delete component;
-		}
 	}
 
 	components.clear();
 }
 
-void GameObject::update(float elapsedSeconds)
-{
+void GameObject::update(float elapsedSeconds) {
 	for (GameObjectComponent* component : components)
-	{
-		component->update(elapsedSeconds);
-	}
+		component->onUpdate(elapsedSeconds);
 }

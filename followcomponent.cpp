@@ -23,13 +23,13 @@ FollowComponent* FollowComponent::translating(GameObject* subject, float snappyn
 	return new FollowComponent(subject, true, false, snappyness);
 }
 
-void FollowComponent::update(float elapsedSeconds)
+void FollowComponent::onUpdate(float elapsedSeconds)
 {
 	prev = parentObject->position;
 
 	if (translate)
 	{
-		parentObject->position = Vec3f(
+		parentObject->position = vec3(
 			(1.0f - snappyness) * prev.x + snappyness * (subject->position.x + offset.x),
 			(1.0f - snappyness) * prev.y + snappyness * (subject->position.y + offset.y),
 			(1.0f - snappyness) * prev.z + snappyness * (subject->position.z + offset.z));
@@ -43,7 +43,7 @@ void FollowComponent::update(float elapsedSeconds)
 	}
 }
 
-FollowComponent* FollowComponent::withOffset(Vec3f offset)
+FollowComponent* FollowComponent::withOffset(vec3 offset)
 {
 	this->offset = offset;
 	return this;
@@ -71,11 +71,11 @@ SmoothComponent* SmoothComponent::translating(float snappyness)
 	return new SmoothComponent(true, false, snappyness);
 }
 
-void SmoothComponent::update(float elapsedSeconds)
+void SmoothComponent::onUpdate(float elapsedSeconds)
 {
 	if (translate)
 	{
-		parentObject->position = Vec3f(
+		parentObject->position = vec3(
 			(1.0f - snappyness) * prev.x + snappyness * (parentObject->position.x),
 			(1.0f - snappyness) * prev.y + snappyness * (parentObject->position.y),
 			(1.0f - snappyness) * prev.z + snappyness * (parentObject->position.z));

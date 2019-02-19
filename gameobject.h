@@ -1,22 +1,21 @@
 #pragma once
 
+#include <glm/glm.hpp>
 #include <vector>
 
-#include "vec.h"
-
+using namespace glm;
 using namespace std;
 
-class DrawComponent;
 class GameObjectComponent;
 
 class GameObject
 {
 private:
-	DrawComponent* drawComponent = nullptr;
+	//DrawComponent* drawComponent = nullptr;
 	vector<GameObjectComponent*> components;
 
 public:
-	Vec3f position;
+	vec3 position;
 	// The amount of rotation around the x-axis, in degrees.
 	float rotateX = 0.0f;
 	// The amount of rotation around the y-axis, in degrees.

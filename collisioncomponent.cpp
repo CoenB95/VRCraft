@@ -20,7 +20,7 @@ BlockCollisionComponent::BlockCollisionComponent(Chunk& world) : GameObjectCompo
 
 bool BlockCollisionComponent::checkCollision(vector<Block::BlockContext> collisionBoxes, Block*(*f)(Block::BlockContext b))
 {
-	for (int i = 0; i < collisionBoxes.size(); i++)
+	for (GLuint i = 0; i < collisionBoxes.size(); i++)
 	{
 		Block* b = f(collisionBoxes[i]);
 		if (b == nullptr || !world.isBlockTransparent(b))
@@ -85,7 +85,7 @@ void BlockCollisionComponent::move(float angleDeg, float factor, float elapsedTi
 	parentObject->position.z = (chunkZ + blockZ);
 }
 
-void BlockCollisionComponent::update(float elapsedSeconds)
+void BlockCollisionComponent::onUpdate(float elapsedSeconds)
 {
 	
 }
@@ -95,7 +95,7 @@ FloorCollisionComponent::FloorCollisionComponent(Chunk& world) : GameObjectCompo
 
 }
 
-void FloorCollisionComponent::update(float elapsedTime)
+void FloorCollisionComponent::onUpdate(float elapsedTime)
 {
 	floored = curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
 		parentObject->position.y < curFloor->position.y + 0.5f;
@@ -114,7 +114,7 @@ CeilingCollisionComponent::CeilingCollisionComponent(Chunk& world) : GameObjectC
 
 }
 
-void CeilingCollisionComponent::update(float elapsedTime)
+void CeilingCollisionComponent::onUpdate(float elapsedTime)
 {
 	Mob* mob = dynamic_cast<Mob*>(parentObject);
 	if (mob == nullptr)

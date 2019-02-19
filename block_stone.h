@@ -3,13 +3,13 @@
 
 #include <string>
 
-class StoneBlock : public Block
+class StoneBlock : public CubeBlock
 {
 public:
 	StoneBlock();
 };
 
-class CobblestoneBlock : public Block
+class CobblestoneBlock : public CubeBlock
 {
 public:
 	CobblestoneBlock();

@@ -1,7 +1,7 @@
-#define BOTTOM_LEFT		0, 1
-#define BOTTOM_RIGHT	1, 1
-#define TOP_LEFT		0, 0
-#define TOP_RIGHT		1, 0
+#define BOTTOM_LEFT		0, 0
+#define BOTTOM_RIGHT	1, 0
+#define TOP_LEFT		0, 1
+#define TOP_RIGHT		1, 1
 
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
@@ -14,47 +14,48 @@
 
 #include "block.h"
 
+using namespace glm;
 using namespace std;
 
-const GLfloat Block::TILE_SIZE = 1.0f / 256.0f * 16.0f;
+const int Block::TILES_HEIGHT_COUNT = 16;
+const int Block::TILES_WIDTH_COUNT = 16;
+const int Block::TILE_COUNT = TILES_WIDTH_COUNT * TILES_HEIGHT_COUNT;
+const GLfloat Block::TILE_SIZE = 1.0f / 256.0f * TILES_WIDTH_COUNT;
 const GLfloat Block::SCALE_BLOCK = 1.0f;
 const GLfloat Block::SCALE_BLOCK_OVERLAY = 1.001f;
 const GLfloat Block::SCALE_ITEM = 0.3f;
 
-Block::Block(BlockSide* top, BlockSide* front, BlockSide* right,
-	BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName, GLfloat scale) :
-	GameObject(),
-	topSide(top),
-	frontSide(front),
-	rightSide(right),
-	backSide(back),
-	leftSide(left),
-	bottomSide(bottom),
-	typeName(typeName)
+CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, string typeName) :
+	Block(typeName),
+	topTextureIndex(top),
+	frontTextureIndex(front),
+	rightTextureIndex(right),
+	backTextureIndex(back),
+	leftTextureIndex(left),
+	bottomTextureIndex(bottom)
 {
-	setScale(scale);
 
-	addComponent(new BlockDrawComponent());
 }
 
-Block::Block(Block& other) : GameObject(other)
-{
-	topSide = other.topSide->clone();
-	frontSide = other.frontSide->clone();
-	rightSide = other.rightSide->clone();
-	backSide = other.backSide->clone();
-	leftSide = other.leftSide->clone();
-	bottomSide = other.bottomSide->clone();
-	typeName = other.typeName;
-	hw = other.hw;
-	hh = other.hh;
-	hd = other.hd;
-	isTransparent = other.isTransparent;
+void CubeBlock::build(BlockContext& context) {
+	vec3 pos = position * vec3(1, 1, -1);
+	vec2 texPos = vec2(0 * TILE_SIZE, 0 * TILE_SIZE);
+	vec2 texScl = vec2(TILE_SIZE, TILE_SIZE);
+	vertices.clear();
 
-	addComponent(new BlockDrawComponent());
+	if (context.front != nullptr && !context.front->isTransparent && frontTextureIndex > 0) {
+		texPos = vec2((frontTextureIndex % TILES_WIDTH_COUNT), (TILES_HEIGHT_COUNT - 1 - frontTextureIndex / TILES_WIDTH_COUNT));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, +0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, +0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, +0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+	}
 }
 
-void Block::drawRaw(bool offset)
+/*void Block::draw()
 {
 	if (isTransparent)
 		return;
@@ -123,14 +124,18 @@ void Block::drawRaw(bool offset)
 		drawVertex(leftSide, x - hw, y + hh, z + hd, TOP_LEFT);
 		drawVertex(leftSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
 	}
-}
+}*/
 
-void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY)
+/*void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY)
 {
 	side->applyTexture(texX, texY);
 
 	// The real z-axis is inverted. Apply it here.
 	glVertex3f(x, y, -z);
+}*/
+
+Block::Block(string typeName) : GameObject(), typeName(typeName) {
+
 }
 
 string Block::getPositionString() const
@@ -145,12 +150,12 @@ Block* Block::randomTick(Block::BlockContext& adjacentBlocks)
 	return nullptr;
 }
 
-void Block::setScale(GLfloat scale)
+/*void Block::setScale(GLfloat scale)
 {
 	this->hw = scale / 2;
 	this->hh = scale / 2;
 	this->hd = scale / 2;
-}
+}*/
 
 string Block::toString() const
 {
@@ -179,65 +184,9 @@ Block* Block::BlockContext::operator [](int index)
 	}
 }
 
-void BlockDrawComponent::draw()
-{
-	Block* block = dynamic_cast<Block*>(parentObject);
-	if (block == nullptr)
-		return;
 
-	glBegin(GL_TRIANGLES);
-	block->drawRaw(false);
-	glEnd();
-}
 
-// === SimpleBlockSide ===
-
-SimpleBlockSide::SimpleBlockSide(Color4f color) : color(color)
-{
-
-}
-
-void SimpleBlockSide::applyTexture(GLfloat texX, GLfloat texY)
-{
-	glColor4fv(color.color4fv);
-}
-
-BlockSide* SimpleBlockSide::clone()
-{
-	SimpleBlockSide* copy = new SimpleBlockSide(*this);
-	copy->shouldRender = true;
-	return copy;
-}
-
-// === TexturedBlockSide ===
-
-TexturedBlockSide::TexturedBlockSide(GLint texX, GLint texY, GLfloat texW, GLfloat texH, Color4f color)
-	: color(color)
-{
-	this->x = (GLfloat)texX * Block::TILE_SIZE;
-	this->y = (GLfloat)texY * Block::TILE_SIZE;
-	this->w = texW * Block::TILE_SIZE;
-	this->h = texH * Block::TILE_SIZE;
-}
-
-void TexturedBlockSide::applyTexture(GLfloat texX, GLfloat texY)
-{
-	glColor4fv(color.color4fv);
-	glTexCoord2f(x + texX * w, y + texY * h);
-}
-
-BlockSide* TexturedBlockSide::clone()
-{
-	//TexturedBlockSide* tbs = dynamic_cast<TexturedBlockSide*>(&other);
-	//if (tbs == nullptr)
-	//	return nullptr;
-
-	TexturedBlockSide* copy = new TexturedBlockSide(*this);
-	copy->shouldRender = true;
-	return copy;
-}
-
-SelectionBlock::SelectionBlock(float breakage) : Block(
+/*SelectionBlock::SelectionBlock(float breakage) : Block(
 	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
 	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
 	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
@@ -248,16 +197,9 @@ SelectionBlock::SelectionBlock(float breakage) : Block(
 	SCALE_BLOCK_OVERLAY)
 {
 
-}
+}*/
 
-AirBlock::AirBlock() : Block(
-	new TexturedBlockSide(0, 0),
-	new TexturedBlockSide(0, 0),
-	new TexturedBlockSide(0, 0),
-	new TexturedBlockSide(0, 0),
-	new TexturedBlockSide(0, 0),
-	new TexturedBlockSide(0, 0),
-	"Air")
+AirBlock::AirBlock() : CubeBlock(-1, -1, -1, -1, -1, -1, "Air")
 {
 
 }

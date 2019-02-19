@@ -4,26 +4,12 @@
 #include "block.h"
 #include "block_stone.h"
 
-StoneBlock::StoneBlock() : Block(
-	new TexturedBlockSide(1, 0),
-	new TexturedBlockSide(1, 0),
-	new TexturedBlockSide(1, 0),
-	new TexturedBlockSide(1, 0),
-	new TexturedBlockSide(1, 0),
-	new TexturedBlockSide(1, 0),
-	"Stone")
+StoneBlock::StoneBlock() : CubeBlock(1, "Stone")
 {
 
 }
 
-CobblestoneBlock::CobblestoneBlock() : Block(
-	new TexturedBlockSide(0, 1),
-	new TexturedBlockSide(0, 1),
-	new TexturedBlockSide(0, 1),
-	new TexturedBlockSide(0, 1),
-	new TexturedBlockSide(0, 1),
-	new TexturedBlockSide(0, 1),
-	"Cobblestone")
+CobblestoneBlock::CobblestoneBlock() : CubeBlock(Block::TILES_WIDTH_COUNT + 0, "Cobblestone")
 {
 
 }

@@ -7,14 +7,14 @@
 Stack::Stack(Block* type, Chunk& world) : GameObject()
 {
 	blockType = new Block(*type);
-	blockType->setScale(Block::SCALE_ITEM);
+	//blockType->setScale(Block::SCALE_ITEM);
 
 	position = blockType->position;
-	position += Vec3f(0, 1, 0);
+	position += vec3(0, 1, 0);
 
 	//Note to self: child has relative translation.
 	addComponent(new ChildDrawComponent(blockType));
-	blockType->position = Vec3f(0.0f, Block::SCALE_ITEM / 2, 0.0f);
+	blockType->position = vec3(0.0f, Block::SCALE_ITEM / 2, 0.0f);
 
 	addComponent(new SpinComponent(50.0f));
 	addComponent(new SimpleGravityComponent());
@@ -43,18 +43,18 @@ int Stack::decreaseStack(int amount)
 	return removed;
 }
 
-ChildDrawComponent::ChildDrawComponent(GameObject* child) : DrawComponent(), child(child)
+ChildDrawComponent::ChildDrawComponent(GameObject* child) : GameObjectComponent(), child(child)
 {
 
 }
 
-void ChildDrawComponent::draw()
+void ChildDrawComponent::onDraw()
 {
 	if (child != nullptr)
 		child->draw();
 }
 
-void ChildDrawComponent::update(float elapsedSeconds)
+void ChildDrawComponent::onUpdate(float elapsedSeconds)
 {
 	if (child != nullptr)
 		child->update(elapsedSeconds);

@@ -13,7 +13,7 @@ private:
 public:
 	BlockCollisionComponent(Chunk& world);
 	void move(float angleDeg, float factor, float elapsedTime);
-	void update(float elapsedSecond) override;
+	void onUpdate(float elapsedSecond) override;
 };
 
 class FloorCollisionComponent : public GameObjectComponent
@@ -26,7 +26,7 @@ private:
 public:
 	FloorCollisionComponent(Chunk& world);
 	bool isFloored() { return floored; }
-	void update(float elapsedSecond) override;
+	void onUpdate(float elapsedSecond) override;
 };
 
 class CeilingCollisionComponent : public GameObjectComponent
@@ -39,5 +39,5 @@ private:
 public:
 	CeilingCollisionComponent(Chunk& world);
 	bool isCeiled() { return ceiled; }
-	void update(float elapsedSecond) override;
+	void onUpdate(float elapsedSecond) override;
 };

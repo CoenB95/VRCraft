@@ -3,52 +3,20 @@
 
 #include <GL/glew.h>
 #include <string>
+#include <vector>
+#include <VrLib/gl/Vertex.h>
 
 #include "color.h"
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
-#include "vec.h"
 
 using namespace std;
 
 class BlockContext;
 
-class BlockSide
-{
-public:
-	bool shouldRender = true;
-
-	virtual void applyTexture(GLfloat texX, GLfloat texY) = 0;
-	virtual BlockSide* clone() = 0;
-};
-
-class SimpleBlockSide : public BlockSide
-{
-private:
-	Color4f color;
-public:
-	SimpleBlockSide(Color4f color);
-	void applyTexture(GLfloat texX, GLfloat texY) override;
-	BlockSide* clone() override;
-};
-
-
-class TexturedBlockSide : public BlockSide
-{
-private:
-	Color4f color;
-	GLfloat x, y, w, h;
-public:
-	TexturedBlockSide(GLint texX, GLint texY, GLfloat texW = 1.0f, GLfloat texH = 1.0f, Color4f color = Color4f::WHITE);
-	void applyTexture(GLfloat texX, GLfloat texY) override;
-	BlockSide* clone() override;
-};
-
 class Block : public GameObject
 {
 private:
-	GLfloat hw, hh, hd;
-	void drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY);
 	string typeName;
 
 public:
@@ -68,80 +36,59 @@ public:
 		Block* back;
 		Block* left;
 		Block* bottom;
+
 		BlockContext(Block* top, Block* front, Block* right, Block* back, Block* left, Block* bottom);
 		Block* operator [](int index);
 	};
 
 public:
+	static const int TILES_HEIGHT_COUNT;
+	static const int TILES_WIDTH_COUNT;
+	static const int TILE_COUNT;
 	static const GLfloat TILE_SIZE;
 	static const GLfloat SCALE_BLOCK;
 	static const GLfloat SCALE_BLOCK_OVERLAY;
 	static const GLfloat SCALE_ITEM;
 
-	BlockSide* backSide;
-	BlockSide* bottomSide;
-	BlockSide* frontSide;
-	BlockSide* leftSide;
-	BlockSide* rightSide;
-	BlockSide* topSide;
-
 	bool isTransparent = false;
+	bool shouldRebuild = true;
+	std::vector<vrlib::gl::VertexP3N3T2> vertices;
 
-	Block(BlockSide* top, BlockSide* front, BlockSide* right,
-		BlockSide* back, BlockSide* left, BlockSide* bottom,
-		string typeName = "Unknown", GLfloat scale = SCALE_BLOCK);
-	Block(Block& other);
+	Block(string typeName = "Unknown");
 
-	void drawRaw(bool offset = true);
+	inline virtual void build(BlockContext& context) {};
 	string getPositionString() const;
 	inline string getTypeName() { return typeName; };
-	virtual Block* randomTick(Block::BlockContext& adjacentBlocks);
-	void setColor(Color4f color);
-	void setColors(Color4f front, Color4f top, Color4f right, Color4f back, Color4f bottom, Color4f left);
-	void setScale(GLfloat scale);
+	virtual Block* randomTick(Block::BlockContext& context);
 	virtual string toString() const;
 };
 
-inline void Block::setColor(Color4f color)
+class CubeBlock : public Block
 {
-	setColors(color, color, color, color, color, color);
-}
+private:
+	int backTextureIndex;
+	int bottomTextureIndex;
+	int frontTextureIndex;
+	int leftTextureIndex;
+	int rightTextureIndex;
+	int topTextureIndex;
 
-inline void Block::setColors(Color4f front, Color4f top, Color4f right, Color4f back, Color4f bottom, Color4f left)
-{
-	// Prevent memory leaks.
-	delete backSide;
-	delete bottomSide;
-	delete frontSide;
-	delete leftSide;
-	delete rightSide;
-	delete topSide;
-
-	backSide = new SimpleBlockSide(back);
-	bottomSide = new SimpleBlockSide(bottom);
-	frontSide = new SimpleBlockSide(front);
-	leftSide = new SimpleBlockSide(left);
-	rightSide = new SimpleBlockSide(right);
-	topSide = new SimpleBlockSide(top);
-}
-
-class BlockDrawComponent : public DrawComponent
-{
 public:
-	void draw() override;
-	void update(float elapsedSeconds) override {};
+	CubeBlock(int all, string typeName) : CubeBlock(all, all, all, all, all, all, typeName) {};
+	CubeBlock(int top, int front, int right, int back, int left, int bottom, string typeName);
+	void build(BlockContext& context) override;
 };
 
-class SelectionBlock : public Block
+/*class SelectionBlock : public Block
 {
 private:
 	float resistance = 10.0f;
 	float curTime = 0.0f;
 public:
 	SelectionBlock(float breakage);
-};
+};*/
 
-class AirBlock : public Block
+class AirBlock : public CubeBlock
 {
 public:
 	AirBlock();

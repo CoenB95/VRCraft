@@ -7,6 +7,8 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <VrLib/Log.h>
+#include <VrLib/Texture.h>
 
 #include "vr_craft.h"
 
@@ -18,6 +20,9 @@
 #include "mob.h"
 #include "model.h"
 #include "raycast.h"
+
+using vrlib::Log;
+using vrlib::logger;
 
 float lastFrameTime = 0;
 float lastUpdate = 0;
@@ -33,7 +38,7 @@ Mob* player = new Steve(chunk);
 CobblestoneBlock thrownBlock;
 
 PickResult pickedBlock(nullptr, -1);
-SelectionBlock selectionBlock(0.0f);
+//SelectionBlock selectionBlock(0.0f);
 ObjModel* model = nullptr;
 
 bool keys[255];
@@ -43,7 +48,25 @@ VrCraft::VrCraft() {
 }
 
 void VrCraft::init() {
-	ChunkDrawComponent::loadTextures();
+	shader = new vrlib::gl::Shader<Uniforms>("data/VrCraft/shaders/default.vert", "data/VrCraft/shaders/default.frag");
+	shader->bindAttributeLocation("a_position", 0);
+	shader->bindAttributeLocation("a_normal", 1);
+	shader->bindAttributeLocation("a_texcoord", 2);
+	shader->link();
+	shader->bindFragLocation("fragColor", 0);
+	shader->registerUniform(Uniforms::modelMatrix, "modelMatrix");
+	shader->registerUniform(Uniforms::projectionMatrix, "projectionMatrix");
+	shader->registerUniform(Uniforms::viewMatrix, "viewMatrix");
+	shader->registerUniform(Uniforms::s_texture, "s_texture");
+	shader->registerUniform(Uniforms::diffuseColor, "diffuseColor");
+	shader->registerUniform(Uniforms::textureFactor, "textureFactor");
+	shader->use();
+	shader->setUniform(Uniforms::s_texture, 0);
+
+	//ChunkDrawComponent::loadTextures();
+	chunk.loadTextures();
+
+	logger << "Initialized" << Log::newline;
 
 	gameObjects3D.push_back(&chunk);
 	gameObjects3D.push_back(player);
@@ -52,6 +75,7 @@ void VrCraft::init() {
 //void display()
 void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {
+	glEnable(GL_CULL_FACE);
 	/*glClearColor(0.6f, 0.6f, 1, 1);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
@@ -63,8 +87,23 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelView
 	glLoadIdentity();*/
 	//camera->applyTransform();
 
+	shader->use();
+	shader->setUniform(Uniforms::projectionMatrix, projectionMatrix);
+	shader->setUniform(Uniforms::viewMatrix, modelViewMatrix);
+	shader->setUniform(Uniforms::modelMatrix, glm::mat4());
+	shader->setUniform(Uniforms::diffuseColor, glm::vec4(1, 1, 1, 1));
+	shader->setUniform(Uniforms::textureFactor, 1.0f);
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	
 	for (GameObject* object : gameObjects3D)
 		object->draw();
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 
 	/*RayCast rayCast(player, chunk);
 	PickResult b = rayCast.pickBlock();
@@ -113,7 +152,7 @@ void VrCraft::preFrame(double frameTime, double totalTime)
 	//float deltaTime = frameTime - lastFrameTime;
 	//lastFrameTime = frameTime;
 	//lastUpdate += deltaTime;
-	float deltaTime = frameTime;
+	float deltaTime = (float)frameTime;
 	lastUpdate += deltaTime;
 
 	const float speed = 4.0f;

@@ -2,29 +2,28 @@
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
 #include "forcecomponent.h"
-#include "vec.h"
 
 ForceComponent::ForceComponent() : GameObjectComponent()
 {
 
 }
 
-void ForceComponent::addForce(Vec3f value)
+void ForceComponent::addForce(vec3 value)
 {
 	newForce += value;
 }
 
 void ForceComponent::clearForces()
 {
-	curForce = Vec3f();
+	curForce = vec3();
 }
 
-void ForceComponent::update(float elapsedSeconds)
+void ForceComponent::onUpdate(float elapsedSeconds)
 {
 	curForce += newForce;
 	parentObject->position += curForce * elapsedSeconds;
 
-	newForce = Vec3f();
+	newForce = vec3();
 }
 
 SimpleGravityComponent::SimpleGravityComponent() : ForceComponent()
@@ -32,8 +31,8 @@ SimpleGravityComponent::SimpleGravityComponent() : ForceComponent()
 
 }
 
-void SimpleGravityComponent::update(float elapsedSeconds)
+void SimpleGravityComponent::onUpdate(float elapsedSeconds)
 {
-	addForce(Vec3f(0.0f, -0.35f, 0.0f));
-	ForceComponent::update(elapsedSeconds);
+	addForce(vec3(0.0f, -0.35f, 0.0f));
+	ForceComponent::onUpdate(elapsedSeconds);
 }

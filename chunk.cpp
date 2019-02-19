@@ -5,13 +5,18 @@
 #include <gl/glew.h>
 #include <cstddef>
 #include <iostream>
+#include <VrLib/Log.h>
+#include <VrLib/Texture.h>
 
 #define STB_PERLIN_IMPLEMENTATION
 
 #include "block_grass.h"
 #include "chunk.h"
-#include "stb_image.h"
 #include "stb_perlin.h"
+#include "texturedrawcomponent.h"
+
+using vrlib::Log;
+using vrlib::logger;
 
 Chunk::Chunk(int width, int height, int depth)
 {
@@ -27,24 +32,34 @@ Chunk::Chunk(int width, int height, int depth)
 			{
 				Block* block = new GrassBlock();
 				block->isTransparent = stb_perlin_noise3((float)x / width * 2 - 1, (float)y / height * 2 - 1, (float)z / depth * 2 - 1, 0, 0, 0) < 0.0f;
-				block->position = Vec3f(x, y, z);
+				block->position = vec3(x, y, z);
 				blocks.push_back(block);
 			}
 		}
 	}
 
-	for (int i = 0; i < blocks.size(); i++)
+	/*for (GLuint i = 0; i < blocks.size(); i++)
 	{
 		Block::BlockContext context = getAdjacentBlocks(blocks[i]);
+		blocks[i]->build(context);
 		blocks[i]->topSide->shouldRender = context.top == nullptr || context.top->isTransparent;
 		blocks[i]->frontSide->shouldRender = context.front == nullptr || context.front->isTransparent;
 		blocks[i]->rightSide->shouldRender = context.right == nullptr || context.right->isTransparent;
 		blocks[i]->backSide->shouldRender = context.back == nullptr || context.back->isTransparent;
 		blocks[i]->leftSide->shouldRender = context.left == nullptr || context.left->isTransparent;
 		blocks[i]->bottomSide->shouldRender = context.bottom == nullptr || context.bottom->isTransparent;
-	}
+	}*/
+	build();
+}
 
-	addComponent(new ChunkDrawComponent());
+void Chunk::build() {
+	vertices.clear();
+	for (GLuint i = 0; i < blocks.size(); i++)
+	{
+		Block::BlockContext context = getAdjacentBlocks(blocks[i]);
+		blocks[i]->build(context);
+		vertices.insert(vertices.end(), blocks[i]->vertices.begin(), blocks[i]->vertices.end());
+	}
 }
 
 Stack* Chunk::destroyBlock(Block* block)
@@ -68,13 +83,13 @@ void Chunk::destroyStack(Stack* stack)
 	notifyStackRemoved(stack);
 }
 
-void Chunk::drawRaw()
+/*void Chunk::drawRaw()
 {
 	for (int i = 0; i < blocks.size(); i++)
 	{
 		blocks[i]->drawRaw();
 	}
-}
+}*/
 
 Block::BlockContext Chunk::getAdjacentBlocks(Block* base)
 {
@@ -92,7 +107,7 @@ Block::BlockContext Chunk::getAdjacentBlocks(Block* base)
 
 Block* Chunk::getBlock(int index)
 {
-	if (index < 0 || index >= blocks.size())
+	if (index < 0 || (GLuint)index >= blocks.size())
 		return nullptr;
 
 	return blocks[index];
@@ -132,11 +147,11 @@ Block** Chunk::getBlockPtr(int x, int y, int z)
 	return &blocks[index];
 }
 
-Stack* Chunk::getNearbyStack(Vec3f position, float maxDistance)
+Stack* Chunk::getNearbyStack(vec3 position, float maxDistance)
 {
 	for (Stack* stack : items)
 	{
-		if (position.distanceSquared(stack->position) < maxDistance)
+		if ((position/*.distanceSquared(*/ - stack->position).length() < maxDistance)
 			return stack;
 	}
 	return nullptr;
@@ -147,14 +162,20 @@ bool Chunk::isBlockTransparent(Block* block)
 	return block != nullptr && block->isTransparent;
 }
 
+void Chunk::loadTextures() {
+	TextureDrawComponent* component = new TextureDrawComponent("data/VrCraft/textures/terrain.png");
+	component->verticesPtr = &vertices;
+	addComponent(component);
+}
+
 Stack* Chunk::mergeStacks()
 {
-	for (int s0 = 0; s0 < items.size(); s0++)
+	for (GLuint s0 = 0; s0 < items.size(); s0++)
 	{
-		for (int s1 = s0 + 1; s1 < items.size(); s1++)
+		for (GLuint s1 = s0 + 1; s1 < items.size(); s1++)
 		{
 			if (items[s0]->getType()->getTypeName() == items[s1]->getType()->getTypeName() &&
-				items[s0]->position.distanceSquared(items[s1]->position) < 1)
+				(items[s0]->position/*.distanceSquared*/ - (items[s1]->position)).length() < 1)
 			{
 				items[s0]->increaseStack(items[s1]->getStackSize());
 				notifyStackRemoved(items[s1]);
@@ -205,7 +226,7 @@ void Chunk::update(float elapsedSeconds)
 	if (blocksChanged)
 	{
 		blocksChanged = false;
-		for (int i = 0; i < newBlocks.size(); i++)
+		for (GLuint i = 0; i < newBlocks.size(); i++)
 		{
 			Block** block = getBlockPtr((int)newBlocks[i]->position.x, (int)newBlocks[i]->position.y, (int)newBlocks[i]->position.z);
 			delete *block;
@@ -228,7 +249,7 @@ void Chunk::update(float elapsedSeconds)
 	if (itemsChanged)
 	{
 		itemsChanged = false;
-		for (int i = 0; i < removedItems.size(); i++)
+		for (GLuint i = 0; i < removedItems.size(); i++)
 		{
 			vector<Stack*>::iterator it = find(items.begin(), items.end(), removedItems[i]);
 			delete removedItems[i];
@@ -236,7 +257,7 @@ void Chunk::update(float elapsedSeconds)
 		}
 		removedItems.clear();
 
-		for (int i = 0; i < newItems.size(); i++)
+		for (GLuint i = 0; i < newItems.size(); i++)
 		{
 			items.push_back(newItems[i]);
 		}
@@ -244,16 +265,27 @@ void Chunk::update(float elapsedSeconds)
 	}
 }
 
-ChunkDrawComponent::ChunkDrawComponent() : DrawComponent()
+/*ChunkDrawComponent::ChunkDrawComponent() : DrawComponent()
 {
 
 }
 
-GLuint ChunkDrawComponent::terrainTextureId = -1;
+//GLuint ChunkDrawComponent::terrainTextureId = -1;
+vrlib::Texture* ChunkDrawComponent::texture = nullptr;
 
 void ChunkDrawComponent::draw()
 {
-	if (terrainTextureId < 0)
+	if (texture == nullptr)
+		return;
+
+	Chunk* chunk = dynamic_cast<Chunk*>(parentObject);
+	if (chunk == nullptr)
+		return;
+
+	texture->bind();
+	chunk->drawRaw();
+	
+	/*if (terrainTextureId < 0)
 		return;
 
 	Chunk* chunk = dynamic_cast<Chunk*>(parentObject);
@@ -265,12 +297,17 @@ void ChunkDrawComponent::draw()
 
 	glBegin(GL_TRIANGLES);
 	chunk->drawRaw();
-	glEnd();
+	glEnd();*
 }
 
 void ChunkDrawComponent::loadTextures()
 {
-	cout << "Loading textures... " << endl;
+	logger << "Loading textures..." << Log::newline;
+
+	texture = vrlib::Texture::loadCached("data/VrCraft/textures/terrain.png");
+
+	logger << "Textures loaded." << Log::newline;
+	/*cout << "Loading textures... " << endl;
 
 	int imageWidth, imageHeight, imageComponents;
 	stbi_uc* image = stbi_load("data/VrCraft/models/terrain/terrain.png", &imageWidth, &imageHeight, &imageComponents, 0);
@@ -304,5 +341,5 @@ void ChunkDrawComponent::loadTextures()
 		stbi_image_free(image);
 	}
 
-	cout << "Loading textures done" << endl;
-}
+	cout << "Loading textures done" << endl;*
+}*/
