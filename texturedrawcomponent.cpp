@@ -7,12 +7,17 @@ using vrlib::Log;
 using vrlib::logger;
 
 TextureDrawComponent::TextureDrawComponent(const string& fileName) : GameObjectComponent() {
-	logger << "Loading textures..." << Log::newline;
+	logger << "Loading texture '" << fileName << "'..." << Log::newline;
 
 	texture = vrlib::Texture::loadCached(fileName);
-	texture->setNearestFilter();
 
-	logger << "Texture loading " << (texture == nullptr ? "failed" : "succeeded") << Log::newline;
+	if (texture == nullptr) {
+		logger << "Failed to load texture" << Log::newline;
+		return;
+	}
+
+	texture->setNearestFilter();
+	logger << "Texture loading succeeded" << Log::newline;
 }
 
 void TextureDrawComponent::onDraw() {
