@@ -27,7 +27,7 @@ void GameObject::addComponent(GameObjectComponent* component) {
 
 void GameObject::draw(const glm::mat4& projectionMatrix, const glm::mat4& modelViewMatrix) {
 	glm::mat4 modelMatrix = glm::mat4();
-	modelMatrix = glm::translate(modelMatrix, position * vec3(1.01f, 1, -1.01f));
+	modelMatrix = glm::translate(modelMatrix, position * vec3(1.01f, 1.01f, -1.01f));
 
 	shader->use();
 	shader->setUniform(Shaders::Uniforms::projectionMatrix, projectionMatrix);

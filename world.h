@@ -27,4 +27,5 @@ public:
 	Chunk** getChunkPtr(vec3 positionInWorld);
 	void loadTextures();
 	void randomTick();
+	void update(float elapsedSeconds) override;
 };

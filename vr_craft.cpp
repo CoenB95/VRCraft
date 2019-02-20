@@ -54,7 +54,7 @@ VrCraft::VrCraft() {
 void VrCraft::init() {
 	Shaders::setupDefaultShaders();
 
-	world = new World(vec3(2, 1, 2), vec3(16, 16, 16), vec3(1, 1, 1));
+	world = new World(vec3(4, 2, 4), vec3(16, 16, 16), vec3(1, 1, 1));
 	world->loadTextures();
 	world->build();
 

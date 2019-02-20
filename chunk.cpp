@@ -193,9 +193,14 @@ void Chunk::randomTick(ChunkContext chunkContext) {
 
 		Block* newBlock = block->randomTick(blockContext);
 		if (newBlock != nullptr) {
-			notifyBlockChanged(newBlock);
+			//notifyBlockChanged(newBlock);
+			Block** block = getBlockPtr(newBlock->position);
+			delete *block;
+			*block = newBlock;
 		}
 	}
+
+	build(chunkContext);
 }
 
 void Chunk::update(float elapsedSeconds) {

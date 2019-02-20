@@ -111,11 +111,15 @@ void World::loadTextures() {
 }
 
 void World::randomTick() {
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 1; i++) {
 		int randomTickChunkIndex = rand() % chunks.size();
 		Chunk* chunk = chunks[randomTickChunkIndex];
 		ChunkContext chunkContext = getAdjacentChunks(chunk->position);
 
 		chunk->randomTick(chunkContext);
 	}
+}
+
+void World::update(float elapsedSeconds) {
+	randomTick();
 }
