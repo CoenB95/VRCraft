@@ -3,6 +3,8 @@
 #define TOP_LEFT		0, 1
 #define TOP_RIGHT		1, 1
 
+#define TEX_POS(a)		vec2((a % TILES_WIDTH_COUNT), (TILES_HEIGHT_COUNT - 1 - a / TILES_WIDTH_COUNT))
+
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif // !_USE_MATH_DEFINES
@@ -25,7 +27,7 @@ const GLfloat Block::SCALE_BLOCK = 1.0f;
 const GLfloat Block::SCALE_BLOCK_OVERLAY = 1.001f;
 const GLfloat Block::SCALE_ITEM = 0.3f;
 
-CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, string typeName) :
+CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, string typeName, bool transparent) :
 	Block(typeName),
 	topTextureIndex(top),
 	frontTextureIndex(front),
@@ -34,7 +36,7 @@ CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bott
 	leftTextureIndex(left),
 	bottomTextureIndex(bottom)
 {
-
+	isTransparent = transparent;
 }
 
 void CubeBlock::build(BlockContext& context) {
@@ -43,8 +45,22 @@ void CubeBlock::build(BlockContext& context) {
 	vec2 texScl = vec2(TILE_SIZE, TILE_SIZE);
 	vertices.clear();
 
-	if (context.front != nullptr && !context.front->isTransparent && frontTextureIndex > 0) {
-		texPos = vec2((frontTextureIndex % TILES_WIDTH_COUNT), (TILES_HEIGHT_COUNT - 1 - frontTextureIndex / TILES_WIDTH_COUNT));
+	if (isTransparent)
+		return;
+
+	if ((context.top == nullptr || context.top->isTransparent) && topTextureIndex >= 0) {
+		texPos = TEX_POS(topTextureIndex);
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, +0.5, -0.5), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, +0.5, -0.5), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, +0.5, +0.5), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, +0.5, -0.5), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, +0.5, +0.5), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, +0.5, +0.5), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+	}
+
+	if ((context.front == nullptr || context.front->isTransparent) && frontTextureIndex >= 0) {
+		texPos = TEX_POS(frontTextureIndex);
 		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, +0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_RIGHT))));
 		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, +0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_LEFT))));
 		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_LEFT))));
@@ -53,86 +69,51 @@ void CubeBlock::build(BlockContext& context) {
 		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_LEFT))));
 		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, +0.5), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_RIGHT))));
 	}
+
+	if ((context.right == nullptr || context.right->isTransparent) && rightTextureIndex >= 0) {
+		texPos = TEX_POS(rightTextureIndex);
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, +0.5, -0.5), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, +0.5, +0.5), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, +0.5), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, +0.5, -0.5), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, +0.5), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, -0.5), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+	}
+
+	if ((context.back == nullptr || context.back->isTransparent) && backTextureIndex >= 0) {
+		texPos = TEX_POS(backTextureIndex);
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, +0.5, -0.5), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, +0.5, -0.5), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, -0.5), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, +0.5, -0.5), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, -0.5), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, -0.5), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+	}
+
+	if ((context.left == nullptr || context.left->isTransparent) && leftTextureIndex >= 0) {
+		texPos = TEX_POS(leftTextureIndex);
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, +0.5, +0.5), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, +0.5, -0.5), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, -0.5), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, +0.5, +0.5), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, -0.5), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, +0.5), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+	}
+
+	if ((context.bottom == nullptr || context.bottom->isTransparent) && bottomTextureIndex >= 0) {
+		texPos = TEX_POS(bottomTextureIndex);
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, +0.5), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, +0.5), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, -0.5), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, +0.5), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(-0.5, -0.5, -0.5), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, -0.5), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+	}
 }
-
-/*void Block::draw()
-{
-	if (isTransparent)
-		return;
-
-	GLfloat x = (offset ? this->position.x : 0);
-	GLfloat y = (offset ? this->position.y : 0);
-	GLfloat z = (offset ? this->position.z : 0);
-
-	if (frontSide->shouldRender)
-	{
-		drawVertex(frontSide, x - hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(frontSide, x - hw, y - hh, z - hd, BOTTOM_LEFT);
-		drawVertex(frontSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
-		drawVertex(frontSide, x + hw, y + hh, z - hd, TOP_RIGHT);
-		drawVertex(frontSide, x - hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(frontSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
-	}
-
-	if (topSide->shouldRender)
-	{
-		drawVertex(topSide, x - hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(topSide, x - hw, y + hh, z - hd, BOTTOM_LEFT);
-		drawVertex(topSide, x + hw, y + hh, z - hd, BOTTOM_RIGHT);
-		drawVertex(topSide, x + hw, y + hh, z + hd, TOP_RIGHT);
-		drawVertex(topSide, x - hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(topSide, x + hw, y + hh, z - hd, BOTTOM_RIGHT);
-	}
-
-	if (rightSide->shouldRender)
-	{
-		drawVertex(rightSide, x + hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(rightSide, x + hw, y - hh, z - hd, BOTTOM_LEFT);
-		drawVertex(rightSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
-		drawVertex(rightSide, x + hw, y + hh, z + hd, TOP_RIGHT);
-		drawVertex(rightSide, x + hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(rightSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
-	}
-
-	if (backSide->shouldRender)
-	{
-		drawVertex(backSide, x + hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(backSide, x + hw, y - hh, z + hd, BOTTOM_LEFT);
-		drawVertex(backSide, x - hw, y - hh, z + hd, BOTTOM_RIGHT);
-		drawVertex(backSide, x - hw, y + hh, z + hd, TOP_RIGHT);
-		drawVertex(backSide, x + hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(backSide, x - hw, y - hh, z + hd, BOTTOM_RIGHT);
-	}
-
-	if (bottomSide->shouldRender)
-	{
-		drawVertex(bottomSide, x - hw, y - hh, z - hd, TOP_LEFT);
-		drawVertex(bottomSide, x - hw, y - hh, z + hd, BOTTOM_LEFT);
-		drawVertex(bottomSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
-		drawVertex(bottomSide, x + hw, y - hh, z - hd, TOP_RIGHT);
-		drawVertex(bottomSide, x - hw, y - hh, z - hd, TOP_LEFT);
-		drawVertex(bottomSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
-	}
-
-	
-	if (leftSide->shouldRender)
-	{
-		drawVertex(leftSide, x - hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(leftSide, x - hw, y - hh, z + hd, BOTTOM_LEFT);
-		drawVertex(leftSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
-		drawVertex(leftSide, x - hw, y + hh, z - hd, TOP_RIGHT);
-		drawVertex(leftSide, x - hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(leftSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
-	}
-}*/
-
-/*void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY)
-{
-	side->applyTexture(texX, texY);
-
-	// The real z-axis is inverted. Apply it here.
-	glVertex3f(x, y, -z);
-}*/
 
 Block::Block(string typeName) : GameObject(), typeName(typeName) {
 
@@ -198,8 +179,3 @@ Block* Block::BlockContext::operator [](int index)
 {
 
 }*/
-
-AirBlock::AirBlock() : CubeBlock(-1, -1, -1, -1, -1, -1, "Air")
-{
-
-}

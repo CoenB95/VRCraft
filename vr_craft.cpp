@@ -75,7 +75,7 @@ void VrCraft::init() {
 //void display()
 void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	/*glClearColor(0.6f, 0.6f, 1, 1);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 

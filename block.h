@@ -74,8 +74,9 @@ private:
 	int topTextureIndex;
 
 public:
-	CubeBlock(int all, string typeName) : CubeBlock(all, all, all, all, all, all, typeName) {};
-	CubeBlock(int top, int front, int right, int back, int left, int bottom, string typeName);
+	CubeBlock(int all, string typeName, bool transparent = false)
+		: CubeBlock(all, all, all, all, all, all, typeName, transparent) {};
+	CubeBlock(int top, int front, int right, int back, int left, int bottom, string typeName, bool transparent = false);
 	void build(BlockContext& context) override;
 };
 
@@ -91,7 +92,7 @@ public:
 class AirBlock : public CubeBlock
 {
 public:
-	AirBlock();
+	AirBlock() : CubeBlock(-1, "Air", true) { };
 };
 
 #endif // BLOCK_H
