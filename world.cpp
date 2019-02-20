@@ -54,12 +54,12 @@ ChunkContext World::getAdjacentChunks(vec3 positionInWorld) {
 		return ChunkContext(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
 
 	ChunkContext context = ChunkContext(
-		getChunk(centerChunk->position + vec3(+0, +1, +0)),
-		getChunk(centerChunk->position + vec3(+0, +0, -1)),
-		getChunk(centerChunk->position + vec3(+1, +0, +0)),
-		getChunk(centerChunk->position + vec3(+0, +0, +1)),
-		getChunk(centerChunk->position + vec3(-1, +0, +0)),
-		getChunk(centerChunk->position + vec3(+0, -1, +0))
+		getChunk(centerChunk->position + vec3(+0, +(chunkSize.y * blockSize.y), +0)),
+		getChunk(centerChunk->position + vec3(+0, +0, -(chunkSize.z * blockSize.z))),
+		getChunk(centerChunk->position + vec3(+(chunkSize.x * blockSize.x), +0, +0)),
+		getChunk(centerChunk->position + vec3(+0, +0, +(chunkSize.z * blockSize.z))),
+		getChunk(centerChunk->position + vec3(-(chunkSize.x * blockSize.x), +0, +0)),
+		getChunk(centerChunk->position + vec3(+0, -(chunkSize.y * blockSize.y), +0))
 	);
 	return context;
 }
@@ -82,13 +82,18 @@ Chunk* World::getChunk(vec3 positionInWorld) {
 }
 
 int World::getChunkIndex(vec3 positionInWorld) {
-	if (positionInWorld.x < 0 || positionInWorld.y < 0 || positionInWorld.z < 0)
+	vec3 chunkPosition = vec3(
+		roundf(positionInWorld.x / blockSize.x / chunkSize.x),
+		roundf(positionInWorld.y / blockSize.y / chunkSize.y),
+		roundf(positionInWorld.z / blockSize.z / chunkSize.z));
+
+	if (chunkPosition.x < 0 || chunkPosition.y < 0 || chunkPosition.z < 0)
 		return -1;
 
-	if (positionInWorld.x >= worldSize.x || positionInWorld.y >= worldSize.y || positionInWorld.z >= worldSize.z)
+	if (chunkPosition.x >= worldSize.x || chunkPosition.y >= worldSize.y || chunkPosition.z >= worldSize.z)
 		return -1;
 
-	return (int)(roundf(positionInWorld.x) + roundf(positionInWorld.z) * worldSize.x + roundf(positionInWorld.y) * worldSize.x * worldSize.z);
+	return (int)(chunkPosition.x + chunkPosition.z * worldSize.x + chunkPosition.y * worldSize.x * worldSize.z);
 }
 
 Chunk** World::getChunkPtr(vec3 positionInWorld) {
