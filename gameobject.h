@@ -2,6 +2,9 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <VrLib/gl/shader.h>
+
+#include "shaders.h"
 
 using namespace glm;
 using namespace std;
@@ -13,6 +16,7 @@ class GameObject
 private:
 	//DrawComponent* drawComponent = nullptr;
 	vector<GameObjectComponent*> components;
+	vrlib::gl::Shader<Shaders::Uniforms>* shader;
 
 public:
 	vec3 position;
@@ -26,7 +30,7 @@ public:
 	GameObject();
 	GameObject(GameObject& other);
 	void addComponent(GameObjectComponent* component);
-	void draw();
+	virtual void draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix);
 	void removeAllComponents();
 	virtual void update(float elapsedSeconds);
 };

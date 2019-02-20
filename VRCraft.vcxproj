@@ -29,6 +29,7 @@
     <ClCompile Include="followcomponent.cpp" />
     <ClCompile Include="forcecomponent.cpp" />
     <ClCompile Include="gamescene.cpp" />
+    <ClCompile Include="shaders.cpp" />
     <ClCompile Include="texturedrawcomponent.cpp" />
     <ClCompile Include="vr_craft.cpp" />
     <ClCompile Include="main.cpp" />
@@ -39,6 +40,7 @@
     <ClCompile Include="model.cpp" />
     <ClCompile Include="stack.cpp" />
     <ClCompile Include="vec.cpp" />
+    <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="block.h" />
@@ -51,6 +53,7 @@
     <ClInclude Include="followcomponent.h" />
     <ClInclude Include="forcecomponent.h" />
     <ClInclude Include="gamescene.h" />
+    <ClInclude Include="shaders.h" />
     <ClInclude Include="texturedrawcomponent.h" />
     <ClInclude Include="vr_craft.h" />
     <ClInclude Include="gameobject.h" />
@@ -63,6 +66,7 @@
     <ClInclude Include="model.h" />
     <ClInclude Include="vec.h" />
     <ClInclude Include="stb_perlin.h" />
+    <ClInclude Include="world.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\VrCraft\shaders\default.frag" />

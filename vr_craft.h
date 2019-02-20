@@ -2,25 +2,10 @@
 
 #include <VrLib/Application.h>
 #include <VrLib/Device.h>
-#include <VrLib/gl/shader.h>
-
-#include <list>
-
 
 class VrCraft : public vrlib::Application
 {
-	enum class Uniforms
-	{
-		modelMatrix,
-		projectionMatrix,
-		viewMatrix,
-		s_texture,
-		diffuseColor,
-		textureFactor
-	};
-
 private:
-	vrlib::gl::Shader<Uniforms>* shader;
 	vrlib::DigitalDevice leftButton;
 
 public:

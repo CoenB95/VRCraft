@@ -1,45 +1,19 @@
-#ifndef BLOCK_H
-#define BLOCK_H
+#pragma once
+
+using namespace std;
 
 #include <GL/glew.h>
+#include "gameobject.h"
 #include <string>
 #include <vector>
 #include <VrLib/gl/Vertex.h>
 
-#include "color.h"
-#include "gameobject.h"
-#include "gameobjectcomponent.h"
-
 using namespace std;
-
 class BlockContext;
 
-class Block : public GameObject
-{
+class Block : public GameObject {
 private:
 	string typeName;
-
-public:
-	class BlockContext
-	{
-	public:
-		static const char TOP_SIDE = 0;
-		static const char FRONT_SIDE = 1;
-		static const char RIGHT_SIDE = 2;
-		static const char BACK_SIDE = 3;
-		static const char LEFT_SIDE = 4;
-		static const char BOTTOM_SIDE = 5;
-
-		Block* top;
-		Block* front;
-		Block* right;
-		Block* back;
-		Block* left;
-		Block* bottom;
-
-		BlockContext(Block* top, Block* front, Block* right, Block* back, Block* left, Block* bottom);
-		Block* operator [](int index);
-	};
 
 public:
 	static const int TILES_HEIGHT_COUNT;
@@ -59,12 +33,24 @@ public:
 	inline virtual void build(BlockContext& context) {};
 	string getPositionString() const;
 	inline string getTypeName() { return typeName; };
-	virtual Block* randomTick(Block::BlockContext& context);
+	virtual Block* randomTick(BlockContext& context);
 	virtual string toString() const;
 };
 
-class CubeBlock : public Block
-{
+class BlockContext {
+public:
+	Block* top;
+	Block* front;
+	Block* right;
+	Block* back;
+	Block* left;
+	Block* bottom;
+
+	BlockContext(Block* top, Block* front, Block* right, Block* back, Block* left, Block* bottom) :
+		top(top), front(front), right(right), back(back), left(left), bottom(bottom) { };
+};
+
+class CubeBlock : public Block {
 private:
 	int backTextureIndex;
 	int bottomTextureIndex;
@@ -94,5 +80,3 @@ class AirBlock : public CubeBlock
 public:
 	AirBlock() : CubeBlock(-1, "Air", true) { };
 };
-
-#endif // BLOCK_H

@@ -2,11 +2,11 @@
 #define MOB_H
 
 #include "camera.h"
-#include "chunk.h"
 #include "collisioncomponent.h"
 #include "forcecomponent.h"
 #include "gameobject.h"
 #include "vec.h"
+#include "world.h"
 
 class MobEyes : public GameObject
 {
@@ -18,8 +18,7 @@ class Mob : public GameObject
 private:
 	bool ceiled = false;
 	
-	// TODO: replace with 'World' (multiple chunks)
-	Chunk& world;
+	World& world;
 	BlockCollisionComponent collision;
 	FloorCollisionComponent floorDetection;
 	ForceComponent force;
@@ -30,7 +29,7 @@ public:
 
 	MobEyes eyes;
 
-	Mob(Chunk& world);
+	Mob(World& world);
 	void jump();
 	void move(float angleDeg, float factor, float elapsedTime);
 	void update(float elapsedSeconds) override;
@@ -39,7 +38,7 @@ public:
 class Steve : public Mob
 {
 public:
-	Steve(Chunk& world);
+	Steve(World& world);
 };
 
 #endif // !MOB_H

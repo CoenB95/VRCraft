@@ -5,58 +5,43 @@
 #include <gl/glew.h>
 #include <cstddef>
 #include <iostream>
+#include <vector>
 #include <VrLib/Log.h>
 #include <VrLib/Texture.h>
 
 #define STB_PERLIN_IMPLEMENTATION
 
+#include "block.h"
 #include "block_grass.h"
 #include "chunk.h"
+#include "gameobject.h"
+#include "stack.h"
 #include "stb_perlin.h"
 #include "texturedrawcomponent.h"
 
 using vrlib::Log;
 using vrlib::logger;
 
-Chunk::Chunk(int width, int height, int depth)
-{
-	this->width = width;
-	this->height = height;
-	this->depth = depth;
-
-	for (int y = 0; y < height; y++)
+Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(blockSize) {
+	for (int y = 0; y < chunkSize.y; y++)
 	{
-		for (int z = 0; z < depth; z++)
+		for (int z = 0; z < chunkSize.z; z++)
 		{
-			for (int x = 0; x < width; x++)
+			for (int x = 0; x < chunkSize.x; x++)
 			{
 				Block* block = new GrassBlock();
-				block->isTransparent = stb_perlin_noise3((float)x / width * 2 - 1, (float)y / height * 2 - 1, (float)z / depth * 2 - 1, 0, 0, 0) < 0.0f;
-				block->position = vec3(x, y, z);
+				block->isTransparent = stb_perlin_noise3((float)x / chunkSize.x * 2 - 1, (float)y / chunkSize.y * 2 - 1, (float)z / chunkSize.z * 2 - 1, 0, 0, 0) < 0.0f;
+				block->position = vec3(x * blockSize.x, y * blockSize.y, z * blockSize.z);
 				blocks.push_back(block);
 			}
 		}
 	}
-
-	/*for (GLuint i = 0; i < blocks.size(); i++)
-	{
-		Block::BlockContext context = getAdjacentBlocks(blocks[i]);
-		blocks[i]->build(context);
-		blocks[i]->topSide->shouldRender = context.top == nullptr || context.top->isTransparent;
-		blocks[i]->frontSide->shouldRender = context.front == nullptr || context.front->isTransparent;
-		blocks[i]->rightSide->shouldRender = context.right == nullptr || context.right->isTransparent;
-		blocks[i]->backSide->shouldRender = context.back == nullptr || context.back->isTransparent;
-		blocks[i]->leftSide->shouldRender = context.left == nullptr || context.left->isTransparent;
-		blocks[i]->bottomSide->shouldRender = context.bottom == nullptr || context.bottom->isTransparent;
-	}*/
-	build();
 }
 
-void Chunk::build() {
+void Chunk::build(ChunkContext chunkContext) {
 	vertices.clear();
-	for (GLuint i = 0; i < blocks.size(); i++)
-	{
-		Block::BlockContext context = getAdjacentBlocks(blocks[i]);
+	for (GLuint i = 0; i < blocks.size(); i++) {
+		BlockContext context = getAdjacentBlocks(chunkContext, blocks[i]->position);
 		blocks[i]->build(context);
 		vertices.insert(vertices.end(), blocks[i]->vertices.begin(), blocks[i]->vertices.end());
 	}
@@ -64,7 +49,7 @@ void Chunk::build() {
 
 Stack* Chunk::destroyBlock(Block* block)
 {
-	if (block == nullptr)
+	/*if (block == nullptr)
 		return nullptr;
 
 	Stack* dropped = new Stack(block, *this);
@@ -75,7 +60,8 @@ Stack* Chunk::destroyBlock(Block* block)
 	newAirBlock->position = block->position;
 	notifyBlockChanged(newAirBlock);
 
-	return dropped;
+	return dropped;*/
+	return nullptr;
 }
 
 void Chunk::destroyStack(Stack* stack)
@@ -83,65 +69,60 @@ void Chunk::destroyStack(Stack* stack)
 	notifyStackRemoved(stack);
 }
 
-/*void Chunk::drawRaw()
-{
-	for (int i = 0; i < blocks.size(); i++)
-	{
-		blocks[i]->drawRaw();
-	}
-}*/
+BlockContext Chunk::getAdjacentBlocks(ChunkContext chunkContext, vec3 positionInChunk) {
+	Block* centerBlock = getBlock(positionInChunk);
+	if (centerBlock == nullptr)
+		return BlockContext(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
 
-Block::BlockContext Chunk::getAdjacentBlocks(Block* base)
-{
-	int i = getBlockIndex(base);
-	Block::BlockContext context = Block::BlockContext(
-		getBlock(blocks[i]->position.x, blocks[i]->position.y + 1, blocks[i]->position.z),
-		getBlock(blocks[i]->position.x, blocks[i]->position.y, blocks[i]->position.z - 1),
-		getBlock(blocks[i]->position.x + 1, blocks[i]->position.y, blocks[i]->position.z),
-		getBlock(blocks[i]->position.x, blocks[i]->position.y, blocks[i]->position.z + 1),
-		getBlock(blocks[i]->position.x - 1, blocks[i]->position.y, blocks[i]->position.z),
-		getBlock(blocks[i]->position.x, blocks[i]->position.y - 1, blocks[i]->position.z)
+	BlockContext context = BlockContext(
+		getBlock(centerBlock->position + vec3(+0, +1, +0)),
+		getBlock(centerBlock->position + vec3(+0, +0, -1)),
+		getBlock(centerBlock->position + vec3(+1, +0, +0)),
+		getBlock(centerBlock->position + vec3(+0, +0, +1)),
+		getBlock(centerBlock->position + vec3(-1, +0, +0)),
+		getBlock(centerBlock->position + vec3(+0, -1, +0))
 	);
+
+	if (context.top == nullptr && chunkContext.top != nullptr)
+		context.top = chunkContext.top->getBlock(centerBlock->position + vec3(+0, -chunkSize.y + 1, +0));
+	if (context.front == nullptr && chunkContext.front != nullptr)
+		context.front = chunkContext.front->getBlock(centerBlock->position + vec3(+0, +0, +chunkSize.z - 1));
+	if (context.right == nullptr && chunkContext.right != nullptr)
+		context.right = chunkContext.right->getBlock(centerBlock->position + vec3(-chunkSize.x + 1, +0, +0));
+	if (context.back == nullptr && chunkContext.back != nullptr)
+		context.back = chunkContext.back->getBlock(centerBlock->position + vec3(+0, +0, -chunkSize.z + 1));
+	if (context.left == nullptr && chunkContext.left != nullptr)
+		context.left = chunkContext.left->getBlock(centerBlock->position + vec3(+chunkSize.x - 1, +0, +0));
+	if (context.bottom == nullptr && chunkContext.bottom != nullptr)
+		context.bottom = chunkContext.bottom->getBlock(centerBlock->position + vec3(+0, +chunkSize.y - 1, +0));
+
 	return context;
 }
 
-Block* Chunk::getBlock(int index)
-{
-	if (index < 0 || (GLuint)index >= blocks.size())
+Block* Chunk::getBlock(vec3 positionInChunk) {
+	int index = getBlockIndex(positionInChunk);
+
+	if (index < 0)
 		return nullptr;
 
 	return blocks[index];
 }
 
-Block* Chunk::getBlock(float x, float y, float z)
+int Chunk::getBlockIndex(vec3 positionInChunk)
 {
-	return getBlock((int)x, (int)y, (int)z);
-}
-
-Block* Chunk::getBlock(int x, int y, int z)
-{
-	Block** ptr = getBlockPtr(x, y, z);
-	return (ptr == nullptr ? nullptr : *ptr);
-}
-
-int Chunk::getBlockIndex(Block* block)
-{
-	return getBlockIndex((int)block->position.x, (int)block->position.y, (int)block->position.z);
-}
-
-int Chunk::getBlockIndex(int x, int y, int z)
-{
-	if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth)
+	if (positionInChunk.x < 0 || positionInChunk.y < 0 || positionInChunk.z < 0)
 		return -1;
 
-	return x + z * width + y * width * depth;
+	if (positionInChunk.x >= chunkSize.x || positionInChunk.y >= chunkSize.y || positionInChunk.z >= chunkSize.z)
+		return -1;
+
+	return (int)(roundf(positionInChunk.x) + roundf(positionInChunk.z) * chunkSize.x + roundf(positionInChunk.y) * chunkSize.x * chunkSize.z);
 }
 
-Block** Chunk::getBlockPtr(int x, int y, int z)
-{
-	int index = getBlockIndex(x, y, z);
+Block** Chunk::getBlockPtr(vec3 positionInChunk) {
+	int index = getBlockIndex(positionInChunk);
 
-	if (index < 0 || index >= width * height * depth)
+	if (index < 0)
 		return nullptr;
 
 	return &blocks[index];
@@ -204,46 +185,32 @@ void Chunk::notifyStackRemoved(Stack* oldStack)
 	itemsChanged = true;
 }
 
-void Chunk::randomUpdateBlock(Block* block) {
-	Block::BlockContext context = getAdjacentBlocks(block);
+void Chunk::randomTick(ChunkContext chunkContext) {
+	for (int i = 0; i < 5; i++) {
+		int randomTickBlockIndex = rand() % blocks.size();
+		Block* block = blocks[randomTickBlockIndex];
+		BlockContext blockContext = getAdjacentBlocks(chunkContext, block->position);
 
-	Block* newBlock = block->randomTick(context);
-	if (newBlock != nullptr)
-	{
-		notifyBlockChanged(newBlock);
+		Block* newBlock = block->randomTick(blockContext);
+		if (newBlock != nullptr) {
+			notifyBlockChanged(newBlock);
+		}
 	}
 }
 
-void Chunk::update(float elapsedSeconds)
-{
+void Chunk::update(float elapsedSeconds) {
 	GameObject::update(elapsedSeconds);
-
-	for (int i = 0; i < 5; i++) {
-		int randomTickIndex = rand() % (width * height * depth);
-		randomUpdateBlock(blocks[randomTickIndex]);
-	}
 
 	if (blocksChanged)
 	{
 		blocksChanged = false;
 		for (GLuint i = 0; i < newBlocks.size(); i++)
 		{
-			Block** block = getBlockPtr((int)newBlocks[i]->position.x, (int)newBlocks[i]->position.y, (int)newBlocks[i]->position.z);
+			Block** block = getBlockPtr(newBlocks[i]->position);
 			delete *block;
 			*block = newBlocks[i];
 		}
 		newBlocks.clear();
-
-		/*for (int i = 0; i < blocks.size(); i++)
-		{
-			Block::BlockContext context = getAdjacentBlocks(blocks[i]);
-			blocks[i]->topSide->shouldRender = context.top == nullptr || context.top->isTransparent;
-			blocks[i]->frontSide->shouldRender = context.front == nullptr || context.front->isTransparent;
-			blocks[i]->rightSide->shouldRender = context.right == nullptr || context.right->isTransparent;
-			blocks[i]->backSide->shouldRender = context.back == nullptr || context.back->isTransparent;
-			blocks[i]->leftSide->shouldRender = context.left == nullptr || context.left->isTransparent;
-			blocks[i]->bottomSide->shouldRender = context.bottom == nullptr || context.bottom->isTransparent;
-		}*/
 	}
 
 	if (itemsChanged)
@@ -264,82 +231,3 @@ void Chunk::update(float elapsedSeconds)
 		newItems.clear();
 	}
 }
-
-/*ChunkDrawComponent::ChunkDrawComponent() : DrawComponent()
-{
-
-}
-
-//GLuint ChunkDrawComponent::terrainTextureId = -1;
-vrlib::Texture* ChunkDrawComponent::texture = nullptr;
-
-void ChunkDrawComponent::draw()
-{
-	if (texture == nullptr)
-		return;
-
-	Chunk* chunk = dynamic_cast<Chunk*>(parentObject);
-	if (chunk == nullptr)
-		return;
-
-	texture->bind();
-	chunk->drawRaw();
-	
-	/*if (terrainTextureId < 0)
-		return;
-
-	Chunk* chunk = dynamic_cast<Chunk*>(parentObject);
-	if (chunk == nullptr)
-		return;
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, terrainTextureId);
-
-	glBegin(GL_TRIANGLES);
-	chunk->drawRaw();
-	glEnd();*
-}
-
-void ChunkDrawComponent::loadTextures()
-{
-	logger << "Loading textures..." << Log::newline;
-
-	texture = vrlib::Texture::loadCached("data/VrCraft/textures/terrain.png");
-
-	logger << "Textures loaded." << Log::newline;
-	/*cout << "Loading textures... " << endl;
-
-	int imageWidth, imageHeight, imageComponents;
-	stbi_uc* image = stbi_load("data/VrCraft/models/terrain/terrain.png", &imageWidth, &imageHeight, &imageComponents, 0);
-
-	if (image == nullptr)
-	{
-		cout << "Could not load textures" << endl << "  Reason: " << stbi_failure_reason() << endl;
-	}
-	else
-	{
-		cout << "Image size: " << imageWidth << "x" << imageHeight << endl;
-
-		glGenTextures(1, &terrainTextureId);
-		glBindTexture(GL_TEXTURE_2D, terrainTextureId);
-
-		glTexImage2D(GL_TEXTURE_2D,
-			0,					//level
-			GL_RGBA,			//internal format
-			imageWidth,			//width
-			imageHeight,		//height
-			0,					//border
-			GL_RGBA,			//data format
-			GL_UNSIGNED_BYTE,	//data type
-			image);				//data
-
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		glEnable(GL_TEXTURE_2D);
-
-		stbi_image_free(image);
-	}
-
-	cout << "Loading textures done" << endl;*
-}*/

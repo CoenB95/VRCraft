@@ -9,12 +9,17 @@
 #define _USE_MATH_DEFINES
 #endif // !_USE_MATH_DEFINES
 
-#include <GL/glew.h>
 #include <cmath>
+#include <GL/glew.h>
 #include <string>
 #include <sstream>
+#include <vector>
+#include <VrLib/gl/Vertex.h>
 
 #include "block.h"
+#include "color.h"
+#include "gameobject.h"
+#include "gameobjectcomponent.h"
 
 using namespace glm;
 using namespace std;
@@ -26,6 +31,29 @@ const GLfloat Block::TILE_SIZE = 1.0f / 256.0f * TILES_WIDTH_COUNT;
 const GLfloat Block::SCALE_BLOCK = 1.0f;
 const GLfloat Block::SCALE_BLOCK_OVERLAY = 1.001f;
 const GLfloat Block::SCALE_ITEM = 0.3f;
+
+Block::Block(string typeName) : GameObject(), typeName(typeName) {
+
+}
+
+string Block::getPositionString() const
+{
+	stringstream ss;
+	ss << "x=" << position.x << ", y=" << position.y << ", z=" << position.z;
+	return ss.str();
+}
+
+Block* Block::randomTick(BlockContext& adjacentBlocks)
+{
+	return nullptr;
+}
+
+string Block::toString() const
+{
+	stringstream ss;
+	ss << (isTransparent ? "Air" : typeName) << "{" << getPositionString() << "}";
+	return ss.str();
+}
 
 CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, string typeName, bool transparent) :
 	Block(typeName),
@@ -114,58 +142,6 @@ void CubeBlock::build(BlockContext& context) {
 		vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(+0.5, -0.5, -0.5), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
 	}
 }
-
-Block::Block(string typeName) : GameObject(), typeName(typeName) {
-
-}
-
-string Block::getPositionString() const
-{
-	stringstream ss;
-	ss << "x=" << position.x << ", y=" << position.y << ", z=" << position.z;
-	return ss.str();
-}
-
-Block* Block::randomTick(Block::BlockContext& adjacentBlocks)
-{
-	return nullptr;
-}
-
-/*void Block::setScale(GLfloat scale)
-{
-	this->hw = scale / 2;
-	this->hh = scale / 2;
-	this->hd = scale / 2;
-}*/
-
-string Block::toString() const
-{
-	stringstream ss;
-	ss << (isTransparent ? "Air" : typeName) << "{" << getPositionString() << "}";
-	return ss.str();
-}
-
-Block::BlockContext::BlockContext(Block* top, Block* front, Block* right, Block* back, Block* left, Block* bottom) :
-	top(top), front(front), right(right), back(back), left(left), bottom(bottom)
-{
-
-}
-
-Block* Block::BlockContext::operator [](int index)
-{
-	switch (index)
-	{
-	case TOP_SIDE: return top;
-	case FRONT_SIDE: return front;
-	case RIGHT_SIDE: return right;
-	case BACK_SIDE: return back;
-	case LEFT_SIDE: return left;
-	case BOTTOM_SIDE: return bottom;
-	default: return nullptr;
-	}
-}
-
-
 
 /*SelectionBlock::SelectionBlock(float breakage) : Block(
 	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),

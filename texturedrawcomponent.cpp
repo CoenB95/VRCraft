@@ -20,7 +20,7 @@ TextureDrawComponent::TextureDrawComponent(const string& fileName) : GameObjectC
 	logger << "Texture loading succeeded" << Log::newline;
 }
 
-void TextureDrawComponent::onDraw() {
+void TextureDrawComponent::onDraw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix) {
 	if (verticesPtr == nullptr)
 		return;
 
@@ -29,11 +29,10 @@ void TextureDrawComponent::onDraw() {
 
 	texture->bind();
 
-	//glEnableVertexAttribArray(0);
-	//glEnableVertexAttribArray(1);
-	//glEnableVertexAttribArray(2);
+	glTranslatef(parentObject->position.x, parentObject->position.y, parentObject->position.z);
 	vrlib::gl::setAttributes<vrlib::gl::VertexP3N3T2>(&(*verticesPtr)[0]);
 	glDrawArrays(GL_TRIANGLES, 0, verticesPtr->size());
+	glTranslatef(-parentObject->position.x, -parentObject->position.y, -parentObject->position.z);
 	//glDisableVertexAttribArray(0);
 	//glDisableVertexAttribArray(1);
 	//glDisableVertexAttribArray(2);

@@ -1,11 +1,11 @@
+#include "block.h"
 #include "collisioncomponent.h"
-#include "chunk.h"
 #include "followcomponent.h"
 #include "forcecomponent.h"
 #include "stack.h"
+#include "world.h"
 
-Stack::Stack(Block* type, Chunk& world) : GameObject()
-{
+Stack::Stack(Block* type, World& world) : GameObject() {
 	blockType = new Block(*type);
 	//blockType->setScale(Block::SCALE_ITEM);
 
@@ -48,10 +48,10 @@ ChildDrawComponent::ChildDrawComponent(GameObject* child) : GameObjectComponent(
 
 }
 
-void ChildDrawComponent::onDraw()
+void ChildDrawComponent::onDraw(const glm::mat4& projectionMatrix, const glm::mat4& modelViewMatrix)
 {
 	if (child != nullptr)
-		child->draw();
+		child->draw(projectionMatrix, modelViewMatrix);
 }
 
 void ChildDrawComponent::onUpdate(float elapsedSeconds)

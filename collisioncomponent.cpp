@@ -4,6 +4,8 @@
 
 #include <cmath>
 #include <vector>
+#include <glm/glm.hpp>
+#include <GL/glew.h>
 
 #include "block.h"
 #include "chunk.h"
@@ -13,17 +15,17 @@
 #include "mob.h"
 #include "vec.h"
 
-BlockCollisionComponent::BlockCollisionComponent(Chunk& world) : GameObjectComponent(), world(world)
+BlockCollisionComponent::BlockCollisionComponent(World& world) : GameObjectComponent(), world(world)
 {
 
 }
 
-bool BlockCollisionComponent::checkCollision(vector<Block::BlockContext> collisionBoxes, Block*(*f)(Block::BlockContext b))
+bool BlockCollisionComponent::checkCollision(vector<BlockContext> collisionBoxes, Block*(*f)(BlockContext b))
 {
 	for (GLuint i = 0; i < collisionBoxes.size(); i++)
 	{
 		Block* b = f(collisionBoxes[i]);
-		if (b == nullptr || !world.isBlockTransparent(b))
+		if (b == nullptr || !b->isTransparent)
 			return true;
 	}
 
@@ -46,15 +48,12 @@ void BlockCollisionComponent::move(float angleDeg, float factor, float elapsedTi
 	blockX += deltaX;
 	blockZ += deltaZ;
 
-	Block* curFloor = world.getBlock(
-		chunkX,
-		roundf(parentObject->position.y) - 1,
-		chunkZ);
+	Block* curFloor = world.getBlock(parentObject->position + vec3(0, -1, 0));
 
 	if (curFloor != nullptr)
 	{
-		vector<Block::BlockContext> collisionBoxes;
-		Block* tempBlock = world.getAdjacentBlocks(curFloor).top;
+		vector<BlockContext> collisionBoxes;
+		Block* tempBlock = world.getAdjacentBlocks(curFloor->position).top;
 		if (tempBlock != nullptr)
 		{
 			for (int h = 0; h < mob->mobHeight; h++)
@@ -62,7 +61,7 @@ void BlockCollisionComponent::move(float angleDeg, float factor, float elapsedTi
 				if (tempBlock == nullptr)
 					break;
 
-				Block::BlockContext context = world.getAdjacentBlocks(tempBlock);
+				BlockContext context = world.getAdjacentBlocks(tempBlock->position);
 				collisionBoxes.push_back(context);
 				tempBlock = context.top;
 			}
@@ -72,13 +71,13 @@ void BlockCollisionComponent::move(float angleDeg, float factor, float elapsedTi
 
 			// Collision checking
 			// Left
-			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.left; }) && blockX < -d) blockX = -d;
+			if (checkCollision(collisionBoxes, [](BlockContext b) { return b.left; }) && blockX < -d) blockX = -d;
 			// Right
-			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.right; }) && blockX > d) blockX = d;
+			if (checkCollision(collisionBoxes, [](BlockContext b) { return b.right; }) && blockX > d) blockX = d;
 			// Back (Block in front of our space)
-			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.front; }) && blockZ < -d) blockZ = -d;
+			if (checkCollision(collisionBoxes, [](BlockContext b) { return b.front; }) && blockZ < -d) blockZ = -d;
 			// Front (Block behind our space)
-			if (checkCollision(collisionBoxes, [](Block::BlockContext b) { return b.back; }) && blockZ > d) blockZ = d;
+			if (checkCollision(collisionBoxes, [](BlockContext b) { return b.back; }) && blockZ > d) blockZ = d;
 		}
 	}
 	parentObject->position.x = (chunkX + blockX);
@@ -90,26 +89,23 @@ void BlockCollisionComponent::onUpdate(float elapsedSeconds)
 	
 }
 
-FloorCollisionComponent::FloorCollisionComponent(Chunk& world) : GameObjectComponent(), world(world)
+FloorCollisionComponent::FloorCollisionComponent(World& world) : GameObjectComponent(), world(world)
 {
 
 }
 
 void FloorCollisionComponent::onUpdate(float elapsedTime)
 {
-	floored = curFloor != nullptr && !world.isBlockTransparent(curFloor) &&
+	floored = curFloor != nullptr && !curFloor->isTransparent &&
 		parentObject->position.y < curFloor->position.y + 0.5f;
 
 	if (floored)
 		parentObject->position.y = (curFloor->position.y + 0.5f);
 
-	curFloor = world.getBlock(
-		roundf(parentObject->position.x),
-		roundf(parentObject->position.y) - 1,
-		roundf(parentObject->position.z));
+	curFloor = world.getBlock(parentObject->position + vec3(0, -1, 0));
 }
 
-CeilingCollisionComponent::CeilingCollisionComponent(Chunk& world) : GameObjectComponent(), world(world)
+CeilingCollisionComponent::CeilingCollisionComponent(World& world) : GameObjectComponent(), world(world)
 {
 
 }
@@ -120,15 +116,12 @@ void CeilingCollisionComponent::onUpdate(float elapsedTime)
 	if (mob == nullptr)
 		return;
 
-	ceiled = curCeiling != nullptr && !world.isBlockTransparent(curCeiling) &&
+	ceiled = curCeiling != nullptr && !curCeiling->isTransparent &&
 		parentObject->position.y > curCeiling->position.y - 0.5f - (mob->mobDiameter / 2);
 	if (ceiled)
 	{
 		parentObject->position.y = (curCeiling->position.y - 0.5f - (mob->mobDiameter / 2));
 	}
 
-	curCeiling = world.getBlock(
-		roundf(parentObject->position.x),
-		roundf(parentObject->position.y + mob->mobHeight) + 1,
-		roundf(parentObject->position.z));
+	curCeiling = world.getBlock(parentObject->position + vec3(0, mob->mobHeight, 0));
 }

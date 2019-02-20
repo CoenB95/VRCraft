@@ -1,8 +1,11 @@
 #pragma once
 
-#include "block.h"
+#include "gameobject.h"
+#include "gameobjectcomponent.h"
 
-class Chunk;
+
+class Block;
+class World;
 
 class Stack : public GameObject
 {
@@ -12,7 +15,7 @@ private:
 	int stackSize = 1;
 
 public:
-	Stack(Block* type, Chunk& world);
+	Stack(Block* type, World& world);
 	int decreaseStack(int amount = 1);
 	inline int getStackSize() { return stackSize; };
 	inline Block* getType() { return blockType; };
@@ -26,6 +29,6 @@ private:
 
 public:
 	ChildDrawComponent(GameObject* child);
-	void onDraw() override;
+	void onDraw(const glm::mat4& projectionMatrix, const glm::mat4& modelViewMatrix) override;
 	void onUpdate(float elapsedSeconds) override;
 };

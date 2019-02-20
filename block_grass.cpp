@@ -9,7 +9,7 @@ GrassBlock::GrassBlock() : CubeBlock(0, 3, 3, 3, 3, 2, "Grass")
 
 }
 
-Block* GrassBlock::randomTick(Block::BlockContext& adjacentBlocks)
+Block* GrassBlock::randomTick(BlockContext& adjacentBlocks)
 {
 
 	Block* top = adjacentBlocks.top;

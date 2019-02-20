@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Mob::Mob(Chunk& world) : world(world), collision(world), eyes(), floorDetection(world), force()
+Mob::Mob(World& world) : world(world), collision(world), eyes(), floorDetection(world), force()
 {
 	addComponent(&force);
 	addComponent(&floorDetection);
@@ -40,7 +40,7 @@ void Mob::update(float elapsedSeconds)
 		force.clearForces();
 }
 
-Steve::Steve(Chunk& world) : Mob(world)
+Steve::Steve(World& world) : Mob(world)
 {
 
 }

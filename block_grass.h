@@ -9,7 +9,7 @@ class GrassBlock : public CubeBlock
 {
 public:
 	GrassBlock();
-	Block* randomTick(Block::BlockContext& adjacentBlocks) override;
+	Block* randomTick(BlockContext& adjacentBlocks) override;
 };
 
 class DirtBlock : public CubeBlock

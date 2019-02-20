@@ -1,21 +1,17 @@
-#ifndef CHUNK_H
-#define CHUNK_H
-
-#include <vector>
-#include <VrLib/Texture.h>
-
-#include "block.h"
-#include "gameobject.h"
-#include "stack.h"
+#pragma once
 
 using namespace glm;
 using namespace std;
 
-class Chunk : public GameObject
-{
+class Block;
+class ChunkContext;
+class Stack;
+
+class Chunk : public GameObject {
 private:
-	float blockDrawSize = 1.0f;
 	vector<Block*> blocks;
+	vec3 chunkSize;
+	vec3 blockSize;
 	vector<Block*> newBlocks;
 	vector<Stack*> items;
 	vector<Stack*> newItems;
@@ -25,21 +21,15 @@ private:
 	vector<vrlib::gl::VertexP3N3T2> vertices;
 
 public:
-	int width, height, depth;
+	Chunk(vec3 chunkSize, vec3 blockSize);
 
-	Chunk(int width, int height, int depth);
-
-	void build();
+	void build(ChunkContext chunkContext);
 	Stack* destroyBlock(Block* block);
 	void destroyStack(Stack* stack);
-	//void drawRaw();
-	Block::BlockContext getAdjacentBlocks(Block* base);
-	Block* getBlock(int index);
-	Block* getBlock(int x, int y, int z);
-	Block* getBlock(float x, float y, float z);
-	int getBlockIndex(Block* block);
-	int getBlockIndex(int x, int y, int z);
-	Block** getBlockPtr(int x, int y, int z);
+	BlockContext getAdjacentBlocks(ChunkContext chunkContext, vec3 positionInChunk);
+	Block* getBlock(vec3 positionInChunk);
+	int getBlockIndex(vec3 positionInChunk);
+	Block** getBlockPtr(vec3 positionInChunk);
 	Stack* getNearbyStack(vec3 position, float maxDistance = 1.0f);
 	bool isBlockTransparent(Block* block);
 	void loadTextures();
@@ -47,20 +37,19 @@ public:
 	void notifyBlockChanged(Block* newBlock);
 	void notifyStackDropped(Stack* newStack);
 	void notifyStackRemoved(Stack* oldStack);
-	void randomUpdateBlock(Block* block);
+	void randomTick(ChunkContext chunkContext);
 	void update(float elapsedSeconds) override;
 };
 
-/*class ChunkDrawComponent : public DrawComponent
-{
-private:
-	static vrlib::Texture* texture;
-
+class ChunkContext {
 public:
-	ChunkDrawComponent();
-	void draw() override;
-	static void loadTextures();
-	void update(float elapsedSeconds) override {};
-};*/
+	Chunk* top;
+	Chunk* front;
+	Chunk* right;
+	Chunk* back;
+	Chunk* left;
+	Chunk* bottom;
 
-#endif // !CHUNK_H
+	ChunkContext(Chunk* top, Chunk* front, Chunk* right, Chunk* back, Chunk* left, Chunk* bottom) :
+		top(top), front(front), right(right), back(back), left(left), bottom(bottom) { };
+};

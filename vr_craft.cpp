@@ -6,7 +6,11 @@
 #include <cstdio>
 #include <cmath>
 #include <iostream>
+#include <list>
 #include <vector>
+#include <VrLib/Application.h>
+#include <VrLib/Device.h>
+#include <VrLib/gl/shader.h>
 #include <VrLib/Log.h>
 #include <VrLib/Texture.h>
 
@@ -15,11 +19,11 @@
 #include "block.h"
 #include "block_stone.h"
 #include "camera.h"
-#include "chunk.h"
 #include "followcomponent.h"
 #include "mob.h"
 #include "model.h"
 #include "raycast.h"
+#include "world.h"
 
 using vrlib::Log;
 using vrlib::logger;
@@ -31,10 +35,10 @@ vector<GameObject*> gameObjects3D;
 
 int width, height;
 GLuint terrainTextureId;
-Chunk chunk(50, 20, 50);
+World* world;
 
 Camera* camera;
-Mob* player = new Steve(chunk);
+Mob* player;
 CobblestoneBlock thrownBlock;
 
 PickResult pickedBlock(nullptr, -1);
@@ -48,27 +52,17 @@ VrCraft::VrCraft() {
 }
 
 void VrCraft::init() {
-	shader = new vrlib::gl::Shader<Uniforms>("data/VrCraft/shaders/default.vert", "data/VrCraft/shaders/default.frag");
-	shader->bindAttributeLocation("a_position", 0);
-	shader->bindAttributeLocation("a_normal", 1);
-	shader->bindAttributeLocation("a_texcoord", 2);
-	shader->link();
-	shader->bindFragLocation("fragColor", 0);
-	shader->registerUniform(Uniforms::modelMatrix, "modelMatrix");
-	shader->registerUniform(Uniforms::projectionMatrix, "projectionMatrix");
-	shader->registerUniform(Uniforms::viewMatrix, "viewMatrix");
-	shader->registerUniform(Uniforms::s_texture, "s_texture");
-	shader->registerUniform(Uniforms::diffuseColor, "diffuseColor");
-	shader->registerUniform(Uniforms::textureFactor, "textureFactor");
-	shader->use();
-	shader->setUniform(Uniforms::s_texture, 0);
+	Shaders::setupDefaultShaders();
 
-	//ChunkDrawComponent::loadTextures();
-	chunk.loadTextures();
+	world = new World(vec3(2, 1, 2), vec3(16, 16, 16), vec3(1, 1, 1));
+	world->loadTextures();
+	world->build();
+
+	player = new Steve(*world);
 
 	logger << "Initialized" << Log::newline;
 
-	gameObjects3D.push_back(&chunk);
+	gameObjects3D.push_back(world);
 	gameObjects3D.push_back(player);
 }
 
@@ -76,30 +70,13 @@ void VrCraft::init() {
 void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {
 	//glEnable(GL_CULL_FACE);
-	/*glClearColor(0.6f, 0.6f, 1, 1);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(60.0f, (float)width/height, 0.1, 300);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();*/
-	//camera->applyTransform();
-
-	shader->use();
-	shader->setUniform(Uniforms::projectionMatrix, projectionMatrix);
-	shader->setUniform(Uniforms::viewMatrix, modelViewMatrix);
-	shader->setUniform(Uniforms::modelMatrix, glm::mat4());
-	shader->setUniform(Uniforms::diffuseColor, glm::vec4(1, 1, 1, 1));
-	shader->setUniform(Uniforms::textureFactor, 1.0f);
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	
 	for (GameObject* object : gameObjects3D)
-		object->draw();
+		object->draw(projectionMatrix, modelViewMatrix);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
@@ -162,23 +139,23 @@ void VrCraft::preFrame(double frameTime, double totalTime)
 	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
 	if (keys[' ']) player->jump();
 
-	Stack* mergedStack = chunk.mergeStacks();
+	/*Stack* mergedStack = chunk.mergeStacks();
 	if (mergedStack != nullptr)
-		gameObjects3D.erase(find(gameObjects3D.begin(), gameObjects3D.end(), mergedStack));
+		gameObjects3D.erase(find(gameObjects3D.begin(), gameObjects3D.end(), mergedStack));*/
 
 	for (GameObject* object : gameObjects3D)
 		object->update(deltaTime);
 
 	thrownBlock.update(deltaTime);
 
-	Stack* nearby = nullptr;
+	/*Stack* nearby = nullptr;
 	nearby = chunk.getNearbyStack(player->position);
 	if (nearby != nullptr)
 	{
 		cout << "Picked up " << nearby->getStackSize() << " item(s) of type '" << nearby->getType()->toString() << "'" << endl;
 		chunk.destroyStack(nearby);
 		gameObjects3D.erase(find(gameObjects3D.begin(), gameObjects3D.end(), nearby));
-	}
+	}*/
 
 	//glutPostRedisplay();
 }

@@ -1,59 +1,43 @@
 #include <iostream>
 #include <GL/glew.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
+#include "shaders.h"
 
 using namespace std;
 
-GameObject::GameObject()
-{
-
+GameObject::GameObject() {
+	shader = Shaders::DEFAULT_SHADER;
 }
 
-GameObject::GameObject(GameObject& other)
-{
+GameObject::GameObject(GameObject& other) {
 	position = other.position;
 	rotateX = other.rotateX;
 	rotateY = other.rotateY;
 	rotateZ = other.rotateZ;
 }
 
-void GameObject::addComponent(GameObjectComponent* component)
-{
+void GameObject::addComponent(GameObjectComponent* component) {
 	component->setParent(this);
-
-	/*DrawComponent* dc = dynamic_cast<DrawComponent*>(component);
-	if (dc != nullptr)
-	{
-		if (drawComponent != nullptr)
-			cout << "Warning: multiple draw-components supplied." << endl;
-
-		drawComponent = dc;
-	}*/
 
 	this->components.push_back(component);
 }
 
-void GameObject::draw()
-{
+void GameObject::draw(const glm::mat4& projectionMatrix, const glm::mat4& modelViewMatrix) {
+	glm::mat4 modelMatrix = glm::mat4();
+	modelMatrix = glm::translate(modelMatrix, position);
+
+	shader->use();
+	shader->setUniform(Shaders::Uniforms::projectionMatrix, projectionMatrix);
+	shader->setUniform(Shaders::Uniforms::viewMatrix, modelViewMatrix);
+	shader->setUniform(Shaders::Uniforms::modelMatrix, modelMatrix);
+	shader->setUniform(Shaders::Uniforms::diffuseColor, glm::vec4(1, 1, 1, 1));
+	shader->setUniform(Shaders::Uniforms::textureFactor, 1.0f);
+
 	for (GameObjectComponent* component : components)
-		component->onDraw();
-	
-	/*if (drawComponent != nullptr)
-	{
-		glPushMatrix();
-		
-		glTranslatef(position.x, position.y, -position.z);
-		
-		glRotatef(rotateZ, 0, 0, 1);
-		glRotatef(rotateX, 1, 0, 0);
-		glRotatef(rotateY, 0, 1, 0);
-
-		drawComponent->draw();
-
-		glPopMatrix();
-	}*/
+		component->onDraw(projectionMatrix, modelViewMatrix);
 }
 
 void GameObject::removeAllComponents() {
