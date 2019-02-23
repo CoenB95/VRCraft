@@ -23,10 +23,10 @@ private:
 public:
 	Chunk(vec3 chunkSize, vec3 blockSize);
 
-	void build(ChunkContext chunkContext);
+	void build(ChunkContext* chunkContext);
 	Stack* destroyBlock(Block* block);
 	void destroyStack(Stack* stack);
-	BlockContext getAdjacentBlocks(ChunkContext chunkContext, vec3 positionInChunk);
+	BlockContext getAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChunk);
 	Block* getBlock(vec3 positionInChunk);
 	int getBlockIndex(vec3 positionInChunk);
 	Block** getBlockPtr(vec3 positionInChunk);
@@ -37,7 +37,7 @@ public:
 	void notifyBlockChanged(Block* newBlock);
 	void notifyStackDropped(Stack* newStack);
 	void notifyStackRemoved(Stack* oldStack);
-	void randomTick(ChunkContext chunkContext);
+	void randomTick(ChunkContext* chunkContext);
 	void update(float elapsedSeconds) override;
 };
 

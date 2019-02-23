@@ -68,13 +68,14 @@ CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bott
 }
 
 void CubeBlock::build(BlockContext& context) {
-	vec3 pos = position * vec3(1, 1, -1);
-	vec2 texPos = vec2(0 * TILE_SIZE, 0 * TILE_SIZE);
-	vec2 texScl = vec2(TILE_SIZE, TILE_SIZE);
-	vertices.clear();
-
-	if (isTransparent)
+	if (!isDirty)
 		return;
+
+	isDirty = false;
+	vec3 pos = position * vec3(1, 1, -1);
+	vec2 texPos;
+	vec2 texScl(TILE_SIZE, TILE_SIZE);
+	vertices.clear();
 
 	if ((context.top == nullptr || context.top->isTransparent) && topTextureIndex >= 0) {
 		texPos = TEX_POS(topTextureIndex);

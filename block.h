@@ -24,8 +24,15 @@ public:
 	static const GLfloat SCALE_BLOCK_OVERLAY;
 	static const GLfloat SCALE_ITEM;
 
+	//Whether or not the block's appearance should be updated (rebuild mesh).
+	bool isDirty = true;
+
+	//Whether this block should be considered see-through (render adjacent block-sides).
 	bool isTransparent = false;
-	bool shouldRebuild = true;
+
+	//Pointer to the block that should replace this one.
+	Block* newBlock = nullptr;
+
 	std::vector<vrlib::gl::VertexP3N3T2> vertices;
 
 	Block(string typeName = "Unknown");

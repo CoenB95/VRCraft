@@ -27,7 +27,7 @@ void World::build() {
 	//vertices.clear();
 	for (GLuint i = 0; i < chunks.size(); i++) {
 		ChunkContext context = getAdjacentChunks(chunks[i]->position);
-		chunks[i]->build(context);
+		chunks[i]->build(&context);
 		//vertices.insert(vertices.end(), blocks[i]->vertices.begin(), blocks[i]->vertices.end());
 	}
 };
@@ -45,7 +45,8 @@ BlockContext World::getAdjacentBlocks(vec3 positionInWorld) {
 		return BlockContext(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
 
 	ChunkContext chunkContext = getAdjacentChunks(positionInWorld);
-	return centerChunk->getAdjacentBlocks(chunkContext, positionInWorld / chunkSize);
+	BlockContext blockContext = centerChunk->getAdjacentBlocks(&chunkContext, positionInWorld / chunkSize);
+	return blockContext;
 }
 
 ChunkContext World::getAdjacentChunks(vec3 positionInWorld) {
@@ -116,7 +117,7 @@ void World::randomTick() {
 		Chunk* chunk = chunks[randomTickChunkIndex];
 		ChunkContext chunkContext = getAdjacentChunks(chunk->position);
 
-		chunk->randomTick(chunkContext);
+		chunk->randomTick(&chunkContext);
 	}
 }
 

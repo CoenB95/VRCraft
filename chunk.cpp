@@ -29,8 +29,14 @@ Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(b
 		{
 			for (int x = 0; x < chunkSize.x; x++)
 			{
-				Block* block = new GrassBlock();
-				block->isTransparent = stb_perlin_noise3((float)x / chunkSize.x * 2 - 1, (float)y / chunkSize.y * 2 - 1, (float)z / chunkSize.z * 2 - 1, 0, 0, 0) < 0.0f;
+				Block* block;
+
+				float noise = stb_perlin_noise3((float)x / chunkSize.x * 2 - 1, (float)y / chunkSize.y * 2 - 1, (float)z / chunkSize.z * 2 - 1, 0, 0, 0);
+				if (noise > 0)
+					block = new GrassBlock();
+				else
+					block = new AirBlock();
+
 				block->position = vec3(x * blockSize.x, y * blockSize.y, z * blockSize.z);
 				blocks.push_back(block);
 			}
@@ -38,11 +44,14 @@ Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(b
 	}
 }
 
-void Chunk::build(ChunkContext chunkContext) {
+void Chunk::build(ChunkContext* chunkContext) {
 	vertices.clear();
+	vertices.reserve(blocks.size() * 36);
 	for (GLuint i = 0; i < blocks.size(); i++) {
-		BlockContext context = getAdjacentBlocks(chunkContext, blocks[i]->position);
-		blocks[i]->build(context);
+		if (blocks[i]->isDirty) {
+			BlockContext context = getAdjacentBlocks(chunkContext, blocks[i]->position);
+			blocks[i]->build(context);
+		}
 		vertices.insert(vertices.end(), blocks[i]->vertices.begin(), blocks[i]->vertices.end());
 	}
 }
@@ -69,7 +78,7 @@ void Chunk::destroyStack(Stack* stack)
 	notifyStackRemoved(stack);
 }
 
-BlockContext Chunk::getAdjacentBlocks(ChunkContext chunkContext, vec3 positionInChunk) {
+BlockContext Chunk::getAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChunk) {
 	Block* centerBlock = getBlock(positionInChunk);
 	if (centerBlock == nullptr)
 		return BlockContext(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
@@ -83,18 +92,18 @@ BlockContext Chunk::getAdjacentBlocks(ChunkContext chunkContext, vec3 positionIn
 		getBlock(centerBlock->position + vec3(+0, -1, +0))
 	);
 
-	if (context.top == nullptr && chunkContext.top != nullptr)
-		context.top = chunkContext.top->getBlock(centerBlock->position + vec3(+0, -chunkSize.y + 1, +0));
-	if (context.front == nullptr && chunkContext.front != nullptr)
-		context.front = chunkContext.front->getBlock(centerBlock->position + vec3(+0, +0, +chunkSize.z - 1));
-	if (context.right == nullptr && chunkContext.right != nullptr)
-		context.right = chunkContext.right->getBlock(centerBlock->position + vec3(-chunkSize.x + 1, +0, +0));
-	if (context.back == nullptr && chunkContext.back != nullptr)
-		context.back = chunkContext.back->getBlock(centerBlock->position + vec3(+0, +0, -chunkSize.z + 1));
-	if (context.left == nullptr && chunkContext.left != nullptr)
-		context.left = chunkContext.left->getBlock(centerBlock->position + vec3(+chunkSize.x - 1, +0, +0));
-	if (context.bottom == nullptr && chunkContext.bottom != nullptr)
-		context.bottom = chunkContext.bottom->getBlock(centerBlock->position + vec3(+0, +chunkSize.y - 1, +0));
+	if (context.top == nullptr && chunkContext->top != nullptr)
+		context.top = chunkContext->top->getBlock(centerBlock->position + vec3(+0, -chunkSize.y + 1, +0));
+	if (context.front == nullptr && chunkContext->front != nullptr)
+		context.front = chunkContext->front->getBlock(centerBlock->position + vec3(+0, +0, +chunkSize.z - 1));
+	if (context.right == nullptr && chunkContext->right != nullptr)
+		context.right = chunkContext->right->getBlock(centerBlock->position + vec3(-chunkSize.x + 1, +0, +0));
+	if (context.back == nullptr && chunkContext->back != nullptr)
+		context.back = chunkContext->back->getBlock(centerBlock->position + vec3(+0, +0, -chunkSize.z + 1));
+	if (context.left == nullptr && chunkContext->left != nullptr)
+		context.left = chunkContext->left->getBlock(centerBlock->position + vec3(+chunkSize.x - 1, +0, +0));
+	if (context.bottom == nullptr && chunkContext->bottom != nullptr)
+		context.bottom = chunkContext->bottom->getBlock(centerBlock->position + vec3(+0, +chunkSize.y - 1, +0));
 
 	return context;
 }
@@ -185,22 +194,28 @@ void Chunk::notifyStackRemoved(Stack* oldStack)
 	itemsChanged = true;
 }
 
-void Chunk::randomTick(ChunkContext chunkContext) {
+void Chunk::randomTick(ChunkContext* chunkContext) {
+	logger << "Ticking blocks..." << Log::newline;
 	for (int i = 0; i < 5; i++) {
 		int randomTickBlockIndex = rand() % blocks.size();
-		Block* block = blocks[randomTickBlockIndex];
-		BlockContext blockContext = getAdjacentBlocks(chunkContext, block->position);
+		Block** block = getBlockPtr(blocks[randomTickBlockIndex]->position);
+		BlockContext blockContext = getAdjacentBlocks(chunkContext, (*block)->position);
 
-		Block* newBlock = block->randomTick(blockContext);
+		Block* newBlock = (*block)->randomTick(blockContext);
 		if (newBlock != nullptr) {
 			//notifyBlockChanged(newBlock);
-			Block** block = getBlockPtr(newBlock->position);
 			delete *block;
 			*block = newBlock;
 		}
+
+		if ((*block)->isDirty) {
+			(*block)->build(blockContext);
+		}
 	}
 
+	logger << "Rebuilding chunk..." << Log::newline;
 	build(chunkContext);
+	logger << "Rebuilding chunk done." << Log::newline;
 }
 
 void Chunk::update(float elapsedSeconds) {
