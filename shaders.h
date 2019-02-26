@@ -12,6 +12,7 @@ public:
 		modelMatrix,
 		projectionMatrix,
 		viewMatrix,
+		normalMatrix,
 		s_texture,
 		diffuseColor,
 		textureFactor
@@ -19,6 +20,7 @@ public:
 
 public:
 	static vrlib::gl::Shader<Uniforms>* DEFAULT_SHADER;
+	static vrlib::gl::Shader<Uniforms>* SPECULAR;
 
 	static void setupDefaultShaders();
 	static vrlib::gl::Shader<Uniforms>* setupShader(string vertShader, string fragShader);

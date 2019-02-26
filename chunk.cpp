@@ -206,7 +206,6 @@ void Chunk::notifyStackRemoved(Stack* oldStack)
 }
 
 void Chunk::randomTick(ChunkContext* chunkContext) {
-	logger << "Ticking blocks..." << Log::newline;
 	for (int i = 0; i < 5; i++) {
 		int randomTickBlockIndex = rand() % blocks.size();
 		Block** block = getBlockPtr(blocks[randomTickBlockIndex]->position);
@@ -224,9 +223,7 @@ void Chunk::randomTick(ChunkContext* chunkContext) {
 		}
 	}
 
-	logger << "Rebuilding chunk..." << Log::newline;
 	build(chunkContext);
-	logger << "Rebuilding chunk done." << Log::newline;
 }
 
 void Chunk::update(float elapsedSeconds) {

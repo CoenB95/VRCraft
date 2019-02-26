@@ -16,7 +16,6 @@ class GameObject
 private:
 	//DrawComponent* drawComponent = nullptr;
 	vector<GameObjectComponent*> components;
-	vrlib::gl::Shader<Shaders::Uniforms>* shader;
 
 public:
 	vec3 position;
@@ -26,6 +25,8 @@ public:
 	float rotateY = 0.0f;
 	// The amount of rotation around the z-axis, in degrees.
 	float rotateZ = 0.0f;
+
+	vrlib::gl::Shader<Shaders::Uniforms>* shader;
 
 	GameObject();
 	GameObject(GameObject& other);

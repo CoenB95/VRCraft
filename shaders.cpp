@@ -1,9 +1,19 @@
+#include <iostream>
+#include <VrLib/Log.h>
+
 #include "shaders.h"
 
+using vrlib::Log;
+using vrlib::logger;
+
 vrlib::gl::Shader<Shaders::Uniforms>* Shaders::DEFAULT_SHADER = nullptr;
+vrlib::gl::Shader<Shaders::Uniforms>* Shaders::SPECULAR = nullptr;
 
 void Shaders::setupDefaultShaders() {
+	logger << "Def shad" << Log::newline;
 	DEFAULT_SHADER = setupShader("data/VrCraft/shaders/default.vert", "data/VrCraft/shaders/default.frag");
+	logger << "Spec shad" << Log::newline;
+	SPECULAR = setupShader("data/VrCraft/shaders/simple.vs", "data/VrCraft/shaders/simple.fs");
 }
 
 vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setupShader(string vertShader, string fragShader) {
@@ -16,6 +26,7 @@ vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setupShader(string vertShader, st
 	shader->registerUniform(Uniforms::modelMatrix, "modelMatrix");
 	shader->registerUniform(Uniforms::projectionMatrix, "projectionMatrix");
 	shader->registerUniform(Uniforms::viewMatrix, "viewMatrix");
+	shader->registerUniform(Uniforms::normalMatrix, "normalMatrix");
 	shader->registerUniform(Uniforms::s_texture, "s_texture");
 	shader->registerUniform(Uniforms::diffuseColor, "diffuseColor");
 	shader->registerUniform(Uniforms::textureFactor, "textureFactor");
@@ -24,11 +35,14 @@ vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setupShader(string vertShader, st
 	return shader;
 }
 
-void Shaders::useShader(vrlib::gl::Shader<Shaders::Uniforms>* shader, const glm::mat4& projectionMatrix, const glm::mat4& modelViewMatrix) {
+void Shaders::useShader(vrlib::gl::Shader<Shaders::Uniforms>* shader, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) {
+	glm::mat4 modelMatrix = glm::mat4();
+	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(viewMatrix * modelMatrix)));
 	shader->use();
-	shader->setUniform(Shaders::Uniforms::projectionMatrix, projectionMatrix);
-	shader->setUniform(Shaders::Uniforms::viewMatrix, modelViewMatrix);
-	shader->setUniform(Shaders::Uniforms::modelMatrix, glm::mat4());
-	shader->setUniform(Shaders::Uniforms::diffuseColor, glm::vec4(1, 1, 1, 1));
-	shader->setUniform(Shaders::Uniforms::textureFactor, 1.0f);
+	shader->setUniform(Uniforms::projectionMatrix, projectionMatrix);
+	shader->setUniform(Uniforms::viewMatrix, viewMatrix);
+	shader->setUniform(Uniforms::modelMatrix, modelMatrix);
+	shader->setUniform(Uniforms::normalMatrix, normalMatrix);
+	shader->setUniform(Uniforms::diffuseColor, glm::vec4(1, 1, 1, 1));
+	shader->setUniform(Uniforms::textureFactor, 1.0f);
 }

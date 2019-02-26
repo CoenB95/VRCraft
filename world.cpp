@@ -17,6 +17,7 @@ World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSi
 			{
 				Chunk* chunk = new Chunk(chunkSize, vec3(1, 1, 1));
 				chunk->position = vec3(x * chunkSize.x * blockSize.x, y * chunkSize.y * blockSize.y, z * chunkSize.z * blockSize.z);
+				chunk->shader = Shaders::SPECULAR;
 				chunks.push_back(chunk);
 			}
 		}
