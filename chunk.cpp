@@ -83,14 +83,21 @@ BlockContext Chunk::getAdjacentBlocks(ChunkContext* chunkContext, vec3 positionI
 	if (centerBlock == nullptr)
 		return BlockContext(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
 
-	BlockContext context = BlockContext(
-		getBlock(centerBlock->position + vec3(+0, +1, +0)),
-		getBlock(centerBlock->position + vec3(+0, +0, -1)),
-		getBlock(centerBlock->position + vec3(+1, +0, +0)),
-		getBlock(centerBlock->position + vec3(+0, +0, +1)),
-		getBlock(centerBlock->position + vec3(-1, +0, +0)),
-		getBlock(centerBlock->position + vec3(+0, -1, +0))
-	);
+	BlockContext context = BlockContext();
+	for (int x = 0; x < 3; x++) {
+		for (int y = 0; y < 3; y++) {
+			for (int z = 0; z < 3; z++) {
+				context.surroundings[x][y][z] = getBlock(centerBlock->position + vec3(x-1, y-1, z-1));
+			}
+		}
+	}
+	context.updateSides();
+	/*getBlock(centerBlock->position + vec3(+0, +1, +0));
+		getBlock(centerBlock->position + vec3(+0, +0, -1));
+		getBlock(centerBlock->position + vec3(+1, +0, +0));
+		getBlock(centerBlock->position + vec3(+0, +0, +1));
+		getBlock(centerBlock->position + vec3(-1, +0, +0));
+		getBlock(centerBlock->position + vec3(+0, -1, +0));*/
 
 	if (context.top == nullptr && chunkContext->top != nullptr)
 		context.top = chunkContext->top->getBlock(centerBlock->position + vec3(+0, -chunkSize.y + 1, +0));

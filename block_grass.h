@@ -16,6 +16,7 @@ class DirtBlock : public CubeBlock
 {
 public:
 	DirtBlock();
+	Block* randomTick(BlockContext& adjacentBlocks) override;
 };
 
 #endif // !BLOCK_GRASS_H
