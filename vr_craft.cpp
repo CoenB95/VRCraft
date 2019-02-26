@@ -17,7 +17,7 @@
 #include "vr_craft.h"
 
 #include "block.h"
-#include "block_stone.h"
+#include "blocks.h"
 #include "camera.h"
 #include "followcomponent.h"
 #include "mob.h"

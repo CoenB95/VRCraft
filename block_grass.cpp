@@ -2,12 +2,7 @@
 #include <sstream>
 
 #include "block.h"
-#include "block_grass.h"
-
-GrassBlock::GrassBlock() : CubeBlock(0, 3, 3, 3, 3, 2, "Grass")
-{
-
-}
+#include "blocks.h"
 
 Block* GrassBlock::randomTick(BlockContext& adjacentBlocks) {
 	if (adjacentBlocks.top != nullptr && !adjacentBlocks.top->isTransparent) {
@@ -19,11 +14,6 @@ Block* GrassBlock::randomTick(BlockContext& adjacentBlocks) {
 	}
 
 	return nullptr;
-}
-
-DirtBlock::DirtBlock() : CubeBlock(2, 2, 2, 2, 2, 2, "Dirt")
-{
-
 }
 
 Block* DirtBlock::randomTick(BlockContext& adjacentBlocks) {

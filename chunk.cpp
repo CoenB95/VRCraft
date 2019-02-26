@@ -12,7 +12,7 @@
 #define STB_PERLIN_IMPLEMENTATION
 
 #include "block.h"
-#include "block_grass.h"
+#include "blocks.h"
 #include "chunk.h"
 #include "gameobject.h"
 #include "stack.h"
@@ -32,7 +32,11 @@ Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(b
 				Block* block;
 
 				float noise = stb_perlin_noise3((float)x / chunkSize.x * 2 - 1, (float)y / chunkSize.y * 2 - 1, (float)z / chunkSize.z * 2 - 1, 0, 0, 0);
-				if (noise > 0)
+				if (noise > 0.7)
+					block = new CobblestoneBlock();
+				else if (noise > 0.2)
+					block = new StoneBlock();
+				else if (noise > 0)
 					block = new GrassBlock();
 				else
 					block = new AirBlock();

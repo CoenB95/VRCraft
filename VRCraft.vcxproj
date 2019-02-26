@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="block.cpp" />
     <ClCompile Include="block_grass.cpp" />
-    <ClCompile Include="block_stone.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="chunk.cpp" />
     <ClCompile Include="collisioncomponent.cpp" />
@@ -44,8 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="block.h" />
+    <ClInclude Include="blocks.h" />
     <ClInclude Include="block_grass.h" />
-    <ClInclude Include="block_stone.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="chunk.h" />
     <ClInclude Include="collisioncomponent.h" />
