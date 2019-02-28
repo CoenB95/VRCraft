@@ -5,6 +5,9 @@ uniform vec4 diffuseColor;
 uniform float textureFactor;
 
 in vec3 normal;
+in vec2 texCoord;
+
+out vec4 fragColor;
 
 void main()
 {
@@ -13,7 +16,7 @@ void main()
 	float shininess = 100.0;
 
 	float ambient = 0.2;
-	float diffuse = 0.8 * dot(normalize(normal), lightDirection);
+	float diffuse = 0.8 * clamp(dot(normalize(normal), lightDirection), 0, 1);
 
 	vec3 r = reflect(-lightDirection, normalize(normal));
 
@@ -22,5 +25,9 @@ void main()
 	float factor = ambient + diffuse + specular;
 
 
-	gl_FragColor = vec4(factor,factor,factor,1.0);
+	vec4 tex = mix(diffuseColor, texture2D(s_texture, texCoord), textureFactor);
+	if(tex.a < 0.01)
+		discard;
+	fragColor.rgb = factor * tex.rgb;
+	fragColor.a = tex.a;
 }

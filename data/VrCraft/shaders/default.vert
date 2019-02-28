@@ -14,10 +14,6 @@ uniform mat3 normalMatrix;
 
 void main()
 {
-	mat3 normalMatrix = mat3(viewMatrix * modelMatrix);
-	normalMatrix = transpose(inverse(normalMatrix));
-
-
 	texCoord = a_texture;
 	normal = normalMatrix * a_normal;
 	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(a_position,1.0);
