@@ -29,12 +29,13 @@ void GameObject::draw(const glm::mat4& projectionMatrix, const glm::mat4& modelV
 	glm::mat4 modelMatrix = glm::mat4();
 	modelMatrix = glm::translate(modelMatrix, position * vec3(1.01f, 1.01f, -1.01f));
 
-	shader->use();
+	Shaders::useShader(shader, projectionMatrix, modelViewMatrix);
+	/*shader->use();
 	shader->setUniform(Shaders::Uniforms::projectionMatrix, projectionMatrix);
 	shader->setUniform(Shaders::Uniforms::viewMatrix, modelViewMatrix);
 	shader->setUniform(Shaders::Uniforms::modelMatrix, modelMatrix);
 	shader->setUniform(Shaders::Uniforms::diffuseColor, glm::vec4(1, 1, 1, 1));
-	shader->setUniform(Shaders::Uniforms::textureFactor, 1.0f);
+	shader->setUniform(Shaders::Uniforms::textureFactor, 1.0f);*/
 
 	for (GameObjectComponent* component : components)
 		component->onDraw(projectionMatrix, modelViewMatrix);
