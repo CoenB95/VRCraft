@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <vector>
 #include <VrLib/gl/shader.h>
 
@@ -19,19 +20,14 @@ private:
 
 public:
 	vec3 position;
-	// The amount of rotation around the x-axis, in degrees.
-	float rotateX = 0.0f;
-	// The amount of rotation around the y-axis, in degrees.
-	float rotateY = 0.0f;
-	// The amount of rotation around the z-axis, in degrees.
-	float rotateZ = 0.0f;
+	quat orientation;
 
 	vrlib::gl::Shader<Shaders::Uniforms>* shader;
 
 	GameObject();
 	GameObject(GameObject& other);
 	void addComponent(GameObjectComponent* component);
-	virtual void draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix);
+	virtual void draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix);
 	void removeAllComponents();
 	virtual void update(float elapsedSeconds);
 };

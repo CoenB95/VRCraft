@@ -17,7 +17,7 @@ TextureDrawComponent::TextureDrawComponent(const string& fileName) : GameObjectC
 	texture->setNearestFilter();
 }
 
-void TextureDrawComponent::onDraw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix) {
+void TextureDrawComponent::onDraw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix, const glm::mat4& modelMatrix) {
 	if (verticesPtr == nullptr)
 		return;
 

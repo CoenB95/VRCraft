@@ -3,10 +3,12 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+#include "world.h"
+
 #include "block.h"
 #include "chunk.h"
 #include "gameobject.h"
-#include "world.h"
+#include "gameobjectcomponent.h"
 
 World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSize), chunkSize(chunkSize), blockSize(blockSize) {
 	for (int y = 0; y < worldSize.y; y++)
@@ -18,6 +20,7 @@ World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSi
 				Chunk* chunk = new Chunk(chunkSize, vec3(1, 1, 1));
 				chunk->position = vec3(x * chunkSize.x * blockSize.x, y * chunkSize.y * blockSize.y, z * chunkSize.z * blockSize.z);
 				chunk->shader = Shaders::SPECULAR;
+				chunk->addComponent(new SpinComponent(10.0f));
 				chunks.push_back(chunk);
 			}
 		}
@@ -36,7 +39,7 @@ void World::build() {
 void World::draw(const glm::mat4& projectionMatrix, const glm::mat4& modelViewMatrix) {
 	GameObject::draw(projectionMatrix, modelViewMatrix);
 
-	for (int i = 0; i < chunks.size(); i++)
+	for (GLuint i = 0; i < chunks.size(); i++)
 		chunks[i]->draw(projectionMatrix, modelViewMatrix);
 }
 
@@ -108,7 +111,7 @@ Chunk** World::getChunkPtr(vec3 positionInWorld) {
 }
 
 void World::loadTextures() {
-	for (int i = 0; i < chunks.size(); i++)
+	for (GLuint i = 0; i < chunks.size(); i++)
 		chunks[i]->loadTextures();
 }
 
@@ -123,5 +126,8 @@ void World::randomTick() {
 }
 
 void World::update(float elapsedSeconds) {
+	GameObject::update(elapsedSeconds);
 	randomTick();
+	for (Chunk* chunk : chunks)
+		chunk->update(elapsedSeconds);
 }

@@ -18,7 +18,6 @@
 
 #include "block.h"
 #include "blocks.h"
-#include "camera.h"
 #include "followcomponent.h"
 #include "mob.h"
 #include "model.h"
@@ -37,7 +36,6 @@ int width, height;
 GLuint terrainTextureId;
 World* world;
 
-Camera* camera;
 Mob* player;
 CobblestoneBlock thrownBlock;
 
@@ -129,7 +127,7 @@ void VrCraft::preFrame(double frameTime, double totalTime)
 	//float deltaTime = frameTime - lastFrameTime;
 	//lastFrameTime = frameTime;
 	//lastUpdate += deltaTime;
-	float deltaTime = (float)frameTime;
+	float deltaTime = (float)(frameTime / 1000.0);
 	lastUpdate += deltaTime;
 
 	const float speed = 4.0f;

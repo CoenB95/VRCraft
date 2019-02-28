@@ -6,6 +6,8 @@
 
 using namespace std;
 
+class BlockContext;
+
 class World : public GameObject {
 private:
 	vector<Chunk*> chunks;

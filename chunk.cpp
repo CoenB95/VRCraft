@@ -41,7 +41,10 @@ Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(b
 				else
 					block = new AirBlock();
 
-				block->position = vec3(x * blockSize.x, y * blockSize.y, z * blockSize.z);
+				block->position = vec3(
+					x * blockSize.x - (chunkSize.x * blockSize.x / 2),
+					y * blockSize.y - (chunkSize.y * blockSize.y / 2),
+					z * blockSize.z - (chunkSize.z * blockSize.z / 2));
 				blocks.push_back(block);
 			}
 		}
@@ -130,13 +133,20 @@ Block* Chunk::getBlock(vec3 positionInChunk) {
 
 int Chunk::getBlockIndex(vec3 positionInChunk)
 {
-	if (positionInChunk.x < 0 || positionInChunk.y < 0 || positionInChunk.z < 0)
+	if (positionInChunk.x < -(chunkSize.x * blockSize.x / 2) ||
+		positionInChunk.y < -(chunkSize.y * blockSize.y / 2) ||
+		positionInChunk.z < -(chunkSize.z * blockSize.z / 2))
 		return -1;
 
-	if (positionInChunk.x >= chunkSize.x || positionInChunk.y >= chunkSize.y || positionInChunk.z >= chunkSize.z)
+	if (positionInChunk.x >= (chunkSize.x * blockSize.x / 2) ||
+		positionInChunk.y >= (chunkSize.y * blockSize.y / 2) ||
+		positionInChunk.z >= (chunkSize.z * blockSize.z / 2))
 		return -1;
 
-	return (int)(roundf(positionInChunk.x) + roundf(positionInChunk.z) * chunkSize.x + roundf(positionInChunk.y) * chunkSize.x * chunkSize.z);
+	return (int)(
+		roundf(positionInChunk.x + (chunkSize.x * blockSize.x / 2)) +
+		roundf(positionInChunk.z + (chunkSize.z * blockSize.z / 2)) * chunkSize.x +
+		roundf(positionInChunk.y + (chunkSize.y * blockSize.y / 2)) * chunkSize.x * chunkSize.z);
 }
 
 Block** Chunk::getBlockPtr(vec3 positionInChunk) {

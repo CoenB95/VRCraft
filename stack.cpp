@@ -1,7 +1,6 @@
 #include "block.h"
-#include "collisioncomponent.h"
 #include "followcomponent.h"
-#include "forcecomponent.h"
+#include "gameobject.h"
 #include "stack.h"
 #include "world.h"
 
@@ -17,8 +16,6 @@ Stack::Stack(Block* type, World& world) : GameObject() {
 	blockType->position = vec3(0.0f, Block::SCALE_ITEM / 2, 0.0f);
 
 	addComponent(new SpinComponent(50.0f));
-	addComponent(new SimpleGravityComponent());
-	addComponent(new FloorCollisionComponent(world));
 }
 
 int Stack::increaseStack(int amount)
@@ -48,10 +45,10 @@ ChildDrawComponent::ChildDrawComponent(GameObject* child) : GameObjectComponent(
 
 }
 
-void ChildDrawComponent::onDraw(const glm::mat4& projectionMatrix, const glm::mat4& modelViewMatrix)
+void ChildDrawComponent::onDraw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix, const glm::mat4& modelMatrix)
 {
 	if (child != nullptr)
-		child->draw(projectionMatrix, modelViewMatrix);
+		child->draw(projectionMatrix, viewMatrix);
 }
 
 void ChildDrawComponent::onUpdate(float elapsedSeconds)

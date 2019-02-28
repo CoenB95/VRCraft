@@ -18,5 +18,5 @@ public:
 
 	TextureDrawComponent(const string& fileName);
 
-	void onDraw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix) override;
+	void onDraw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, const glm::mat4& modelMatrix) override;
 };

@@ -35,9 +35,10 @@ vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setupShader(string vertShader, st
 	return shader;
 }
 
-void Shaders::useShader(vrlib::gl::Shader<Shaders::Uniforms>* shader, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) {
-	glm::mat4 modelMatrix = glm::mat4();
+void Shaders::useShader(vrlib::gl::Shader<Shaders::Uniforms>* shader, const glm::mat4& projectionMatrix,
+	const glm::mat4& viewMatrix, const glm::mat4& modelMatrix) {
 	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(viewMatrix * modelMatrix)));
+
 	shader->use();
 	shader->setUniform(Uniforms::projectionMatrix, projectionMatrix);
 	shader->setUniform(Uniforms::viewMatrix, viewMatrix);

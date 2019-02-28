@@ -1,9 +1,12 @@
 #pragma once
 
+#include <VrLib/gl/Vertex.h>
+
 using namespace glm;
 using namespace std;
 
 class Block;
+class BlockContext;
 class ChunkContext;
 class Stack;
 

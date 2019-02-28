@@ -1,14 +1,11 @@
 #pragma once
 
-#include "gameobject.h"
 #include "gameobjectcomponent.h"
-
 
 class Block;
 class World;
 
-class Stack : public GameObject
-{
+class Stack : public GameObject {
 private:
 	Block* blockType;
 	int maxStackSize = 64;
@@ -22,13 +19,12 @@ public:
 	int increaseStack(int amount = 1);
 };
 
-class ChildDrawComponent : public GameObjectComponent
-{
+class ChildDrawComponent : public GameObjectComponent {
 private:
 	GameObject* child;
 
 public:
 	ChildDrawComponent(GameObject* child);
-	void onDraw(const glm::mat4& projectionMatrix, const glm::mat4& modelViewMatrix) override;
+	void onDraw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix, const glm::mat4& modelMatrix) override;
 	void onUpdate(float elapsedSeconds) override;
 };

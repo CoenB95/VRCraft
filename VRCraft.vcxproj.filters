@@ -42,9 +42,6 @@
     <ClCompile Include="mob.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="raycast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -57,13 +54,7 @@
     <ClCompile Include="gameobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="collisioncomponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="followcomponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="forcecomponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="gameobjectcompenent.cpp">
@@ -113,9 +104,6 @@
     <ClInclude Include="mob.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="raycast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -137,13 +125,7 @@
     <ClInclude Include="block_grass.h">
       <Filter>Header Files\Blocks</Filter>
     </ClInclude>
-    <ClInclude Include="collisioncomponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="followcomponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="forcecomponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="gameobjectcomponent.h">

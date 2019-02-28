@@ -11,14 +11,13 @@ private:
 	vec3 prev;
 	bool rotate;
 	bool translate;
-	float snappyness;
 
-	FollowComponent(GameObject* subject, bool translate, bool rotate, float snappyness);
+	FollowComponent(GameObject* subject, bool translate, bool rotate);
 
 public:
-	static FollowComponent* rotating(GameObject* subject, float snappyness = 1.0f);
-	static FollowComponent* rotatingAndTranslating(GameObject* subject, float snappyness = 1.0f);
-	static FollowComponent* translating(GameObject* subject, float snappyness = 1.0f);
+	static FollowComponent* rotating(GameObject* subject);
+	static FollowComponent* rotatingAndTranslating(GameObject* subject);
+	static FollowComponent* translating(GameObject* subject);
 
 	void onUpdate(float elapsedSeconds) override;
 	FollowComponent* withOffset(vec3 offset);
@@ -27,10 +26,8 @@ public:
 class SmoothComponent : public GameObjectComponent
 {
 private:
-	vec3 prev;
-	float prevRotX;
-	float prevRotY;
-	float prevRotZ;
+	vec3 previousPosition;
+	quat previousOrientation;
 	bool rotate;
 	bool translate;
 	float snappyness;
@@ -42,5 +39,6 @@ public:
 	static SmoothComponent* rotatingAndTranslating(float snappyness);
 	static SmoothComponent* translating(float snappyness);
 
+	void onAttach(GameObject* newParent) override;
 	void onUpdate(float elapsedSeconds) override;
 };

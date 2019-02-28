@@ -1,12 +1,6 @@
-#ifndef MOB_H
-#define MOB_H
+#pragma once
 
-#include "camera.h"
-#include "collisioncomponent.h"
-#include "forcecomponent.h"
-#include "gameobject.h"
-#include "vec.h"
-#include "world.h"
+class World;
 
 class MobEyes : public GameObject
 {
@@ -19,9 +13,6 @@ private:
 	bool ceiled = false;
 	
 	World& world;
-	BlockCollisionComponent collision;
-	FloorCollisionComponent floorDetection;
-	ForceComponent force;
 
 public:
 	const GLfloat mobHeight = 1.5f;
@@ -40,6 +31,3 @@ class Steve : public Mob
 public:
 	Steve(World& world);
 };
-
-#endif // !MOB_H
-
