@@ -10,13 +10,13 @@ public:
 class DirtBlock : public CubeBlock {
 public:
 	DirtBlock() : CubeBlock(2, "Dirt") { };
-	Block* randomTick(BlockContext& adjacentBlocks) override;
+	void randomTick() override;
 };
 
 class GrassBlock : public CubeBlock {
 public:
 	GrassBlock() : CubeBlock(0, 3, 3, 3, 3, 2, "Grass") { };
-	Block* randomTick(BlockContext& adjacentBlocks) override;
+	void randomTick() override;
 };
 
 class StoneBlock : public CubeBlock {

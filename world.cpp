@@ -20,7 +20,7 @@ World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSi
 				Chunk* chunk = new Chunk(chunkSize, vec3(1, 1, 1));
 				chunk->position = vec3(x * chunkSize.x * blockSize.x, y * chunkSize.y * blockSize.y, z * chunkSize.z * blockSize.z);
 				chunk->shader = Shaders::SPECULAR;
-				chunk->addComponent(new SpinComponent(10.0f));
+				//chunk->addComponent(new SpinComponent(10.0f));
 				chunks.push_back(chunk);
 			}
 		}
@@ -28,37 +28,36 @@ World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSi
 }
 
 void World::build() {
-	//vertices.clear();
 	for (GLuint i = 0; i < chunks.size(); i++) {
-		ChunkContext context = getAdjacentChunks(chunks[i]->position);
-		chunks[i]->build(&context);
-		//vertices.insert(vertices.end(), blocks[i]->vertices.begin(), blocks[i]->vertices.end());
+		if (chunks[i]->shouldRebuild()) {
+			chunks[i]->build();
+		}
 	}
 };
 
-void World::draw(const glm::mat4& projectionMatrix, const glm::mat4& modelViewMatrix) {
-	GameObject::draw(projectionMatrix, modelViewMatrix);
+void World::draw(const mat4& projectionMatrix, const mat4& modelViewMatrix, const mat4& parentModelMatrix) {
+	GameObject::draw(projectionMatrix, modelViewMatrix, parentModelMatrix);
 
 	for (GLuint i = 0; i < chunks.size(); i++)
-		chunks[i]->draw(projectionMatrix, modelViewMatrix);
+		chunks[i]->draw(projectionMatrix, modelViewMatrix, calcModelMatrix(parentModelMatrix));
 }
 
-BlockContext World::getAdjacentBlocks(vec3 positionInWorld) {
+BlockContext* World::getAdjacentBlocks(vec3 positionInWorld) {
 	Chunk* centerChunk = getChunk(positionInWorld);
 	if (centerChunk == nullptr)
-		return BlockContext(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+		return new BlockContext();
 
-	ChunkContext chunkContext = getAdjacentChunks(positionInWorld);
-	BlockContext blockContext = centerChunk->getAdjacentBlocks(&chunkContext, positionInWorld / chunkSize);
+	ChunkContext* chunkContext = getAdjacentChunks(positionInWorld);
+	BlockContext* blockContext = centerChunk->getAdjacentBlocks(chunkContext, positionInWorld / chunkSize);
 	return blockContext;
 }
 
-ChunkContext World::getAdjacentChunks(vec3 positionInWorld) {
+ChunkContext* World::getAdjacentChunks(vec3 positionInWorld) {
 	Chunk* centerChunk = getChunk(positionInWorld);
 	if (centerChunk == nullptr)
-		return ChunkContext(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+		return new ChunkContext();
 
-	ChunkContext context = ChunkContext(
+	return new ChunkContext(
 		getChunk(centerChunk->position + vec3(+0, +(chunkSize.y * blockSize.y), +0)),
 		getChunk(centerChunk->position + vec3(+0, +0, -(chunkSize.z * blockSize.z))),
 		getChunk(centerChunk->position + vec3(+(chunkSize.x * blockSize.x), +0, +0)),
@@ -66,7 +65,6 @@ ChunkContext World::getAdjacentChunks(vec3 positionInWorld) {
 		getChunk(centerChunk->position + vec3(-(chunkSize.x * blockSize.x), +0, +0)),
 		getChunk(centerChunk->position + vec3(+0, -(chunkSize.y * blockSize.y), +0))
 	);
-	return context;
 }
 
 Block* World::getBlock(vec3 positionInWorld) {
@@ -116,12 +114,12 @@ void World::loadTextures() {
 }
 
 void World::randomTick() {
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 4; i++) {
 		int randomTickChunkIndex = rand() % chunks.size();
 		Chunk* chunk = chunks[randomTickChunkIndex];
-		ChunkContext chunkContext = getAdjacentChunks(chunk->position);
-
-		chunk->randomTick(&chunkContext);
+		ChunkContext* chunkContext = getAdjacentChunks(chunk->position);
+		chunk->updateContext(chunkContext);
+		chunk->randomTick();
 	}
 }
 

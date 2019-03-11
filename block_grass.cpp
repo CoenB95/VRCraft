@@ -3,31 +3,16 @@
 
 #include "block.h"
 #include "blocks.h"
+#include "chunk.h"
 
-Block* GrassBlock::randomTick(BlockContext& adjacentBlocks) {
-	if (adjacentBlocks.top != nullptr && !adjacentBlocks.top->isTransparent) {
+void GrassBlock::randomTick() {
+	if (context->top != nullptr && !context->top->isTransparent) {
 		DirtBlock* dirt = new DirtBlock();
 		dirt->isTransparent = isTransparent;
-		dirt->position = vec3(position.x, position.y, position.z);
-
-		return dirt;
+		parentChunk->setBlock(position, dirt);
 	}
-
-	return nullptr;
 }
 
-Block* DirtBlock::randomTick(BlockContext& adjacentBlocks) {
-	//Check no block directly above.
-	if (adjacentBlocks.top == nullptr || adjacentBlocks.top->isTransparent) {
-		//Check adjacent to grass.
-		if (false) {
-			DirtBlock* dirt = new DirtBlock();
-			dirt->isTransparent = isTransparent;
-			dirt->position = vec3(position.x, position.y, position.z);
-
-			return dirt;
-		}
-	}
-
-	return nullptr;
+void DirtBlock::randomTick() {
+	//Todo: check conditions for grass to grow.
 }

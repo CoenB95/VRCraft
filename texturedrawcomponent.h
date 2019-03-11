@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <vector>
 #include <VrLib/Texture.h>
 #include <VrLib/gl/Vertex.h>
@@ -14,8 +15,6 @@ private:
 	vrlib::Texture* texture;
 
 public:
-	vector<vrlib::gl::VertexP3N3T2>* verticesPtr;
-
 	TextureDrawComponent(const string& fileName);
 
 	void onDraw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, const glm::mat4& modelMatrix) override;

@@ -5,7 +5,7 @@
 #include "world.h"
 
 Stack::Stack(Block* type, World& world) : GameObject() {
-	blockType = new Block(*type);
+	blockType = new Block();
 	//blockType->setScale(Block::SCALE_ITEM);
 
 	position = blockType->position;
@@ -48,7 +48,7 @@ ChildDrawComponent::ChildDrawComponent(GameObject* child) : GameObjectComponent(
 void ChildDrawComponent::onDraw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix, const glm::mat4& modelMatrix)
 {
 	if (child != nullptr)
-		child->draw(projectionMatrix, viewMatrix);
+		child->draw(projectionMatrix, viewMatrix, modelMatrix);
 }
 
 void ChildDrawComponent::onUpdate(float elapsedSeconds)

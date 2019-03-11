@@ -24,10 +24,20 @@ void GameObject::addComponent(GameObjectComponent* component) {
 	this->components.push_back(component);
 }
 
-void GameObject::draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) {
-	glm::mat4 modelMatrix = glm::mat4();
+void GameObject::build() {
+	dirty = false;
+}
+
+mat4 GameObject::calcModelMatrix(const mat4& parentModelMatrix) {
+	mat4 modelMatrix = parentModelMatrix;
 	modelMatrix = glm::translate(modelMatrix, position * vec3(1.01f, 1.01f, -1.01f));
+	modelMatrix = glm::scale(modelMatrix, scale);
 	modelMatrix *= glm::toMat4(orientation);
+	return modelMatrix;
+}
+
+void GameObject::draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix) {
+	mat4 modelMatrix = calcModelMatrix(parentModelMatrix);
 
 	Shaders::useShader(shader, projectionMatrix, viewMatrix, modelMatrix);
 

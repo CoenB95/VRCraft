@@ -21,9 +21,9 @@ public:
 	World(vec3 worldSize, vec3 chunkSize, vec3 blockSize);
 
 	void build();
-	void draw(const glm::mat4& projectionMatrix, const glm::mat4& modelViewMatrix) override;
-	BlockContext getAdjacentBlocks(vec3 positionInWorld);
-	ChunkContext getAdjacentChunks(vec3 positionInWorld);
+	void draw(const mat4& projectionMatrix, const mat4& modelViewMatrix, const mat4& parentModelMatrix) override;
+	BlockContext* getAdjacentBlocks(vec3 positionInWorld);
+	ChunkContext* getAdjacentChunks(vec3 positionInWorld);
 	Block* getBlock(vec3 positionInWorld);
 	Chunk* getChunk(vec3 positionInWorld);
 	Chunk** getChunkPtr(vec3 positionInWorld);

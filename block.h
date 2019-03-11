@@ -3,17 +3,21 @@
 using namespace std;
 
 #include <GL/glew.h>
-#include "gameobject.h"
 #include <string>
-#include <vector>
-#include <VrLib/gl/Vertex.h>
+
+#include "gameobject.h"
 
 using namespace std;
+
 class BlockContext;
+class Chunk;
 
 class Block : public GameObject {
 private:
 	string typeName;
+
+protected:
+	BlockContext* context = nullptr;
 
 public:
 	static const int TILES_HEIGHT_COUNT;
@@ -24,8 +28,7 @@ public:
 	static const GLfloat SCALE_BLOCK_OVERLAY;
 	static const GLfloat SCALE_ITEM;
 
-	//Whether or not the block's appearance should be updated (rebuild mesh).
-	bool isDirty = true;
+	Chunk* parentChunk = nullptr;
 
 	//Whether this block should be considered see-through (render adjacent block-sides).
 	bool isTransparent = false;
@@ -33,15 +36,14 @@ public:
 	//Pointer to the block that should replace this one.
 	Block* newBlock = nullptr;
 
-	std::vector<vrlib::gl::VertexP3N3T2> vertices;
-
 	Block(string typeName = "Unknown");
 
-	inline virtual void build(BlockContext& context) {};
 	string getPositionString() const;
 	inline string getTypeName() { return typeName; };
-	virtual Block* randomTick(BlockContext& context);
+	inline bool needsContext() { return context == nullptr; };
+	virtual void randomTick() {};
 	virtual string toString() const;
+	void updateContext(BlockContext* blockContext);
 };
 
 class BlockContext {
@@ -58,12 +60,12 @@ public:
 
 	Block* surroundings[3][3][3];
 
-	Block* top;
-	Block* front;
-	Block* right;
-	Block* back;
-	Block* left;
-	Block* bottom;
+	Block* top = nullptr;
+	Block* front = nullptr;
+	Block* right = nullptr;
+	Block* back = nullptr;
+	Block* left = nullptr;
+	Block* bottom = nullptr;
 
 	BlockContext() { };
 	BlockContext(Block* top, Block* front, Block* right, Block* back, Block* left, Block* bottom) {
@@ -97,11 +99,10 @@ public:
 	CubeBlock(int all, string typeName, bool transparent = false)
 		: CubeBlock(all, all, all, all, all, all, typeName, transparent) {};
 	CubeBlock(int top, int front, int right, int back, int left, int bottom, string typeName, bool transparent = false);
-	void build(BlockContext& context) override;
+	void build() override;
 };
 
-/*class SelectionBlock : public Block
-{
+/*class SelectionBlock : public Block {
 private:
 	float resistance = 10.0f;
 	float curTime = 0.0f;
@@ -109,8 +110,7 @@ public:
 	SelectionBlock(float breakage);
 };*/
 
-class AirBlock : public CubeBlock
-{
+class AirBlock : public CubeBlock {
 public:
 	AirBlock() : CubeBlock(-1, "Air", true) { };
 };

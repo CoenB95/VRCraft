@@ -1,12 +1,17 @@
 #pragma once
 
+#include <thread>
 #include <VrLib/Application.h>
 #include <VrLib/Device.h>
+
+using namespace std;
 
 class VrCraft : public vrlib::Application
 {
 private:
-	vrlib::DigitalDevice leftButton;
+	vrlib::DigitalDevice secondaryWandInput;
+	vrlib::PositionalDevice secondaryWandPosition;
+	thread* builderThread;
 
 public:
 	VrCraft();
