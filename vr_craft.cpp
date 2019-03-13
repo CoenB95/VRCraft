@@ -50,8 +50,8 @@ void VrCraft::init() {
 
 	Shaders::setupDefaultShaders();
 
-	world = new World(vec3(4, 2, 4), vec3(16, 16, 16), vec3(1, 1, 1));
-	world->position = vec3(0, -20, 0);
+	world = new World(vec3(4, 4, 4), vec3(16, 16, 16), vec3(1, 1, 1));
+	world->position = vec3(0, -3*16*1, 0);
 	world->loadTextures();
 
 	builderThread = new thread([this]() {

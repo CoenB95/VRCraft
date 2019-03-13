@@ -11,14 +11,15 @@
 #include "gameobjectcomponent.h"
 
 World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSize), chunkSize(chunkSize), blockSize(blockSize) {
-	for (int y = 0; y < worldSize.y; y++)
-	{
-		for (int z = 0; z < worldSize.z; z++)
-		{
-			for (int x = 0; x < worldSize.x; x++)
-			{
+	for (int worldIndexY = 0; worldIndexY < worldSize.y; worldIndexY++) {
+		for (int worldIndexZ = 0; worldIndexZ < worldSize.z; worldIndexZ++) {
+			for (int worldIndexX = 0; worldIndexX < worldSize.x; worldIndexX++) {
 				Chunk* chunk = new Chunk(chunkSize, vec3(1, 1, 1));
-				chunk->position = vec3(x * chunkSize.x * blockSize.x, y * chunkSize.y * blockSize.y, z * chunkSize.z * blockSize.z);
+				chunk->position = vec3(
+					worldIndexX * chunkSize.x * blockSize.x,
+					worldIndexY * chunkSize.y * blockSize.y,
+					worldIndexZ * chunkSize.z * blockSize.z);
+				chunk->populateFromSeed(worldSize, 1);
 				chunk->shader = Shaders::SPECULAR;
 				//chunk->addComponent(new SpinComponent(10.0f));
 				chunks.push_back(chunk);

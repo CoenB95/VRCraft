@@ -41,6 +41,7 @@ public:
 	Block** getBlockPtr(vec3 positionInChunk);
 	bool isBlockTransparent(Block* block);
 	void loadTextures();
+	void populateFromSeed(vec3 worldSize, int seed = 0);
 	void randomTick();
 	void setBlock(vec3 positionInChunk, Block* newBlock);
 	void update(float elapsedSeconds) override;

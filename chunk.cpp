@@ -23,30 +23,7 @@ using vrlib::Log;
 using vrlib::logger;
 
 Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(blockSize) {
-	for (int y = 0; y < chunkSize.y; y++) {
-		for (int z = 0; z < chunkSize.z; z++) {
-			for (int x = 0; x < chunkSize.x; x++) {
-				Block* block;
-
-				float noise = stb_perlin_noise3((float)x / chunkSize.x * 2 - 1, (float)y / chunkSize.y * 2 - 1, (float)z / chunkSize.z * 2 - 1, 0, 0, 0);
-				if (noise > 0.7)
-					block = new CobblestoneBlock();
-				else if (noise > 0.2)
-					block = new StoneBlock();
-				else if (noise > 0)
-					block = new GrassBlock();
-				else
-					block = new AirBlock();
-
-				block->parentChunk = this;
-				block->position = vec3(
-					x * blockSize.x - (chunkSize.x * blockSize.x / 2),
-					y * blockSize.y - (chunkSize.y * blockSize.y / 2),
-					z * blockSize.z - (chunkSize.z * blockSize.z / 2));
-				blocks.push_back(block);
-			}
-		}
-	}
+	
 }
 
 void Chunk::build() {
@@ -150,6 +127,54 @@ bool Chunk::isBlockTransparent(Block* block)
 void Chunk::loadTextures() {
 	TextureDrawComponent* component = new TextureDrawComponent("data/VrCraft/textures/terrain.png");
 	addComponent(component);
+}
+
+void Chunk::populateFromSeed(vec3 worldSize, int seed) {
+	for (int chunkIndexY = 0; chunkIndexY < chunkSize.y; chunkIndexY++) {
+		for (int chunkIndexZ = 0; chunkIndexZ < chunkSize.z; chunkIndexZ++) {
+			for (int chunkIndexX = 0; chunkIndexX < chunkSize.x; chunkIndexX++) {
+				Block* block;
+
+				vec3 blockPositionInChunk = vec3(
+					chunkIndexX * blockSize.x - (chunkSize.x * blockSize.x / 2),
+					chunkIndexY * blockSize.y - (chunkSize.y * blockSize.y / 2),
+					chunkIndexZ * blockSize.z - (chunkSize.z * blockSize.z / 2)
+				);
+				
+				vec3 blockPositionInWorld = vec3(
+					position.x * worldSize.x + blockPositionInChunk.x,
+					position.y * worldSize.y + blockPositionInChunk.y,
+					position.z * worldSize.z + blockPositionInChunk.z
+				);
+
+				float noiseX = (position.x + chunkIndexX * blockSize.x) / (worldSize.x * chunkSize.x * blockSize.x) * 2 - 1;
+				float noiseY = (position.y + chunkIndexY * blockSize.y) / (worldSize.y * chunkSize.y * blockSize.y);
+				float noiseZ = (position.z + chunkIndexZ * blockSize.z) / (worldSize.z * chunkSize.z * blockSize.z) * 2 - 1;
+
+				//float noise1 = stb_perlin_noise3(noiseZ, seed, 0, 0, 0, 0);
+				//float noise = stb_perlin_noise3(noiseX, noiseY, noise1, 0, 0, 0);
+				float heightNoise = (stb_perlin_noise3_seed(noiseX, 0, noiseZ, 0, 0, 0, seed) + 1.0f) / 2.0f;
+				
+				if (noiseY < heightNoise)
+					block = new GrassBlock();
+				else
+					block = new AirBlock();
+
+				/*if (noise > 0.7)
+					block = new CobblestoneBlock();
+				else if (noise > 0.2)
+					block = new StoneBlock();
+				else if (noise > 0)
+					block = new GrassBlock();
+				else
+					block = new AirBlock();*/
+
+				block->parentChunk = this;
+				block->position = blockPositionInChunk;
+				blocks.push_back(block);
+			}
+		}
+	}
 }
 
 void Chunk::randomTick() {
