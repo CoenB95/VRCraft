@@ -28,7 +28,7 @@ public:
 	vec3 position;
 	quat orientation;
 	vec3 scale = vec3(1, 1, 1);
-
+	bool usePivotAsCenter = false;
 	vector<vrlib::gl::VertexP3N3T2> vertices;
 	mutex verticesMutex;
 	vec3 verticesOffset;

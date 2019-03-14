@@ -21,7 +21,7 @@ World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSi
 					worldIndexZ * chunkSize.z * blockSize.z);
 				chunk->populateFromSeed(worldSize, 1);
 				chunk->shader = Shaders::SPECULAR;
-				chunk->addComponent(new SpinComponent(10.0f));
+				//chunk->addComponent(new SpinComponent(10.0f));
 				chunks.push_back(chunk);
 			}
 		}
