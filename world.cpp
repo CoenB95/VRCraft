@@ -21,7 +21,7 @@ World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSi
 					worldIndexZ * chunkSize.z * blockSize.z);
 				chunk->populateFromSeed(worldSize, 1);
 				chunk->shader = Shaders::SPECULAR;
-				//chunk->addComponent(new SpinComponent(10.0f));
+				chunk->addComponent(new SpinComponent(10.0f));
 				chunks.push_back(chunk);
 			}
 		}
@@ -73,7 +73,7 @@ Block* World::getBlock(vec3 positionInWorld) {
 	if (chunk == nullptr)
 		return nullptr;
 
-	return chunk->getBlock(positionInWorld);
+	return chunk->getBlock(positionInWorld - chunk->position);
 }
 
 Chunk* World::getChunk(vec3 positionInWorld) {
@@ -87,9 +87,9 @@ Chunk* World::getChunk(vec3 positionInWorld) {
 
 int World::getChunkIndex(vec3 positionInWorld) {
 	vec3 chunkPosition = vec3(
-		roundf(positionInWorld.x / blockSize.x / chunkSize.x),
-		roundf(positionInWorld.y / blockSize.y / chunkSize.y),
-		roundf(positionInWorld.z / blockSize.z / chunkSize.z));
+		floorf(positionInWorld.x / blockSize.x / chunkSize.x),
+		floorf(positionInWorld.y / blockSize.y / chunkSize.y),
+		floorf(positionInWorld.z / blockSize.z / chunkSize.z));
 
 	if (chunkPosition.x < 0 || chunkPosition.y < 0 || chunkPosition.z < 0)
 		return -1;
@@ -97,7 +97,7 @@ int World::getChunkIndex(vec3 positionInWorld) {
 	if (chunkPosition.x >= worldSize.x || chunkPosition.y >= worldSize.y || chunkPosition.z >= worldSize.z)
 		return -1;
 
-	return (int)(chunkPosition.x + chunkPosition.z * worldSize.x + chunkPosition.y * worldSize.x * worldSize.z);
+	return (int)((chunkPosition.x) + (chunkPosition.z * worldSize.x) + (chunkPosition.y * worldSize.x * worldSize.z));
 }
 
 Chunk** World::getChunkPtr(vec3 positionInWorld) {
@@ -115,13 +115,34 @@ void World::loadTextures() {
 }
 
 void World::randomTick() {
-	for (int i = 0; i < 4; i++) {
+	for (GLuint i = 0; i < 4; i++) {
 		int randomTickChunkIndex = rand() % chunks.size();
 		Chunk* chunk = chunks[randomTickChunkIndex];
 		ChunkContext* chunkContext = getAdjacentChunks(chunk->position);
 		chunk->updateContext(chunkContext);
 		chunk->randomTick();
 	}
+}
+
+Block* World::tryFindArea(vec2 xzCoordsInWorld, vec3 areaSize) {
+	for (float y = 0.0f; y < worldSize.y * chunkSize.y * blockSize.y; y += blockSize.y) {
+		bool invalid = false;
+		Block* spawnBlock = getBlock(vec3(xzCoordsInWorld.x, y, xzCoordsInWorld.y));
+		for (int bx = 0; !invalid && bx < areaSize.x; bx++) {
+			for (int by = 0; !invalid && by < areaSize.y; by++) {
+				for (int bz = 0; !invalid && bz < areaSize.z; bz++) {
+					Block* b = getBlock(vec3(xzCoordsInWorld.x + bx, y + by, xzCoordsInWorld.y + bz));
+					if (b != nullptr && !b->isTransparent)
+						invalid = true;
+				}
+			}
+		}
+
+		if (!invalid)
+			return spawnBlock;
+	}
+
+	return nullptr;
 }
 
 void World::update(float elapsedSeconds) {

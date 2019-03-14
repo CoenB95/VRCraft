@@ -32,7 +32,9 @@ mat4 GameObject::calcModelMatrix(const mat4& parentModelMatrix) {
 	mat4 modelMatrix = parentModelMatrix;
 	modelMatrix = glm::translate(modelMatrix, position * vec3(1.01f, 1.01f, -1.01f));
 	modelMatrix = glm::scale(modelMatrix, scale);
+	modelMatrix = glm::translate(modelMatrix, verticesOffset);
 	modelMatrix *= glm::toMat4(orientation);
+	modelMatrix = glm::translate(modelMatrix, -verticesOffset);
 	return modelMatrix;
 }
 

@@ -23,7 +23,7 @@ using vrlib::Log;
 using vrlib::logger;
 
 Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(blockSize) {
-	
+	verticesOffset = vec3(chunkSize.x * blockSize.x / 2, chunkSize.y * blockSize.y / 2, -chunkSize.z * blockSize.z / 2);
 }
 
 void Chunk::build() {
@@ -92,22 +92,19 @@ Block* Chunk::getBlock(vec3 positionInChunk) {
 	return blocks[index];
 }
 
-int Chunk::getBlockIndex(vec3 positionInChunk)
-{
-	if (positionInChunk.x < -(chunkSize.x * blockSize.x / 2) ||
-		positionInChunk.y < -(chunkSize.y * blockSize.y / 2) ||
-		positionInChunk.z < -(chunkSize.z * blockSize.z / 2))
+int Chunk::getBlockIndex(vec3 positionInChunk) {
+	vec3 blockPosition = vec3(
+		floorf(positionInChunk.x / blockSize.x),
+		floorf(positionInChunk.y / blockSize.y),
+		floorf(positionInChunk.z / blockSize.z));
+
+	if (blockPosition.x < 0 || blockPosition.y < 0 || blockPosition.z < 0)
 		return -1;
 
-	if (positionInChunk.x >= (chunkSize.x * blockSize.x / 2) ||
-		positionInChunk.y >= (chunkSize.y * blockSize.y / 2) ||
-		positionInChunk.z >= (chunkSize.z * blockSize.z / 2))
+	if (blockPosition.x >= chunkSize.x || blockPosition.y >= chunkSize.y || blockPosition.z >= chunkSize.z)
 		return -1;
 
-	return (int)(
-		roundf(positionInChunk.x + (chunkSize.x * blockSize.x / 2)) +
-		roundf(positionInChunk.z + (chunkSize.z * blockSize.z / 2)) * chunkSize.x +
-		roundf(positionInChunk.y + (chunkSize.y * blockSize.y / 2)) * chunkSize.x * chunkSize.z);
+	return (int)((blockPosition.x) + (blockPosition.z * chunkSize.x) + (blockPosition.y * chunkSize.x * chunkSize.z));
 }
 
 Block** Chunk::getBlockPtr(vec3 positionInChunk) {
@@ -136,9 +133,9 @@ void Chunk::populateFromSeed(vec3 worldSize, int seed) {
 				Block* block;
 
 				vec3 blockPositionInChunk = vec3(
-					chunkIndexX * blockSize.x - (chunkSize.x * blockSize.x / 2),
-					chunkIndexY * blockSize.y - (chunkSize.y * blockSize.y / 2),
-					chunkIndexZ * blockSize.z - (chunkSize.z * blockSize.z / 2)
+					chunkIndexX * blockSize.x,
+					chunkIndexY * blockSize.y,
+					chunkIndexZ * blockSize.z
 				);
 				
 				vec3 blockPositionInWorld = vec3(

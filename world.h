@@ -29,5 +29,6 @@ public:
 	Chunk** getChunkPtr(vec3 positionInWorld);
 	void loadTextures();
 	void randomTick();
+	Block* tryFindArea(vec2 xzCoordsInWorld, vec3 areaSize);
 	void update(float elapsedSeconds) override;
 };

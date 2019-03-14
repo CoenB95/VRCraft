@@ -31,6 +31,7 @@ public:
 
 	vector<vrlib::gl::VertexP3N3T2> vertices;
 	mutex verticesMutex;
+	vec3 verticesOffset;
 
 	vrlib::gl::Shader<Shaders::Uniforms>* shader;
 
@@ -41,6 +42,7 @@ public:
 	virtual void build();
 	mat4 calcModelMatrix(const mat4& parentModelMatrix = mat4());
 	virtual void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix = mat4());
+	virtual vec3 globalPosition() { return position; };
 	void removeAllComponents();
 	inline bool shouldRebuild() { return dirty; };
 	//Updates the object 

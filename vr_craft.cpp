@@ -45,14 +45,33 @@ VrCraft::VrCraft() {
 }
 
 void VrCraft::init() {
+	vec3 worldSize = vec3(4, 4, 4);
+	vec3 chunkSize = vec3(16, 16, 16);
+	vec3 blockSize = vec3(1, 1, 1);
+
 	secondaryWandInput.init("buttonLeftTouch");
 	secondaryWandPosition.init("WandPositionLeft");
 
 	Shaders::setupDefaultShaders();
 
-	world = new World(vec3(4, 4, 4), vec3(16, 16, 16), vec3(1, 1, 1));
-	world->position = vec3(0, -3*16*1, 0);
+	world = new World(worldSize, chunkSize, blockSize);
 	world->loadTextures();
+
+	//Random preffered position.
+	vec2 pp = vec2(0, 0);
+		//(rand() % (int)(worldSize.x * chunkSize.x) * blockSize.x),
+		//(rand() % (int)(worldSize.z * chunkSize.z) * blockSize.z + 0.5f * blockSize.z));
+
+	logger << "Trying to find spawn position at (" << pp.x << ";" << pp.y << ")" << Log::newline;
+	Block* spawnPoint = world->tryFindArea(pp, vec3(1, 2, 1));
+	if (spawnPoint != nullptr) {
+		vec3 p = spawnPoint->globalPosition();
+		p += vec3(0.5f * blockSize.x, 0, 0.5f * blockSize.z);
+		logger << "Spawning @ (" << p.x << ";" << p.y << ";" << p.z << ")" << Log::newline;
+		//world->position = vec3(-p.x, -p.y, -p.z);
+	} else {
+		logger << "Couldn't find valid spawn position" << Log::newline;
+	}
 
 	builderThread = new thread([this]() {
 		while (true)

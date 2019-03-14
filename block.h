@@ -6,6 +6,7 @@ using namespace std;
 #include <string>
 
 #include "gameobject.h"
+#include "chunk.h"
 
 using namespace std;
 
@@ -40,6 +41,7 @@ public:
 
 	string getPositionString() const;
 	inline string getTypeName() { return typeName; };
+	vec3 globalPosition() override;
 	inline bool needsContext() { return context == nullptr; };
 	virtual void randomTick() {};
 	virtual string toString() const;

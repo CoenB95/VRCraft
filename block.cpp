@@ -47,6 +47,10 @@ string Block::getPositionString() const
 	return ss.str();
 }
 
+vec3 Block::globalPosition() {
+	return parentChunk == nullptr ? position : (parentChunk->globalPosition() + position);
+}
+
 string Block::toString() const {
 	stringstream ss;
 	ss << (typeName) << "{" << getPositionString() << "}";
@@ -71,6 +75,7 @@ CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bott
 	bottomTextureIndex(bottom)
 {
 	isTransparent = transparent;
+	verticesOffset = vec3(0.5f, 0.5f, -0.5f);
 }
 
 void CubeBlock::build() {
