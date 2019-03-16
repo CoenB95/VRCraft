@@ -6,7 +6,7 @@
 #include "chunk.h"
 
 void GrassBlock::randomTick() {
-	if (context->top != nullptr && !context->top->isTransparent) {
+	if (*context->up != nullptr && !(*context->up)->isTransparent) {
 		DirtBlock* dirt = new DirtBlock();
 		dirt->isTransparent = isTransparent;
 		parentChunk->setBlock(position, dirt);

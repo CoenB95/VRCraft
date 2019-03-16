@@ -48,10 +48,6 @@ VrCraft::VrCraft() {
 }
 
 void VrCraft::init() {
-	vec3 worldSize = vec3(4, 4, 4);
-	vec3 chunkSize = vec3(16, 16, 16);
-	vec3 blockSize = vec3(1, 1, 1);
-
 	secondaryWandInput.init("buttonLeftTouch");
 	secondaryWandPosition.init("WandPositionLeft");
 
@@ -66,13 +62,12 @@ void VrCraft::init() {
 	player->addComponent(new SpinComponent(10.0f));
 	player->updateContext(new BlockContext());
 	player->scale = vec3(0.2f, 0.01f, 0.2f);
-	player->build();
-	player->usePivotAsCenter = true;
+	player->buildStandalone();
 
 	wand = new CobblestoneBlock();
 	wand->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
 	wand->updateContext(new BlockContext());
-	wand->build();
+	wand->buildStandalone();
 
 	testBlock = new CobblestoneBlock();
 	testBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
@@ -80,31 +75,22 @@ void VrCraft::init() {
 	testBlock->updateContext(new BlockContext());
 	testBlock->scale = vec3(0.2f, 0.2f, 0.2f);
 	testBlock->position = vec3(0.5f * blockSize.x, 0.5f * blockSize.y, 0.5f * blockSize.z);
-	testBlock->usePivotAsCenter = true;
-	testBlock->build();
+	testBlock->buildStandalone();
 
-	//Random preffered position.
-	vec2 pp = vec2(
-		(rand() % (int)(worldSize.x * chunkSize.x) * blockSize.x),
-		(rand() % (int)(worldSize.z * chunkSize.z) * blockSize.z + 0.5f * blockSize.z));
-
-	logger << "Trying to find spawn position at (" << pp.x << ";" << pp.y << ")" << Log::newline;
-	Block* spawnPoint = world->tryFindArea(pp, vec3(1, 2, 1));
-	if (spawnPoint != nullptr) {
-		vec3 p = spawnPoint->globalPosition();
-		p += vec3(0.5f * blockSize.x, 1 * blockSize.y, 0.5f * blockSize.z);
-		logger << "Spawning @ (" << p.x << ";" << p.y << ";" << p.z << ")" << Log::newline;
-		//player->position = p;
-	} else {
-		logger << "Couldn't find valid spawn position" << Log::newline;
-	}
+	//Make random more random.
+	time_t currentTime;
+	time(&currentTime);
+	srand(currentTime);
 
 	builderThread = new thread([this]() {
-		while (true)
-		{
-			logger << "Building world..." << Log::newline;
-			world->build();
-			logger << "World build" << Log::newline;
+		loading = true;
+		logger << "Populating world from seed..." << Log::newline;
+		world->populateFromSeed(worldSeed);
+		logger << "World build" << Log::newline;
+		loading = false;
+		spawnPlayer();
+		while (true) {
+			world->buildStandalone();
 			this_thread::sleep_for(0.5s);
 		}
 	});
@@ -126,7 +112,7 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 	glEnableVertexAttribArray(2);
 	
 	mat4 modelMatrix = mat4();
-	modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, player->position.z));
+	modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
 	for (GameObject* object : gameObjects3D)
 		object->draw(projectionMatrix, viewMatrix, modelMatrix);
 
@@ -146,4 +132,23 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 
 	for (GameObject* object : gameObjects3D)
 		object->update(elapsedSeconds);
+}
+
+void VrCraft::spawnPlayer() {
+	//Random preffered position.
+	vec2 pp = vec2(
+		((float)rand() / (float)RAND_MAX * (worldSize.x * chunkSize.x * blockSize.x)),
+		((float)rand() / (float)RAND_MAX * (worldSize.z * chunkSize.z * blockSize.z)));
+
+	logger << "Trying to find spawn position at (" << pp.x << ";" << pp.y << ")" << Log::newline;
+	Block* spawnPoint = world->tryFindArea(pp, vec3(1, 2, 1));
+	if (spawnPoint != nullptr) {
+		vec3 p = spawnPoint->globalPosition();
+		p += vec3(0.5f * blockSize.x, 0, 0.5f * blockSize.z);
+		logger << "Spawning @ (" << p.x << ";" << p.y << ";" << p.z << ")" << Log::newline;
+		player->position = p;
+	}
+	else {
+		logger << "Couldn't find valid spawn position" << Log::newline;
+	}
 }

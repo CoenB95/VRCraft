@@ -23,11 +23,11 @@ using vrlib::Log;
 using vrlib::logger;
 
 Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(blockSize) {
-	verticesOffset = vec3(chunkSize.x * blockSize.x / 2, chunkSize.y * blockSize.y / 2, -chunkSize.z * blockSize.z / 2);
+	pivot = vec3(chunkSize.x * blockSize.x / 2, chunkSize.y * blockSize.y / 2, chunkSize.z * blockSize.z / 2);
 }
 
-void Chunk::build() {
-	GameObject::build();
+void Chunk::build(vec3 offsetPosition) {
+	GameObject::build(offsetPosition);
 
 	updateNewBlocks();
 
@@ -38,7 +38,7 @@ void Chunk::build() {
 		if (context != nullptr && blocks[i]->shouldRebuild()) {
 			if (blocks[i]->needsContext())
 				blocks[i]->updateContext(getAdjacentBlocks(context, blocks[i]->position));
-			blocks[i]->build();
+			blocks[i]->buildEmbedded(offsetPosition);
 		}
 		newVertices.insert(newVertices.end(), blocks[i]->vertices.begin(), blocks[i]->vertices.end());
 		if (blocks[i]->shouldRebuild())
@@ -54,7 +54,7 @@ void Chunk::build() {
 
 BlockContext* Chunk::getAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChunk) {
 	Block* centerBlock = getBlock(positionInChunk);
-	if (centerBlock == nullptr || chunkContext == nullptr)
+	if (centerBlock == nullptr)
 		return new BlockContext();
 
 	BlockContext* context = new BlockContext();
@@ -65,20 +65,19 @@ BlockContext* Chunk::getAdjacentBlocks(ChunkContext* chunkContext, vec3 position
 			}
 		}
 	}
-	context->updateSides();
 
-	if (context->top == nullptr && chunkContext->top != nullptr)
-		context->top = chunkContext->top->getBlock(centerBlock->position + vec3(+0, -chunkSize.y + 1, +0));
-	if (context->front == nullptr && chunkContext->front != nullptr)
-		context->front = chunkContext->front->getBlock(centerBlock->position + vec3(+0, +0, +chunkSize.z - 1));
-	if (context->right == nullptr && chunkContext->right != nullptr)
-		context->right = chunkContext->right->getBlock(centerBlock->position + vec3(-chunkSize.x + 1, +0, +0));
-	if (context->back == nullptr && chunkContext->back != nullptr)
-		context->back = chunkContext->back->getBlock(centerBlock->position + vec3(+0, +0, -chunkSize.z + 1));
-	if (context->left == nullptr && chunkContext->left != nullptr)
-		context->left = chunkContext->left->getBlock(centerBlock->position + vec3(+chunkSize.x - 1, +0, +0));
-	if (context->bottom == nullptr && chunkContext->bottom != nullptr)
-		context->bottom = chunkContext->bottom->getBlock(centerBlock->position + vec3(+0, +chunkSize.y - 1, +0));
+	if (*context->up == nullptr && chunkContext != nullptr && *chunkContext->up != nullptr)
+		*context->up = (*chunkContext->up)->getBlock(centerBlock->position + vec3(+0, -chunkSize.y + 1, +0));
+	if (*context->south == nullptr && chunkContext != nullptr && *chunkContext->south != nullptr)
+		*context->south = (*chunkContext->south)->getBlock(centerBlock->position + vec3(+0, +0, -chunkSize.z + 1));
+	if (*context->east == nullptr && chunkContext != nullptr && *chunkContext->east != nullptr)
+		*context->east = (*chunkContext->east)->getBlock(centerBlock->position + vec3(-chunkSize.x + 1, +0, +0));
+	if (*context->north == nullptr && chunkContext != nullptr && *chunkContext->north != nullptr)
+		*context->north = (*chunkContext->north)->getBlock(centerBlock->position + vec3(+0, +0, +chunkSize.z - 1));
+	if (*context->west == nullptr && chunkContext != nullptr && *chunkContext->west != nullptr)
+		*context->west = (*chunkContext->west)->getBlock(centerBlock->position + vec3(+chunkSize.x - 1, +0, +0));
+	if (*context->down == nullptr && chunkContext != nullptr && *chunkContext->down != nullptr)
+		*context->down = (*chunkContext->down)->getBlock(centerBlock->position + vec3(+0, +chunkSize.y - 1, +0));
 
 	return context;
 }
@@ -86,7 +85,7 @@ BlockContext* Chunk::getAdjacentBlocks(ChunkContext* chunkContext, vec3 position
 Block* Chunk::getBlock(vec3 positionInChunk) {
 	int index = getBlockIndex(positionInChunk);
 
-	if (index < 0)
+	if (index < 0 || index >= blocks.size())
 		return nullptr;
 
 	return blocks[index];
@@ -175,6 +174,9 @@ void Chunk::populateFromSeed(vec3 worldSize, int seed) {
 }
 
 void Chunk::randomTick() {
+	if (blocks.empty())
+		return;
+
 	for (int i = 0; i < 5; i++) {
 		int randomTickBlockIndex = rand() % blocks.size();
 		Block* block = getBlock(blocks[randomTickBlockIndex]->position);

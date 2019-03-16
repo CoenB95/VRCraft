@@ -21,6 +21,9 @@ private:
 	bool dirty = true;
 
 protected:
+	//Called when the object should (re)build its vertices to represent its current state. Could be called from a worker thread.
+	virtual void build(vec3 offsetPosition);
+
 	//Notifies that this object has become dirty and should be rebuild.
 	inline void notifyDirty() { dirty = true; };
 
@@ -28,18 +31,19 @@ public:
 	vec3 position;
 	quat orientation;
 	vec3 scale = vec3(1, 1, 1);
-	bool usePivotAsCenter = false;
+	vec3 pivot = vec3(0, 0, 0);
 	vector<vrlib::gl::VertexP3N3T2> vertices;
 	mutex verticesMutex;
-	vec3 verticesOffset;
 
 	vrlib::gl::Shader<Shaders::Uniforms>* shader;
 
 	GameObject();
 	GameObject(GameObject& other);
 	void addComponent(GameObjectComponent* component);
-	//(Re-)builds the object to represent its current state. Could be called from a worker thread.
-	virtual void build();
+	//Builds the object as being part of a parent mesh. Meaning its current position is used to determine vertice positions.
+	virtual void buildEmbedded(vec3 offset = vec3(0, 0, 0));
+	//Builds the object as being a standalone mesh. Meaning its current position is ignored when determining vertice positions.
+	virtual void buildStandalone(bool pivotAsCenter = true);
 	mat4 calcModelMatrix(const mat4& parentModelMatrix = mat4());
 	virtual void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix = mat4());
 	virtual vec3 globalPosition() { return position; };

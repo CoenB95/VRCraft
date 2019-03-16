@@ -24,17 +24,23 @@ void GameObject::addComponent(GameObjectComponent* component) {
 	this->components.push_back(component);
 }
 
-void GameObject::build() {
+void GameObject::build(vec3 offset) {
 	dirty = false;
+}
+
+void GameObject::buildEmbedded(vec3 offset) {
+	build(offset + position);
+}
+
+void GameObject::buildStandalone(bool pivotAsCenter) {
+	build(pivotAsCenter ? -pivot : vec3(0, 0, 0));
 }
 
 mat4 GameObject::calcModelMatrix(const mat4& parentModelMatrix) {
 	mat4 modelMatrix = parentModelMatrix;
-	modelMatrix = glm::translate(modelMatrix, position * vec3(1.0f, 1.0f, -1.0f));
+	modelMatrix = glm::translate(modelMatrix, position * vec3(1.0f, 1.0f, 1.0f));
 	modelMatrix = glm::scale(modelMatrix, scale);
-	modelMatrix = glm::translate(modelMatrix, verticesOffset);
 	modelMatrix *= glm::toMat4(orientation);
-	modelMatrix = glm::translate(modelMatrix, -verticesOffset);
 	return modelMatrix;
 }
 

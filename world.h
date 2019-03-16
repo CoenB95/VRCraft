@@ -20,7 +20,7 @@ private:
 public:
 	World(vec3 worldSize, vec3 chunkSize, vec3 blockSize);
 
-	void build();
+	void build(vec3 offsetPosition) override;
 	void draw(const mat4& projectionMatrix, const mat4& modelViewMatrix, const mat4& parentModelMatrix) override;
 	BlockContext* getAdjacentBlocks(vec3 positionInWorld);
 	ChunkContext* getAdjacentChunks(vec3 positionInWorld);
@@ -28,6 +28,7 @@ public:
 	Chunk* getChunk(vec3 positionInWorld);
 	Chunk** getChunkPtr(vec3 positionInWorld);
 	void loadTextures();
+	void populateFromSeed(int worldSeed);
 	void randomTick();
 	Block* tryFindArea(vec2 xzCoordsInWorld, vec3 areaSize);
 	void update(float elapsedSeconds) override;

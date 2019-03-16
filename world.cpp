@@ -14,12 +14,12 @@ World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSi
 	for (int worldIndexY = 0; worldIndexY < worldSize.y; worldIndexY++) {
 		for (int worldIndexZ = 0; worldIndexZ < worldSize.z; worldIndexZ++) {
 			for (int worldIndexX = 0; worldIndexX < worldSize.x; worldIndexX++) {
-				Chunk* chunk = new Chunk(chunkSize, vec3(1, 1, 1));
-				chunk->position = vec3(
+				vec3 pos = vec3(
 					worldIndexX * chunkSize.x * blockSize.x,
 					worldIndexY * chunkSize.y * blockSize.y,
 					worldIndexZ * chunkSize.z * blockSize.z);
-				chunk->populateFromSeed(worldSize, 1);
+				Chunk* chunk = new Chunk(chunkSize, vec3(1, 1, 1));
+				chunk->position = pos;
 				chunk->shader = Shaders::SPECULAR;
 				//chunk->addComponent(new SpinComponent(10.0f));
 				chunks.push_back(chunk);
@@ -28,10 +28,10 @@ World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSi
 	}
 }
 
-void World::build() {
+void World::build(vec3 offsetPosition) {
 	for (GLuint i = 0; i < chunks.size(); i++) {
 		if (chunks[i]->shouldRebuild()) {
-			chunks[i]->build();
+			chunks[i]->buildStandalone(false);
 		}
 	}
 };
@@ -60,9 +60,9 @@ ChunkContext* World::getAdjacentChunks(vec3 positionInWorld) {
 
 	return new ChunkContext(
 		getChunk(centerChunk->position + vec3(+0, +(chunkSize.y * blockSize.y), +0)),
-		getChunk(centerChunk->position + vec3(+0, +0, -(chunkSize.z * blockSize.z))),
-		getChunk(centerChunk->position + vec3(+(chunkSize.x * blockSize.x), +0, +0)),
 		getChunk(centerChunk->position + vec3(+0, +0, +(chunkSize.z * blockSize.z))),
+		getChunk(centerChunk->position + vec3(+(chunkSize.x * blockSize.x), +0, +0)),
+		getChunk(centerChunk->position + vec3(+0, +0, -(chunkSize.z * blockSize.z))),
 		getChunk(centerChunk->position + vec3(-(chunkSize.x * blockSize.x), +0, +0)),
 		getChunk(centerChunk->position + vec3(+0, -(chunkSize.y * blockSize.y), +0))
 	);
@@ -79,7 +79,7 @@ Block* World::getBlock(vec3 positionInWorld) {
 Chunk* World::getChunk(vec3 positionInWorld) {
 	int index = getChunkIndex(positionInWorld);
 
-	if (index < 0)
+	if (index < 0 || index >= chunks.size())
 		return nullptr;
 
 	return chunks[index];
@@ -114,8 +114,26 @@ void World::loadTextures() {
 		chunks[i]->loadTextures();
 }
 
+void World::populateFromSeed(int worldSeed) {
+	for (int worldIndexY = 0; worldIndexY < worldSize.y; worldIndexY++) {
+		for (int worldIndexZ = 0; worldIndexZ < worldSize.z; worldIndexZ++) {
+			for (int worldIndexX = 0; worldIndexX < worldSize.x; worldIndexX++) {
+				vec3 pos = vec3(
+					worldIndexX * chunkSize.x * blockSize.x,
+					worldIndexY * chunkSize.y * blockSize.y,
+					worldIndexZ * chunkSize.z * blockSize.z);
+				Chunk* chunk = getChunk(pos);
+				chunk->populateFromSeed(worldSize, worldSeed);
+			}
+		}
+	}
+}
+
 void World::randomTick() {
-	for (GLuint i = 0; i < 4; i++) {
+	if (chunks.empty())
+		return;
+
+	for (GLuint i = 0; i < 1; i++) {
 		int randomTickChunkIndex = rand() % chunks.size();
 		Chunk* chunk = chunks[randomTickChunkIndex];
 		ChunkContext* chunkContext = getAdjacentChunks(chunk->position);
