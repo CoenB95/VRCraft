@@ -135,10 +135,10 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 }
 
 void VrCraft::spawnPlayer() {
-	//Random preffered position.
+	//Spawn in center of world.
 	vec2 pp = vec2(
-		((float)rand() / (float)RAND_MAX * (worldSize.x * chunkSize.x * blockSize.x)),
-		((float)rand() / (float)RAND_MAX * (worldSize.z * chunkSize.z * blockSize.z)));
+		(0.5f * (worldSize.x * chunkSize.x * blockSize.x)),
+		(0.5f * (worldSize.z * chunkSize.z * blockSize.z)));
 
 	logger << "Trying to find spawn position at (" << pp.x << ";" << pp.y << ")" << Log::newline;
 	Block* spawnPoint = world->tryFindArea(pp, vec3(1, 2, 1));
