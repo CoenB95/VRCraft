@@ -25,6 +25,7 @@
     <ClCompile Include="color.cpp" />
     <ClCompile Include="followcomponent.cpp" />
     <ClCompile Include="gamescene.cpp" />
+    <ClCompile Include="physics_nvidia.cpp" />
     <ClCompile Include="shaders.cpp" />
     <ClCompile Include="texturedrawcomponent.cpp" />
     <ClCompile Include="vr_craft.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="color.h" />
     <ClInclude Include="followcomponent.h" />
     <ClInclude Include="gamescene.h" />
+    <ClInclude Include="physics_nvidia.h" />
     <ClInclude Include="shaders.h" />
     <ClInclude Include="texturedrawcomponent.h" />
     <ClInclude Include="vr_craft.h" />
