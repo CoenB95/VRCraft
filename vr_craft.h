@@ -16,7 +16,7 @@ private:
 	thread* builderThread;
 	bool loading = true;
 
-	vec3 worldSize = vec3(4, 4, 4);
+	vec3 worldSize = vec3(8, 4, 8);
 	vec3 chunkSize = vec3(16, 16, 16);
 	vec3 blockSize = vec3(1, 1, 1);
 	int worldSeed = 3;
