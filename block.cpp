@@ -1,136 +1,43 @@
-#define BOTTOM_LEFT		0, 1
-#define BOTTOM_RIGHT	1, 1
-#define TOP_LEFT		0, 0
-#define TOP_RIGHT		1, 0
+#define BOTTOM_LEFT		0, 0
+#define BOTTOM_RIGHT	1, 0
+#define TOP_LEFT		0, 1
+#define TOP_RIGHT		1, 1
+
+#define TEX_POS(a)		vec2((a % TILES_WIDTH_COUNT), (TILES_HEIGHT_COUNT - 1 - a / TILES_WIDTH_COUNT))
 
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif // !_USE_MATH_DEFINES
 
-#include <GL/glew.h>
 #include <cmath>
+#include <GL/glew.h>
 #include <string>
 #include <sstream>
+#include <vector>
+#include <VrLib/Log.h>
+#include <VrLib/gl/Vertex.h>
 
 #include "block.h"
+#include "color.h"
+#include "gameobject.h"
+#include "gameobjectcomponent.h"
 
+using namespace glm;
 using namespace std;
 
-const GLfloat Block::TILE_SIZE = 1.0f / 256.0f * 16.0f;
+using vrlib::Log;
+using vrlib::logger;
+
+const int Block::TILES_HEIGHT_COUNT = 16;
+const int Block::TILES_WIDTH_COUNT = 16;
+const int Block::TILE_COUNT = TILES_WIDTH_COUNT * TILES_HEIGHT_COUNT;
+const GLfloat Block::TILE_SIZE = 1.0f / 256.0f * TILES_WIDTH_COUNT;
 const GLfloat Block::SCALE_BLOCK = 1.0f;
 const GLfloat Block::SCALE_BLOCK_OVERLAY = 1.001f;
 const GLfloat Block::SCALE_ITEM = 0.3f;
 
-Block::Block(BlockSide* top, BlockSide* front, BlockSide* right,
-	BlockSide* back, BlockSide* left, BlockSide* bottom, string typeName, GLfloat scale) :
-	GameObject(),
-	topSide(top),
-	frontSide(front),
-	rightSide(right),
-	backSide(back),
-	leftSide(left),
-	bottomSide(bottom),
-	typeName(typeName)
-{
-	setScale(scale);
+Block::Block() : GameObject() {
 
-	addComponent(new BlockDrawComponent());
-}
-
-Block::Block(Block& other) : GameObject(other)
-{
-	topSide = other.topSide->clone();
-	frontSide = other.frontSide->clone();
-	rightSide = other.rightSide->clone();
-	backSide = other.backSide->clone();
-	leftSide = other.leftSide->clone();
-	bottomSide = other.bottomSide->clone();
-	typeName = other.typeName;
-	hw = other.hw;
-	hh = other.hh;
-	hd = other.hd;
-	isTransparent = other.isTransparent;
-
-	addComponent(new BlockDrawComponent());
-}
-
-void Block::drawRaw(bool offset)
-{
-	if (isTransparent)
-		return;
-
-	GLfloat x = (offset ? this->position.x : 0);
-	GLfloat y = (offset ? this->position.y : 0);
-	GLfloat z = (offset ? this->position.z : 0);
-
-	if (frontSide->shouldRender)
-	{
-		drawVertex(frontSide, x - hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(frontSide, x - hw, y - hh, z - hd, BOTTOM_LEFT);
-		drawVertex(frontSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
-		drawVertex(frontSide, x + hw, y + hh, z - hd, TOP_RIGHT);
-		drawVertex(frontSide, x - hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(frontSide, x + hw, y - hh, z - hd, BOTTOM_RIGHT);
-	}
-
-	if (topSide->shouldRender)
-	{
-		drawVertex(topSide, x - hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(topSide, x - hw, y + hh, z - hd, BOTTOM_LEFT);
-		drawVertex(topSide, x + hw, y + hh, z - hd, BOTTOM_RIGHT);
-		drawVertex(topSide, x + hw, y + hh, z + hd, TOP_RIGHT);
-		drawVertex(topSide, x - hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(topSide, x + hw, y + hh, z - hd, BOTTOM_RIGHT);
-	}
-
-	if (rightSide->shouldRender)
-	{
-		drawVertex(rightSide, x + hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(rightSide, x + hw, y - hh, z - hd, BOTTOM_LEFT);
-		drawVertex(rightSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
-		drawVertex(rightSide, x + hw, y + hh, z + hd, TOP_RIGHT);
-		drawVertex(rightSide, x + hw, y + hh, z - hd, TOP_LEFT);
-		drawVertex(rightSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
-	}
-
-	if (backSide->shouldRender)
-	{
-		drawVertex(backSide, x + hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(backSide, x + hw, y - hh, z + hd, BOTTOM_LEFT);
-		drawVertex(backSide, x - hw, y - hh, z + hd, BOTTOM_RIGHT);
-		drawVertex(backSide, x - hw, y + hh, z + hd, TOP_RIGHT);
-		drawVertex(backSide, x + hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(backSide, x - hw, y - hh, z + hd, BOTTOM_RIGHT);
-	}
-
-	if (bottomSide->shouldRender)
-	{
-		drawVertex(bottomSide, x - hw, y - hh, z - hd, TOP_LEFT);
-		drawVertex(bottomSide, x - hw, y - hh, z + hd, BOTTOM_LEFT);
-		drawVertex(bottomSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
-		drawVertex(bottomSide, x + hw, y - hh, z - hd, TOP_RIGHT);
-		drawVertex(bottomSide, x - hw, y - hh, z - hd, TOP_LEFT);
-		drawVertex(bottomSide, x + hw, y - hh, z + hd, BOTTOM_RIGHT);
-	}
-
-	
-	if (leftSide->shouldRender)
-	{
-		drawVertex(leftSide, x - hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(leftSide, x - hw, y - hh, z + hd, BOTTOM_LEFT);
-		drawVertex(leftSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
-		drawVertex(leftSide, x - hw, y + hh, z - hd, TOP_RIGHT);
-		drawVertex(leftSide, x - hw, y + hh, z + hd, TOP_LEFT);
-		drawVertex(leftSide, x - hw, y - hh, z - hd, BOTTOM_RIGHT);
-	}
-}
-
-void Block::drawVertex(BlockSide* side, GLfloat x, GLfloat y, GLfloat z, GLfloat texX, GLfloat texY)
-{
-	side->applyTexture(texX, texY);
-
-	// The real z-axis is inverted. Apply it here.
-	glVertex3f(x, y, -z);
 }
 
 string Block::getPositionString() const
@@ -140,104 +47,127 @@ string Block::getPositionString() const
 	return ss.str();
 }
 
-Block* Block::randomTick(Block::BlockContext& adjacentBlocks)
-{
-	return nullptr;
+vec3 Block::globalPosition() {
+	return parentChunk == nullptr ? position : (parentChunk->globalPosition() + position);
 }
 
-void Block::setScale(GLfloat scale)
-{
-	this->hw = scale / 2;
-	this->hh = scale / 2;
-	this->hd = scale / 2;
-}
-
-string Block::toString() const
-{
+string Block::toString() const {
 	stringstream ss;
-	ss << (isTransparent ? "Air" : typeName) << "{" << getPositionString() << "}";
+	ss << "{" << getPositionString() << "}";
 	return ss.str();
 }
 
-Block::BlockContext::BlockContext(Block* top, Block* front, Block* right, Block* back, Block* left, Block* bottom) :
-	top(top), front(front), right(right), back(back), left(left), bottom(bottom)
-{
-
-}
-
-Block* Block::BlockContext::operator [](int index)
-{
-	switch (index)
-	{
-	case TOP_SIDE: return top;
-	case FRONT_SIDE: return front;
-	case RIGHT_SIDE: return right;
-	case BACK_SIDE: return back;
-	case LEFT_SIDE: return left;
-	case BOTTOM_SIDE: return bottom;
-	default: return nullptr;
+void Block::updateContext(BlockContext* blockContext) {
+	if (context == nullptr) {
+		delete context;
 	}
+
+	context = blockContext;
 }
 
-void BlockDrawComponent::draw()
+CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, bool transparent) :
+	Block(),
+	topTextureIndex(top),
+	frontTextureIndex(front),
+	rightTextureIndex(right),
+	backTextureIndex(back),
+	leftTextureIndex(left),
+	bottomTextureIndex(bottom)
 {
-	Block* block = dynamic_cast<Block*>(parentObject);
-	if (block == nullptr)
+	isTransparent = transparent;
+	pivot = vec3(0.5f, 0.5f, 0.5f);
+}
+
+void CubeBlock::build(vec3 offsetPosition) {
+	GameObject::build(offsetPosition);
+
+	if (context == nullptr) {
+		//logger << "Building block failed: no context." << Log::newline;
+		notifyDirty();
 		return;
+	}
 
-	glBegin(GL_TRIANGLES);
-	block->drawRaw(false);
-	glEnd();
+	{
+		lock_guard<mutex> lock(verticesMutex);
+
+		vec3 pos = offsetPosition;
+		vec2 texPos;
+		vec2 texScl(TILE_SIZE, TILE_SIZE);
+		vertices.clear();
+
+		if ((*context->up == nullptr || (*context->up)->isTransparent) && topTextureIndex >= 0) {
+			texPos = TEX_POS(topTextureIndex);
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 0), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 0), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 1), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 0), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 1), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 1), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+		}
+
+		if ((*context->south == nullptr || (*context->south)->isTransparent) && frontTextureIndex >= 0) {
+			texPos = TEX_POS(frontTextureIndex);
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 1), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 1), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 1), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 1), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 1), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 1), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+		}
+
+		if ((*context->east == nullptr || (*context->east)->isTransparent) && rightTextureIndex >= 0) {
+			texPos = TEX_POS(rightTextureIndex);
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 0), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 1), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 1), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 0), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 1), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 0), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+		}
+
+		if ((*context->north == nullptr || (*context->north)->isTransparent) && backTextureIndex >= 0) {
+			texPos = TEX_POS(backTextureIndex);
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 0), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 0), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 0), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 0), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 0), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 0), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+		}
+
+		if ((*context->west == nullptr || (*context->west)->isTransparent) && leftTextureIndex >= 0) {
+			texPos = TEX_POS(leftTextureIndex);
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 1), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 0), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 0), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 1), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 0), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 1), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+		}
+
+		if ((*context->down == nullptr || (*context->down)->isTransparent) && bottomTextureIndex >= 0) {
+			texPos = TEX_POS(bottomTextureIndex);
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 1), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 1), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 0), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 1), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 0), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 0), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+		}
+	}
+
+	//Cleanup context
+	delete context;
+	context = nullptr;
 }
 
-// === SimpleBlockSide ===
-
-SimpleBlockSide::SimpleBlockSide(Color4f color) : color(color)
-{
-
-}
-
-void SimpleBlockSide::applyTexture(GLfloat texX, GLfloat texY)
-{
-	glColor4fv(color.color4fv);
-}
-
-BlockSide* SimpleBlockSide::clone()
-{
-	SimpleBlockSide* copy = new SimpleBlockSide(*this);
-	copy->shouldRender = true;
-	return copy;
-}
-
-// === TexturedBlockSide ===
-
-TexturedBlockSide::TexturedBlockSide(GLint texX, GLint texY, GLfloat texW, GLfloat texH, Color4f color)
-	: color(color)
-{
-	this->x = (GLfloat)texX * Block::TILE_SIZE;
-	this->y = (GLfloat)texY * Block::TILE_SIZE;
-	this->w = texW * Block::TILE_SIZE;
-	this->h = texH * Block::TILE_SIZE;
-}
-
-void TexturedBlockSide::applyTexture(GLfloat texX, GLfloat texY)
-{
-	glColor4fv(color.color4fv);
-	glTexCoord2f(x + texX * w, y + texY * h);
-}
-
-BlockSide* TexturedBlockSide::clone()
-{
-	//TexturedBlockSide* tbs = dynamic_cast<TexturedBlockSide*>(&other);
-	//if (tbs == nullptr)
-	//	return nullptr;
-
-	TexturedBlockSide* copy = new TexturedBlockSide(*this);
-	copy->shouldRender = true;
-	return copy;
-}
-
-SelectionBlock::SelectionBlock(float breakage) : Block(
+/*SelectionBlock::SelectionBlock(float breakage) : Block(
 	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
 	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
 	new TexturedBlockSide((GLint)(breakage * 10) - 1, 15, 1, 1, Color4f(1, 1, 1, (GLint)(breakage * 10) < 1 ? 0 : 1)),
@@ -248,16 +178,4 @@ SelectionBlock::SelectionBlock(float breakage) : Block(
 	SCALE_BLOCK_OVERLAY)
 {
 
-}
-
-AirBlock::AirBlock() : Block(
-	new TexturedBlockSide(0, 0),
-	new TexturedBlockSide(0, 0),
-	new TexturedBlockSide(0, 0),
-	new TexturedBlockSide(0, 0),
-	new TexturedBlockSide(0, 0),
-	new TexturedBlockSide(0, 0),
-	"Air")
-{
-
-}
+}*/

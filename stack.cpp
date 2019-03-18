@@ -1,24 +1,21 @@
-#include "collisioncomponent.h"
-#include "chunk.h"
+#include "block.h"
 #include "followcomponent.h"
-#include "forcecomponent.h"
+#include "gameobject.h"
 #include "stack.h"
+#include "world.h"
 
-Stack::Stack(Block* type, Chunk& world) : GameObject()
-{
-	blockType = new Block(*type);
-	blockType->setScale(Block::SCALE_ITEM);
+Stack::Stack(Block* type, World& world) : GameObject() {
+	blockType = new Block();
+	//blockType->setScale(Block::SCALE_ITEM);
 
 	position = blockType->position;
-	position += Vec3f(0, 1, 0);
+	position += vec3(0, 1, 0);
 
 	//Note to self: child has relative translation.
 	addComponent(new ChildDrawComponent(blockType));
-	blockType->position = Vec3f(0.0f, Block::SCALE_ITEM / 2, 0.0f);
+	blockType->position = vec3(0.0f, Block::SCALE_ITEM / 2, 0.0f);
 
 	addComponent(new SpinComponent(50.0f));
-	addComponent(new SimpleGravityComponent());
-	addComponent(new FloorCollisionComponent(world));
 }
 
 int Stack::increaseStack(int amount)
@@ -43,18 +40,18 @@ int Stack::decreaseStack(int amount)
 	return removed;
 }
 
-ChildDrawComponent::ChildDrawComponent(GameObject* child) : DrawComponent(), child(child)
+ChildDrawComponent::ChildDrawComponent(GameObject* child) : GameObjectComponent(), child(child)
 {
 
 }
 
-void ChildDrawComponent::draw()
+void ChildDrawComponent::onDraw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix, const glm::mat4& modelMatrix)
 {
 	if (child != nullptr)
-		child->draw();
+		child->draw(projectionMatrix, viewMatrix, modelMatrix);
 }
 
-void ChildDrawComponent::update(float elapsedSeconds)
+void ChildDrawComponent::onUpdate(float elapsedSeconds)
 {
 	if (child != nullptr)
 		child->update(elapsedSeconds);

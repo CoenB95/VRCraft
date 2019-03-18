@@ -5,299 +5,150 @@
 #include <GL/glew.h>
 #include <cstdio>
 #include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <iostream>
+#include <list>
+#include <thread>
 #include <vector>
+#include <VrLib/Application.h>
+#include <VrLib/Device.h>
+#include <VrLib/gl/shader.h>
+#include <VrLib/Log.h>
+#include <VrLib/Texture.h>
 
 #include "vr_craft.h"
 
 #include "block.h"
-#include "block_stone.h"
-#include "camera.h"
-#include "chunk.h"
+#include "blocks.h"
 #include "followcomponent.h"
 #include "mob.h"
 #include "model.h"
 #include "raycast.h"
+#include "texturedrawcomponent.h"
+#include "world.h"
 
-float lastFrameTime = 0;
-float lastUpdate = 0;
+using namespace std;
+using namespace glm;
+
+using vrlib::Log;
+using vrlib::logger;
 
 vector<GameObject*> gameObjects3D;
 
-int width, height;
-GLuint terrainTextureId;
-Chunk chunk(50, 20, 50);
-
-Camera* camera;
-Mob* player = new Steve(chunk);
-CobblestoneBlock thrownBlock;
-
-PickResult pickedBlock(nullptr, -1);
-SelectionBlock selectionBlock(0.0f);
-ObjModel* model = nullptr;
-
-bool keys[255];
+World* world;
+Block* player;
+Block* wand;
+Block* testBlock;
 
 VrCraft::VrCraft() {
-	clearColor = glm::vec4(0.0f, 0.5f, 0.9f, 1.0f);
+	clearColor = vec4(0.0f, 0.5f, 0.9f, 1.0f);
 }
 
 void VrCraft::init() {
-	ChunkDrawComponent::loadTextures();
+	secondaryWandInput.init("buttonLeftTouch");
+	secondaryWandPosition.init("WandPositionLeft");
 
-	gameObjects3D.push_back(&chunk);
+	Shaders::setupDefaultShaders();
+
+	world = new World(worldSize, chunkSize, blockSize);
+	world->loadTextures();
+
+	//player = new Steve(*world);
+	player = new CobblestoneBlock();
+	player->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
+	player->addComponent(new SpinComponent(10.0f));
+	player->updateContext(new BlockContext());
+	player->scale = vec3(0.2f, 0.01f, 0.2f);
+	player->buildStandalone();
+
+	wand = new CobblestoneBlock();
+	wand->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
+	wand->updateContext(new BlockContext());
+	wand->buildStandalone();
+
+	testBlock = new CobblestoneBlock();
+	testBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
+	testBlock->addComponent(new SpinComponent(10.0f));
+	testBlock->updateContext(new BlockContext());
+	testBlock->scale = vec3(0.2f, 0.2f, 0.2f);
+	testBlock->position = vec3(0.5f * blockSize.x, 0.5f * blockSize.y, 0.5f * blockSize.z);
+	testBlock->buildStandalone();
+
+	//Make random more random.
+	time_t currentTime;
+	time(&currentTime);
+	srand(currentTime);
+
+	builderThread = new thread([this]() {
+		loading = true;
+		logger << "Populating world from seed..." << Log::newline;
+		world->populateFromSeed(worldSeed);
+		logger << "World build" << Log::newline;
+		loading = false;
+		spawnPlayer();
+		while (true) {
+			world->buildStandalone();
+			this_thread::sleep_for(0.5s);
+		}
+	});
+
+	logger << "Initialized" << Log::newline;
+
+	gameObjects3D.push_back(world);
 	gameObjects3D.push_back(player);
+	gameObjects3D.push_back(wand);
+	gameObjects3D.push_back(testBlock);
 }
 
 //void display()
-void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
-{
-	/*glClearColor(0.6f, 0.6f, 1, 1);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix) {
+	//glEnable(GL_CULL_FACE);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(60.0f, (float)width/height, 0.1, 300);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();*/
-	//camera->applyTransform();
-
-	for (GameObject* object : gameObjects3D)
-		object->draw();
-
-	/*RayCast rayCast(player, chunk);
-	PickResult b = rayCast.pickBlock();
-
-	if (lastUpdate >= 5.0f)
-		lastUpdate = 0.0f;
-	selectionBlock = SelectionBlock(lastUpdate / 5.0f);
-
-	pickedBlock = b;
-	if (pickedBlock.block != nullptr)
-		selectionBlock.position = pickedBlock.block->position;
-
-	if (pickedBlock.block != nullptr)
-	{
-		selectionBlock.draw();
-	}*/
-
-	/*if (camera->type != Camera::CAMERA_TYPE_FIRST_PERSON)
-	{
-		glPushMatrix();
-		glTranslatef(player->position.x, player->position.y, -player->position.z);
-		glRotatef(-player->rotateY + 90, 0, 1, 0);
-		glScalef(0.2f, 0.2f, 0.2f);
-		model->draw();
-		glPopMatrix();
-	}*/
-
-	/*glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0, (float)width/100.0f, (float)height/100.0f, 0);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 	
-	thrownBlock.rotateX = 15.0f;
-	thrownBlock.position = Vec3f(0.5f, 0.5f, 0.0f);
-	thrownBlock.draw();
+	mat4 modelMatrix = mat4();
+	modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
+	for (GameObject* object : gameObjects3D)
+		object->draw(projectionMatrix, viewMatrix, modelMatrix);
 
-	glutSwapBuffers();*/
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 }
 
-//void idle()
-void VrCraft::preFrame(double frameTime, double totalTime)
-{
-	//float frameTime = glutGet(GLUT_ELAPSED_TIME)/1000.0f;
-	//float deltaTime = frameTime - lastFrameTime;
-	//lastFrameTime = frameTime;
-	//lastUpdate += deltaTime;
-	float deltaTime = frameTime;
-	lastUpdate += deltaTime;
+void VrCraft::preFrame(double frameTime, double totalTime) {
+	float elapsedSeconds = (float)(frameTime / 1000.0);
 
-	const float speed = 4.0f;
-	if (keys['a']) player->move(270, deltaTime*speed, deltaTime);
-	if (keys['d']) player->move(90, deltaTime*speed, deltaTime);
-	if (keys['w']) player->move(0, deltaTime*speed, deltaTime);
-	if (keys['s']) player->move(180, deltaTime*speed, deltaTime);
-	if (keys[' ']) player->jump();
-
-	Stack* mergedStack = chunk.mergeStacks();
-	if (mergedStack != nullptr)
-		gameObjects3D.erase(find(gameObjects3D.begin(), gameObjects3D.end(), mergedStack));
+	mat4 k = secondaryWandPosition.getData();
+	vec3 axis = vec3((k * vec4(0, 0, 1, 1)) - (k * vec4(0, 0, 0, 1)));
+	wand->orientation = angleAxis(0.0f, axis);
+	wand->position = vec3(k * vec4(0, 0, 0, 1));
+	wand->scale = vec3(0.1f, 0.1f, 2.0f);
 
 	for (GameObject* object : gameObjects3D)
-		object->update(deltaTime);
+		object->update(elapsedSeconds);
+}
 
-	thrownBlock.update(deltaTime);
+void VrCraft::spawnPlayer() {
+	//Random preffered position.
+	vec2 pp = vec2(
+		((float)rand() / (float)RAND_MAX * (worldSize.x * chunkSize.x * blockSize.x)),
+		((float)rand() / (float)RAND_MAX * (worldSize.z * chunkSize.z * blockSize.z)));
 
-	Stack* nearby = nullptr;
-	nearby = chunk.getNearbyStack(player->position);
-	if (nearby != nullptr)
-	{
-		cout << "Picked up " << nearby->getStackSize() << " item(s) of type '" << nearby->getType()->toString() << "'" << endl;
-		chunk.destroyStack(nearby);
-		gameObjects3D.erase(find(gameObjects3D.begin(), gameObjects3D.end(), nearby));
+	logger << "Trying to find spawn position at (" << pp.x << ";" << pp.y << ")" << Log::newline;
+	Block* spawnPoint = world->tryFindArea(pp, vec3(1, 2, 1));
+	if (spawnPoint != nullptr) {
+		vec3 p = spawnPoint->globalPosition();
+		p += vec3(0.5f * blockSize.x, 0, 0.5f * blockSize.z);
+		logger << "Spawning @ (" << p.x << ";" << p.y << ";" << p.z << ")" << Log::newline;
+		player->position = p;
 	}
-
-	//glutPostRedisplay();
-}
-
-bool justMovedMouse = false;
-void mousePassiveMotion(int x, int y)
-{
-	/*int dx = x - width / 2;
-	int dy = y - height / 2;
-	if ((dx != 0 || dy != 0) && abs(dx) < 400 && abs(dy) < 400 && !justMovedMouse)
-	{
-		player->rotateY += dx * 0.3f;
-		player->rotateX += dy * 0.3f;
-		if (player->rotateX < -89.9f)
-			player->rotateX = -89.9f;
-		else if (player->rotateX > 89.9f)
-			player->rotateX = 89.9f;
+	else {
+		logger << "Couldn't find valid spawn position" << Log::newline;
 	}
-	if (!justMovedMouse)
-	{
-		glutWarpPointer(width / 2, height / 2);
-		justMovedMouse = true;
-	}
-	else
-		justMovedMouse = false;*/
 }
-
-void onMousePressed(int button, int state, int x, int y)
-{
-	/*if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
-	{
-		if (pickedBlock.block != nullptr)
-		{
-			Block::BlockContext context = chunk.getAdjacentBlocks(pickedBlock.block);
-			Block* airBlock = context[pickedBlock.side];
-			if (airBlock != nullptr)
-			{
-				Block* b = new CobblestoneBlock();
-				b->position = airBlock->position;
-				chunk.notifyBlockChanged(b);
-			}
-		}
-	}
-
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-	{
-		if (pickedBlock.block != nullptr)
-		{	
-			Stack* dropped = nullptr;
-			dropped = chunk.destroyBlock(pickedBlock.block);
-			if (dropped != nullptr)
-				gameObjects3D.push_back(dropped);
-		}
-	}*/
-}
-
-void keyboard(unsigned char key, int, int)
-{
-	if (key == 27)
-		exit(0);
-
-	keys[key] = true;
-}
-
-void keyboardSpecial(int keyCode, int, int)
-{
-	//if (keyCode == GLUT_KEY_F5)
-	//	camera->toggleType();
-}
-
-void keyboardUp(unsigned char key, int,int)
-{
-	keys[key] = false;
-}
-
-/*int main(int argc, char* argv[])
-{
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(800, 600);
-	glutInit(&argc, argv);
-	glutCreateWindow("Hello World");
-
-	memset(keys, 0, sizeof(keys));
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glutIdleFunc(idle);
-	glutDisplayFunc(display);
-	glutReshapeFunc([](int w, int h) { width = w; height = h; glViewport(0, 0, w, h); });
-	glutKeyboardFunc(keyboard);
-	glutKeyboardUpFunc(keyboardUp);
-	glutMouseFunc(onMousePressed);
-	glutSpecialFunc(keyboardSpecial);
-	glutPassiveMotionFunc(mousePassiveMotion);
-
-	glutWarpPointer(width / 2, height / 2);
-
-	camera = new Camera();
-	camera->addComponent(FollowComponent::rotatingAndTranslating(&player->eyes, 0.4f));
-
-	model = new ObjModel("models/steve/steve.obj");
-
-	thrownBlock.setScale(Block::SCALE_ITEM);
-	thrownBlock.addComponent(new SpinComponent(50.0f));
-
-	gameObjects3D.push_back(&chunk);
-	gameObjects3D.push_back(player);
-	//gameObjects3D.push_back(&thrownBlock);
-	gameObjects3D.push_back(camera);
-
-	ChunkDrawComponent::loadTextures();
-
-	cout << "Spawning Steve..." << endl;
-	Block* spawnBlock;
-	Block* firstBlock = chunk.getBlock(0);
-	Block* secondBlock;
-	int i = 0;
-
-	while (firstBlock != nullptr)
-	{
-		i++;
-		firstBlock = chunk.getBlock(i / chunk.height, i, i / (chunk.height * chunk.width));
-		cout << "Try at position " << firstBlock->toString() << endl;
-
-		if (firstBlock != nullptr && !firstBlock->isTransparent)
-		{
-			cout << "  No air." << endl;
-			continue;
-		}
-
-		Block::BlockContext context = chunk.getAdjacentBlocks(firstBlock);
-		spawnBlock = context.bottom;
-		if (spawnBlock == nullptr || spawnBlock->isTransparent)
-		{
-			cout << "  No solid spawnblock." << endl;
-			break;
-		}
-
-		secondBlock = chunk.getAdjacentBlocks(firstBlock).top;
-		if (firstBlock != nullptr && !firstBlock->isTransparent)
-		{
-			cout << "  Not enough air." << endl;
-			continue;
-		}
-
-		cout << "  Found space!" << endl;
-		player->position.x = spawnBlock->position.x;
-		player->position.y = spawnBlock->position.y + 1.0f;
-		player->position.z = spawnBlock->position.z;
-		break;
-	}
-
-	thrownBlock.position = player->position;
-
-	glutMainLoop();
-
-
-	return 0;
-}*/

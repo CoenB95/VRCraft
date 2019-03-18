@@ -1,24 +1,19 @@
 #pragma once
 
-class GameObject;
+#include "gameobject.h"
 
 class GameObjectComponent
 {
 protected:
 	GameObject* parentObject;
+
 public:
 	GameObjectComponent();
-	GameObjectComponent(GameObject* parent);
-	inline void setParent(GameObject* object) { this->parentObject = object; }
-	virtual void update(float elapsedSeconds) = 0;
-};
 
-class DrawComponent : public GameObjectComponent
-{
-public:
-	DrawComponent();
-	DrawComponent(GameObject* parent);
-	virtual void draw() = 0;
+	inline virtual void onAttach(GameObject* newParent) {};
+	inline virtual void onDraw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, const glm::mat4& modelMatrix) {};
+	inline virtual void onUpdate(float elapsedSeconds) {};
+	void setParent(GameObject* object);
 };
 
 class SpinComponent : public GameObjectComponent
@@ -28,5 +23,5 @@ private:
 	float value;
 public:
 	SpinComponent(float degreesPerSec);
-	void update(float elapsedSeconds) override;
+	void onUpdate(float elapsedSeconds) override;
 };

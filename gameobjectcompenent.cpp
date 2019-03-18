@@ -1,36 +1,24 @@
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
 
-GameObjectComponent::GameObjectComponent()
-{
+GameObjectComponent::GameObjectComponent() {
 
 }
 
-GameObjectComponent::GameObjectComponent(GameObject* parent) : parentObject(parent)
-{
-
-}
-
-DrawComponent::DrawComponent() : GameObjectComponent()
-{
-
-}
-
-DrawComponent::DrawComponent(GameObject* parent) : GameObjectComponent(parent)
-{
-
+void GameObjectComponent::setParent(GameObject* newParent) {
+	parentObject = newParent;
+	onAttach(parentObject);
 }
 
 SpinComponent::SpinComponent(float degreesPerSec) : GameObjectComponent(),
-degreesPerSec(degreesPerSec)
-{
+degreesPerSec(degreesPerSec) {
 
 }
 
-void SpinComponent::update(float elapsedSeconds)
-{
-	value += degreesPerSec * elapsedSeconds;
-	while (value >= 360.0f)
-		value -= 360.0f;
-	parentObject->rotateY = value;
+void SpinComponent::onUpdate(float elapsedSeconds) {
+	//value += degreesPerSec * elapsedSeconds;
+	//while (value >= 360.0f)
+	//	value -= 360.0f;
+	quat rotationalDelta = quat(vec3(0.0f, glm::radians(degreesPerSec * elapsedSeconds), 0.0f));
+	parentObject->orientation *= rotationalDelta;
 }

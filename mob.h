@@ -1,12 +1,6 @@
-#ifndef MOB_H
-#define MOB_H
+#pragma once
 
-#include "camera.h"
-#include "chunk.h"
-#include "collisioncomponent.h"
-#include "forcecomponent.h"
-#include "gameobject.h"
-#include "vec.h"
+class World;
 
 class MobEyes : public GameObject
 {
@@ -18,11 +12,7 @@ class Mob : public GameObject
 private:
 	bool ceiled = false;
 	
-	// TODO: replace with 'World' (multiple chunks)
-	Chunk& world;
-	BlockCollisionComponent collision;
-	FloorCollisionComponent floorDetection;
-	ForceComponent force;
+	World& world;
 
 public:
 	const GLfloat mobHeight = 1.5f;
@@ -30,7 +20,7 @@ public:
 
 	MobEyes eyes;
 
-	Mob(Chunk& world);
+	Mob(World& world);
 	void jump();
 	void move(float angleDeg, float factor, float elapsedTime);
 	void update(float elapsedSeconds) override;
@@ -39,8 +29,5 @@ public:
 class Steve : public Mob
 {
 public:
-	Steve(Chunk& world);
+	Steve(World& world);
 };
-
-#endif // !MOB_H
-

@@ -1,43 +1,48 @@
 #pragma once
 
-#include "chunk.h"
 #include "gameobjectcomponent.h"
+#include "block.h"
+
+#include <vector>
+using namespace std;
+
+class World;
 
 class BlockCollisionComponent : public GameObjectComponent
 {
 private:
-	Chunk& world;
+	World& world;
 
-	bool checkCollision(vector<Block::BlockContext> collisionBoxes, Block*(*f)(Block::BlockContext b));
+	bool checkCollision(vector<BlockContext> collisionBoxes, Block*(*f)(BlockContext b));
 
 public:
-	BlockCollisionComponent(Chunk& world);
+	BlockCollisionComponent(World& world);
 	void move(float angleDeg, float factor, float elapsedTime);
-	void update(float elapsedSecond) override;
+	void onUpdate(float elapsedSecond) override;
 };
 
 class FloorCollisionComponent : public GameObjectComponent
 {
 private:
-	Chunk& world;
+	World& world;
 	Block* curFloor;
 	bool floored = false;
 
 public:
-	FloorCollisionComponent(Chunk& world);
+	FloorCollisionComponent(World& world);
 	bool isFloored() { return floored; }
-	void update(float elapsedSecond) override;
+	void onUpdate(float elapsedSecond) override;
 };
 
 class CeilingCollisionComponent : public GameObjectComponent
 {
 private:
-	Chunk& world;
+	World& world;
 	Block* curCeiling;
 	bool ceiled = false;
 
 public:
-	CeilingCollisionComponent(Chunk& world);
+	CeilingCollisionComponent(World& world);
 	bool isCeiled() { return ceiled; }
-	void update(float elapsedSecond) override;
+	void onUpdate(float elapsedSecond) override;
 };

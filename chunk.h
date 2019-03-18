@@ -1,19 +1,22 @@
-#ifndef CHUNK_H
-#define CHUNK_H
+#pragma once
 
-#include <vector>
+#include <mutex>
+#include <VrLib/gl/Vertex.h>
 
-#include "block.h"
-#include "gameobject.h"
-#include "stack.h"
-
+using namespace glm;
 using namespace std;
 
-class Chunk : public GameObject
-{
+class Block;
+class BlockContext;
+class ChunkContext;
+class Stack;
+class World;
+
+class Chunk : public GameObject {
 private:
-	float blockDrawSize = 1.0f;
 	vector<Block*> blocks;
+	vec3 chunkSize;
+	vec3 blockSize;
 	vector<Block*> newBlocks;
 	vector<Stack*> items;
 	vector<Stack*> newItems;
@@ -21,41 +24,58 @@ private:
 	bool blocksChanged = true;
 	bool itemsChanged = false;
 
+	void updateNewBlocks();
+
+protected:
+	ChunkContext* context;
+
 public:
-	int width, height, depth;
+	World* parentWorld;
 
-	Chunk(int width, int height, int depth);
+	Chunk(vec3 chunkSize, vec3 blockSize);
 
-	Stack* destroyBlock(Block* block);
-	void destroyStack(Stack* stack);
-	void drawRaw();
-	Block::BlockContext getAdjacentBlocks(Block* base);
-	Block* getBlock(int index);
-	Block* getBlock(int x, int y, int z);
-	Block* getBlock(float x, float y, float z);
-	int getBlockIndex(Block* block);
-	int getBlockIndex(int x, int y, int z);
-	Block** getBlockPtr(int x, int y, int z);
-	Stack* getNearbyStack(Vec3f position, float maxDistance = 1.0f);
+	void build(vec3 offsetPosition) override;
+	BlockContext* getAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChunk);
+	Block* getBlock(vec3 positionInChunk);
+	int getBlockIndex(vec3 positionInChunk);
+	Block** getBlockPtr(vec3 positionInChunk);
 	bool isBlockTransparent(Block* block);
-	Stack* mergeStacks();
-	void notifyBlockChanged(Block* newBlock);
-	void notifyStackDropped(Stack* newStack);
-	void notifyStackRemoved(Stack* oldStack);
-	void randomUpdateBlock(Block* block);
+	void loadTextures();
+	void populateFromSeed(vec3 worldSize, int seed = 0);
+	void randomTick();
+	void setBlock(vec3 positionInChunk, Block* newBlock);
 	void update(float elapsedSeconds) override;
+	void updateContext(ChunkContext* chunkContext);
 };
 
-class ChunkDrawComponent : public DrawComponent
-{
-private:
-	static GLuint terrainTextureId;
-
+class ChunkContext {
 public:
-	ChunkDrawComponent();
-	void draw() override;
-	static void loadTextures();
-	void update(float elapsedSeconds) override {};
-};
+	static const int X_LEFT = 0;
+	static const int X_CENTER = 1;
+	static const int X_RIGHT = 2;
+	static const int Y_BOTTOM = 0;
+	static const int Y_CENTER = 1;
+	static const int Y_TOP = 2;
+	static const int Z_BACK = 0;
+	static const int Z_CENTER = 1;
+	static const int Z_FRONT = 2;
 
-#endif // !CHUNK_H
+	Chunk* surroundings[3][3][3];
+
+	Chunk** up =	&surroundings[X_CENTER][Y_TOP][Z_CENTER];
+	Chunk** south =	&surroundings[X_CENTER][Y_CENTER][Z_FRONT];
+	Chunk** east =	&surroundings[X_RIGHT][Y_CENTER][Z_CENTER];
+	Chunk** north =	&surroundings[X_CENTER][Y_CENTER][Z_BACK];
+	Chunk** west =	&surroundings[X_LEFT][Y_CENTER][Z_CENTER];
+	Chunk** down =	&surroundings[X_CENTER][Y_BOTTOM][Z_CENTER];
+
+	ChunkContext() { };
+	ChunkContext(Chunk* up, Chunk* south, Chunk* east, Chunk* north, Chunk* west, Chunk* down) {
+		*this->up = up;
+		*this->south = south;
+		*this->east = east;
+		*this->north = north;
+		*this->west = west;
+		*this->down = down;
+	};
+};
