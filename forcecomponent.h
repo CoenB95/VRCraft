@@ -1,24 +1,23 @@
 #pragma once
 
 #include "gameobjectcomponent.h"
-#include "vec.h"
 
 class ForceComponent : public GameObjectComponent
 {
 private:
-	Vec3f curForce;
-	Vec3f newForce;
+	vec3 curForce;
+	vec3 newForce;
 
 public:
 	ForceComponent();
-	void addForce(Vec3f value);
+	void addForce(vec3 value);
 	void clearForces();
-	void update(float elapsedSeconds) override;
+	void onUpdate(float elapsedSeconds) override;
 };
 
 class SimpleGravityComponent : public ForceComponent
 {
 public:
 	SimpleGravityComponent();
-	void update(float elapsedSeconds) override;
+	void onUpdate(float elapsedSeconds) override;
 };

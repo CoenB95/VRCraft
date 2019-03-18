@@ -5,17 +5,18 @@
 
 #include "block.h"
 
-class GrassBlock : public Block
+class GrassBlock : public CubeBlock
 {
 public:
 	GrassBlock();
-	Block* randomTick(Block::BlockContext& adjacentBlocks) override;
+	Block* randomTick(BlockContext& adjacentBlocks) override;
 };
 
-class DirtBlock : public Block
+class DirtBlock : public CubeBlock
 {
 public:
 	DirtBlock();
+	Block* randomTick(BlockContext& adjacentBlocks) override;
 };
 
 #endif // !BLOCK_GRASS_H

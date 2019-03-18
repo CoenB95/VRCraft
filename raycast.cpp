@@ -33,7 +33,7 @@ bool RayCast::checkAngleInsideRange(float angle, float min, float max)
 
 PickResult RayCast::checkFrontBack(int diffZ)
 {
-	Vec3f cam = player->eyes.position;
+	/*Vec3f cam = player->eyes.position;
 	bool forwards = checkAngleInsideRange(player->rotateY, 270, 90);
 
 	// Normalize the player's position in the block.
@@ -49,12 +49,14 @@ PickResult RayCast::checkFrontBack(int diffZ)
 	float hitZ = cam.z + distance * sinf((-player->rotateY + 90.0f) / 180.0f * M_PI_F);
 
 	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
-		forwards ? Block::BlockContext::FRONT_SIDE : Block::BlockContext::BACK_SIDE);
+		forwards ? Block::BlockContext::FRONT_SIDE : Block::BlockContext::BACK_SIDE);*/
+
+	return PickResult(nullptr, -1);
 }
 
 PickResult RayCast::checkLeftRight(int diffX)
 {
-	Vec3f cam = player->eyes.position;
+	/*Vec3f cam = player->eyes.position;
 	bool right = checkAngleInsideRange(player->rotateY, 0, 180);
 
 	// Normalize the player's position in the block.
@@ -70,12 +72,14 @@ PickResult RayCast::checkLeftRight(int diffX)
 	float hitZ = cam.z + distance * sinf((-player->rotateY + 90.0f) / 180.0f * M_PI_F);
 
 	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
-		right ? Block::BlockContext::LEFT_SIDE : Block::BlockContext::RIGHT_SIDE);
+		right ? Block::BlockContext::LEFT_SIDE : Block::BlockContext::RIGHT_SIDE);*/
+
+	return PickResult(nullptr, -1);
 }
 
 PickResult RayCast::checkTopBottom(int diffY)
 {
-	Vec3f cam = player->eyes.position;
+	/*Vec3f cam = player->eyes.position;
 	bool downwards = checkAngleInsideRange(player->rotateX, 180, 0);
 
 	// Normalize the player's position in the block.
@@ -91,14 +95,16 @@ PickResult RayCast::checkTopBottom(int diffY)
 	float hitZ = cam.z + distance * sinf((-player->rotateY + 90.0f) / 180.0f * M_PI_F);
 
 	return PickResult(world.getBlock((int)roundf(hitX), (int)roundf(hitY), (int)roundf(hitZ)),
-		downwards ? Block::BlockContext::BOTTOM_SIDE : Block::BlockContext::TOP_SIDE);
+		downwards ? Block::BlockContext::BOTTOM_SIDE : Block::BlockContext::TOP_SIDE);*/
+
+	return PickResult(nullptr, -1);
 }
 
 PickResult RayCast::pickBlock()
 {
 	PickResult b(nullptr, -1);
 
-	int iT = 1;
+	/*int iT = 1;
 	PickResult bT(nullptr, -1);
 	while (iT <= 8 && (bT.block == nullptr || bT.block->isTransparent))
 	{
@@ -141,7 +147,7 @@ PickResult RayCast::pickBlock()
 			b = bL;
 		}
 		iL++;
-	}
+	}*/
 
 	/*cout << "Hit side: ";
 	switch (b.side)

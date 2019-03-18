@@ -1,49 +1,36 @@
 #include "followcomponent.h"
 
-FollowComponent::FollowComponent(GameObject* subject, bool translate, bool rotate, float snappyness) : GameObjectComponent(),
-	subject(subject)
-{
+FollowComponent::FollowComponent(GameObject* subject, bool translate, bool rotate) : GameObjectComponent(), subject(subject) {
 	this->translate = translate;
 	this->rotate = rotate;
-	this->snappyness = snappyness;
 }
 
-FollowComponent* FollowComponent::rotating(GameObject* subject, float snappyness)
-{
-	return new FollowComponent(subject, false, true, snappyness);
+FollowComponent* FollowComponent::rotating(GameObject* subject) {
+	return new FollowComponent(subject, false, true);
 }
 
-FollowComponent* FollowComponent::rotatingAndTranslating(GameObject* subject, float snappyness)
-{
-	return new FollowComponent(subject, true, true, snappyness);
+FollowComponent* FollowComponent::rotatingAndTranslating(GameObject* subject) {
+	return new FollowComponent(subject, true, true);
 }
 
-FollowComponent* FollowComponent::translating(GameObject* subject, float snappyness)
-{
-	return new FollowComponent(subject, true, false, snappyness);
+FollowComponent* FollowComponent::translating(GameObject* subject) {
+	return new FollowComponent(subject, true, false);
 }
 
-void FollowComponent::update(float elapsedSeconds)
+void FollowComponent::onUpdate(float elapsedSeconds)
 {
 	prev = parentObject->position;
 
-	if (translate)
-	{
-		parentObject->position = Vec3f(
-			(1.0f - snappyness) * prev.x + snappyness * (subject->position.x + offset.x),
-			(1.0f - snappyness) * prev.y + snappyness * (subject->position.y + offset.y),
-			(1.0f - snappyness) * prev.z + snappyness * (subject->position.z + offset.z));
+	if (translate) {
+		parentObject->position = subject->position + offset;
 	}
 
-	if (rotate)
-	{
-		parentObject->rotateX = (1.0f - snappyness) * parentObject->rotateX + snappyness * subject->rotateX;
-		parentObject->rotateY = (1.0f - snappyness) * parentObject->rotateY + snappyness * subject->rotateY;
-		parentObject->rotateZ = (1.0f - snappyness) * parentObject->rotateZ + snappyness * subject->rotateZ;
+	if (rotate) {
+		parentObject->orientation = subject->orientation;
 	}
 }
 
-FollowComponent* FollowComponent::withOffset(Vec3f offset)
+FollowComponent* FollowComponent::withOffset(vec3 offset)
 {
 	this->offset = offset;
 	return this;
@@ -56,40 +43,33 @@ snappyness(snappyness)
 	this->rotate = rotate;
 }
 
-SmoothComponent* SmoothComponent::rotating(float snappyness)
-{
+SmoothComponent* SmoothComponent::rotating(float snappyness) {
 	return new SmoothComponent(false, true, snappyness);
 }
 
-SmoothComponent* SmoothComponent::rotatingAndTranslating(float snappyness)
-{
+SmoothComponent* SmoothComponent::rotatingAndTranslating(float snappyness) {
 	return new SmoothComponent(true, true, snappyness);
 }
 
-SmoothComponent* SmoothComponent::translating(float snappyness)
-{
+SmoothComponent* SmoothComponent::translating(float snappyness) {
 	return new SmoothComponent(true, false, snappyness);
 }
 
-void SmoothComponent::update(float elapsedSeconds)
+void SmoothComponent::onAttach(GameObject* newParent) {
+	previousPosition = newParent->position;
+	previousOrientation = newParent->orientation;
+}
+
+void SmoothComponent::onUpdate(float elapsedSeconds)
 {
-	if (translate)
-	{
-		parentObject->position = Vec3f(
-			(1.0f - snappyness) * prev.x + snappyness * (parentObject->position.x),
-			(1.0f - snappyness) * prev.y + snappyness * (parentObject->position.y),
-			(1.0f - snappyness) * prev.z + snappyness * (parentObject->position.z));
+	if (translate) {
+		parentObject->position = glm::mix(previousPosition, parentObject->position, snappyness);
 	}
 
-	if (rotate)
-	{
-		parentObject->rotateX = (1.0f - snappyness) * prevRotX + snappyness * parentObject->rotateX;
-		parentObject->rotateY = (1.0f - snappyness) * prevRotY + snappyness * parentObject->rotateY;
-		parentObject->rotateZ = (1.0f - snappyness) * prevRotZ + snappyness * parentObject->rotateZ;
+	if (rotate) {
+		parentObject->orientation = glm::slerp(previousOrientation, parentObject->orientation, snappyness);
 	}
 
-	prev = parentObject->position;
-	prevRotX = parentObject->rotateX;
-	prevRotY = parentObject->rotateY;
-	prevRotZ = parentObject->rotateZ;
+	previousPosition = parentObject->position;
+	previousOrientation = parentObject->orientation;
 }

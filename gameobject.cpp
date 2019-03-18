@@ -1,75 +1,69 @@
 #include <iostream>
 #include <GL/glew.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
+#include "shaders.h"
 
 using namespace std;
 
-GameObject::GameObject()
-{
-
+GameObject::GameObject() {
+	shader = Shaders::DEFAULT_SHADER;
 }
 
-GameObject::GameObject(GameObject& other)
-{
+GameObject::GameObject(GameObject& other) {
 	position = other.position;
-	rotateX = other.rotateX;
-	rotateY = other.rotateY;
-	rotateZ = other.rotateZ;
+	orientation = other.orientation;
 }
 
-void GameObject::addComponent(GameObjectComponent* component)
-{
+void GameObject::addComponent(GameObjectComponent* component) {
 	component->setParent(this);
-
-	DrawComponent* dc = dynamic_cast<DrawComponent*>(component);
-	if (dc != nullptr)
-	{
-		if (drawComponent != nullptr)
-			cout << "Warning: multiple draw-components supplied." << endl;
-
-		drawComponent = dc;
-	}
 
 	this->components.push_back(component);
 }
 
-void GameObject::draw()
-{
-	if (drawComponent != nullptr)
-	{
-		glPushMatrix();
-		
-		glTranslatef(position.x, position.y, -position.z);
-		
-		glRotatef(rotateZ, 0, 0, 1);
-		glRotatef(rotateX, 1, 0, 0);
-		glRotatef(rotateY, 0, 1, 0);
-
-		drawComponent->draw();
-
-		glPopMatrix();
-	}
+void GameObject::build(vec3 offset) {
+	dirty = false;
 }
 
-void GameObject::removeAllComponents()
-{
+void GameObject::buildEmbedded(vec3 offset) {
+	build(offset + position);
+}
+
+void GameObject::buildStandalone(bool pivotAsCenter) {
+	build(pivotAsCenter ? -pivot : vec3(0, 0, 0));
+}
+
+mat4 GameObject::calcModelMatrix(const mat4& parentModelMatrix) {
+	mat4 modelMatrix = parentModelMatrix;
+	modelMatrix = glm::translate(modelMatrix, position * vec3(1.0f, 1.0f, 1.0f));
+	modelMatrix = glm::scale(modelMatrix, scale);
+	modelMatrix *= glm::toMat4(orientation);
+	return modelMatrix;
+}
+
+void GameObject::draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix) {
+	mat4 modelMatrix = calcModelMatrix(parentModelMatrix);
+
+	Shaders::useShader(shader, projectionMatrix, viewMatrix, modelMatrix);
+
+	for (GameObjectComponent* component : components)
+		component->onDraw(projectionMatrix, viewMatrix, modelMatrix);
+}
+
+void GameObject::removeAllComponents() {
 	for (GameObjectComponent* component : components)
 	{
 		if (component != nullptr)
-		{
 			delete component;
-		}
 	}
 
 	components.clear();
 }
 
-void GameObject::update(float elapsedSeconds)
-{
+void GameObject::update(float elapsedSeconds) {
 	for (GameObjectComponent* component : components)
-	{
-		component->update(elapsedSeconds);
-	}
+		component->onUpdate(elapsedSeconds);
 }
