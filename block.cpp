@@ -36,7 +36,7 @@ const GLfloat Block::SCALE_BLOCK = 1.0f;
 const GLfloat Block::SCALE_BLOCK_OVERLAY = 1.001f;
 const GLfloat Block::SCALE_ITEM = 0.3f;
 
-Block::Block(string typeName) : GameObject(), typeName(typeName) {
+Block::Block() : GameObject() {
 
 }
 
@@ -53,7 +53,7 @@ vec3 Block::globalPosition() {
 
 string Block::toString() const {
 	stringstream ss;
-	ss << (typeName) << "{" << getPositionString() << "}";
+	ss << "{" << getPositionString() << "}";
 	return ss.str();
 }
 
@@ -65,8 +65,8 @@ void Block::updateContext(BlockContext* blockContext) {
 	context = blockContext;
 }
 
-CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, string typeName, bool transparent) :
-	Block(typeName),
+CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, bool transparent) :
+	Block(),
 	topTextureIndex(top),
 	frontTextureIndex(front),
 	rightTextureIndex(right),

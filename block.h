@@ -14,9 +14,6 @@ class BlockContext;
 class Chunk;
 
 class Block : public GameObject {
-private:
-	string typeName;
-
 protected:
 	BlockContext* context = nullptr;
 
@@ -37,10 +34,9 @@ public:
 	//Pointer to the block that should replace this one.
 	Block* newBlock = nullptr;
 
-	Block(string typeName = "Unknown");
+	Block();
 
 	string getPositionString() const;
-	inline string getTypeName() { return typeName; };
 	vec3 globalPosition() override;
 	inline bool needsContext() { return context == nullptr; };
 	virtual void randomTick() {};
@@ -90,21 +86,8 @@ private:
 	int topTextureIndex;
 
 public:
-	CubeBlock(int all, string typeName, bool transparent = false)
-		: CubeBlock(all, all, all, all, all, all, typeName, transparent) {};
-	CubeBlock(int top, int front, int right, int back, int left, int bottom, string typeName, bool transparent = false);
+	CubeBlock(int all, bool transparent = false)
+		: CubeBlock(all, all, all, all, all, all, transparent) {};
+	CubeBlock(int top, int front, int right, int back, int left, int bottom, bool transparent = false);
 	void build(vec3 offsetPosition) override;
-};
-
-/*class SelectionBlock : public Block {
-private:
-	float resistance = 10.0f;
-	float curTime = 0.0f;
-public:
-	SelectionBlock(float breakage);
-};*/
-
-class AirBlock : public CubeBlock {
-public:
-	AirBlock() : CubeBlock(-1, "Air", true) { };
 };
