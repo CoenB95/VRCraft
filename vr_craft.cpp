@@ -64,7 +64,7 @@ void VrCraft::init() {
 	player->scale = vec3(0.2f, 0.01f, 0.2f);
 	player->buildStandalone();
 
-	wand = new CobblestoneBlock();
+	wand = new PumpkinBlock();
 	wand->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
 	wand->updateContext(new BlockContext());
 	wand->buildStandalone();
@@ -126,9 +126,9 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 
 	mat4 k = secondaryWandPosition.getData();
 	vec3 axis = vec3((k * vec4(0, 0, 1, 1)) - (k * vec4(0, 0, 0, 1)));
-	wand->orientation = angleAxis(0.0f, axis);
-	wand->position = vec3(k * vec4(0, 0, 0, 1));
-	wand->scale = vec3(0.1f, 0.1f, 2.0f);
+	wand->orientation = quat_cast(k);
+	wand->position = player->position + vec3(k * vec4(0, 0, 0, 1));
+	wand->scale = vec3(0.1f, 0.1f, 0.1f);
 
 	for (GameObject* object : gameObjects3D)
 		object->update(elapsedSeconds);
