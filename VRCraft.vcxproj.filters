@@ -90,6 +90,12 @@
     <ClCompile Include="physics_nvidia.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="physicscomponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -156,6 +162,12 @@
       <Filter>Header Files\Blocks</Filter>
     </ClInclude>
     <ClInclude Include="physics_nvidia.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="physicscomponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="physics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

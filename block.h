@@ -26,6 +26,7 @@ public:
 	static const GLfloat SCALE_BLOCK_OVERLAY;
 	static const GLfloat SCALE_ITEM;
 
+	vec3 blockSize = vec3(1, 1, 1);
 	Chunk* parentChunk = nullptr;
 
 	//Whether this block should be considered see-through (render adjacent block-sides).

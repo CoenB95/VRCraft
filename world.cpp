@@ -31,6 +31,7 @@ World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSi
 void World::build(vec3 offsetPosition) {
 	for (GLuint i = 0; i < chunks.size(); i++) {
 		if (chunks[i]->shouldRebuild()) {
+			chunks[i]->updateContext(getAdjacentChunks(chunks[i]->position));
 			chunks[i]->buildStandalone(false);
 		}
 	}

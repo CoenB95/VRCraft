@@ -82,7 +82,7 @@ void CubeBlock::build(vec3 offsetPosition) {
 	GameObject::build(offsetPosition);
 
 	if (context == nullptr) {
-		//logger << "Building block failed: no context." << Log::newline;
+		logger << "Building block failed: no context." << Log::newline;
 		notifyDirty();
 		return;
 	}
@@ -97,68 +97,68 @@ void CubeBlock::build(vec3 offsetPosition) {
 
 		if ((*context->up == nullptr || (*context->up)->isTransparent) && topTextureIndex >= 0) {
 			texPos = TEX_POS(topTextureIndex);
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 0), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 0), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 1), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 1, 0), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 1, 0), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 1, 1), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
 
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 0), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 1), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 1), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 1, 0), vec3(0, 1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 1, 1), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 1, 1), vec3(0, 1, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
 		}
 
 		if ((*context->south == nullptr || (*context->south)->isTransparent) && frontTextureIndex >= 0) {
 			texPos = TEX_POS(frontTextureIndex);
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 1), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 1), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 1), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 1, 1), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 1, 1), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 0, 1), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_LEFT))));
 
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 1), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 1), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 1), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 1, 1), vec3(0, 0, 1), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 0, 1), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 0, 1), vec3(0, 0, 1), texScl * (texPos + vec2(BOTTOM_RIGHT))));
 		}
 
 		if ((*context->east == nullptr || (*context->east)->isTransparent) && rightTextureIndex >= 0) {
 			texPos = TEX_POS(rightTextureIndex);
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 0), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 1), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 1), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 1, 0), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 1, 1), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 0, 1), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
 
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 0), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 1), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 0), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 1, 0), vec3(1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 0, 1), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 0, 0), vec3(1, 0, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
 		}
 
 		if ((*context->north == nullptr || (*context->north)->isTransparent) && backTextureIndex >= 0) {
 			texPos = TEX_POS(backTextureIndex);
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 0), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 1, 0), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 0), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 1, 0), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 1, 0), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 0, 0), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_LEFT))));
 
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 0), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 0), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 0), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 1, 0), vec3(0, 0, -1), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 0, 0), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 0, 0), vec3(0, 0, -1), texScl * (texPos + vec2(BOTTOM_RIGHT))));
 		}
 
 		if ((*context->west == nullptr || (*context->west)->isTransparent) && leftTextureIndex >= 0) {
 			texPos = TEX_POS(leftTextureIndex);
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 1), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 0), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 0), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 1, 1), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 1, 0), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 0, 0), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
 
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 1, 1), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 0), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 1), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 1, 1), vec3(-1, 0, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 0, 0), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 0, 1), vec3(-1, 0, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
 		}
 
 		if ((*context->down == nullptr || (*context->down)->isTransparent) && bottomTextureIndex >= 0) {
 			texPos = TEX_POS(bottomTextureIndex);
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 1), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 1), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 0), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 0, 1), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 0, 1), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 0, 0), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
 
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 1), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(0, 0, 0), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
-			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + vec3(1, 0, 0), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 0, 1), vec3(0, -1, 0), texScl * (texPos + vec2(TOP_RIGHT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(0, 0, 0), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_LEFT))));
+			vertices.push_back(vrlib::gl::VertexP3N3T2(pos + blockSize * vec3(1, 0, 0), vec3(0, -1, 0), texScl * (texPos + vec2(BOTTOM_RIGHT))));
 		}
 	}
 

@@ -9,8 +9,9 @@ using namespace std;
 class BlockContext;
 
 class World : public GameObject {
-private:
+public:
 	vector<Chunk*> chunks;
+private:
 	vec3 blockSize;
 	vec3 chunkSize;
 	vec3 worldSize;

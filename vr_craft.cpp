@@ -11,6 +11,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <iostream>
 #include <list>
+#include <mutex>
 #include <thread>
 #include <vector>
 #include <VrLib/Application.h>
@@ -26,6 +27,9 @@
 #include "followcomponent.h"
 #include "mob.h"
 #include "model.h"
+#include "physics.h"
+#include "physics_nvidia.h"
+#include "physicscomponent.h"
 #include "raycast.h"
 #include "texturedrawcomponent.h"
 #include "world.h"
@@ -70,10 +74,10 @@ void VrCraft::init() {
 	wand->buildStandalone();
 
 	testBlock = new CobblestoneBlock();
+	testBlock->blockSize = vec3(0.2f, 0.2f, 0.2f);
 	testBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
 	testBlock->addComponent(new SpinComponent(10.0f));
 	testBlock->updateContext(new BlockContext());
-	testBlock->scale = vec3(0.2f, 0.2f, 0.2f);
 	testBlock->position = vec3(0.5f * blockSize.x, 0.5f * blockSize.y, 0.5f * blockSize.z);
 	testBlock->buildStandalone();
 
@@ -88,7 +92,12 @@ void VrCraft::init() {
 		world->populateFromSeed(worldSeed);
 		logger << "World build" << Log::newline;
 		loading = false;
+		
 		spawnPlayer();
+
+		world->buildStandalone();
+		initPhysics();
+
 		while (true) {
 			world->buildStandalone();
 			this_thread::sleep_for(0.5s);
@@ -124,14 +133,36 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 void VrCraft::preFrame(double frameTime, double totalTime) {
 	float elapsedSeconds = (float)(frameTime / 1000.0);
 
+	if (physicsWorld != nullptr)
+		physicsWorld->onUpdate(elapsedSeconds);
+
 	mat4 k = secondaryWandPosition.getData();
 	vec3 axis = vec3((k * vec4(0, 0, 1, 1)) - (k * vec4(0, 0, 0, 1)));
 	wand->orientation = quat_cast(k);
 	wand->position = player->position + vec3(k * vec4(0, 0, 0, 1));
 	wand->scale = vec3(0.1f, 0.1f, 0.1f);
 
-	for (GameObject* object : gameObjects3D)
-		object->update(elapsedSeconds);
+	{
+		lock_guard<mutex> lock(updateMutex);
+		for (GameObject* object : gameObjects3D)
+			object->update(elapsedSeconds);
+	}
+}
+
+void VrCraft::initPhysics() {
+	lock_guard<mutex> lock(updateMutex);
+	physicsWorld = new NvidiaPhysics();
+	physicsWorld->setup(vec3(0.0f, -9.81f, 0.0f));
+	for (Chunk* c : world->chunks) {
+		auto m = physicsWorld->addMesh(c, true);
+		if (m != nullptr)
+			c->addComponent(new PhysicsComponent(m));
+	}
+
+	testBlock->position = wand->position;
+	auto m = physicsWorld->addMesh(testBlock);
+	testBlock->addComponent(new PhysicsComponent(m));
+	//m->addForce(vec3(0, 5, 0));
 }
 
 void VrCraft::spawnPlayer() {
