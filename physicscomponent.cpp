@@ -2,7 +2,7 @@
 
 #include "physics.h"
 
-PhysicsComponent::PhysicsComponent(PhysicsRigidBody* rigidBody) {
+PhysicsComponent::PhysicsComponent(PhysicsRigidBody* rigidBody, string tag) : GameObjectComponent(tag) {
 	this->rigidBody = rigidBody;
 }
 

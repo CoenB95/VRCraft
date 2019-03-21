@@ -46,13 +46,14 @@ World* world;
 Block* player;
 Block* wand;
 Block* testBlock;
+float physicsWait;
 
 VrCraft::VrCraft() {
 	clearColor = vec4(0.0f, 0.5f, 0.9f, 1.0f);
 }
 
 void VrCraft::init() {
-	secondaryWandInput.init("buttonLeftTouch");
+	secondaryWandInput.init("buttonLeftTrigger");
 	secondaryWandPosition.init("WandPositionLeft");
 
 	Shaders::setupDefaultShaders();
@@ -73,8 +74,7 @@ void VrCraft::init() {
 	wand->updateContext(new BlockContext());
 	wand->buildStandalone();
 
-	testBlock = new CobblestoneBlock();
-	testBlock->blockSize = vec3(0.2f, 0.2f, 0.2f);
+	testBlock = new CobblestoneBlock(vec3(0.2f, 0.2f, 0.2f));
 	testBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
 	testBlock->addComponent(new SpinComponent(10.0f));
 	testBlock->updateContext(new BlockContext());
@@ -136,6 +136,13 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 	if (physicsWorld != nullptr)
 		physicsWorld->onUpdate(elapsedSeconds);
 
+	physicsWait -= elapsedSeconds;
+	if (physicsWait < 0 && testBlock->hasComponent("dynamic-body")) {
+		physicsWait = 10;
+		auto p = dynamic_cast<PhysicsComponent*>(testBlock->getComponent("dynamic-body"));
+		p->rigidBody->addForce(wand->orientation * vec3(0, 0, -500));
+	}
+
 	mat4 k = secondaryWandPosition.getData();
 	vec3 axis = vec3((k * vec4(0, 0, 1, 1)) - (k * vec4(0, 0, 0, 1)));
 	wand->orientation = quat_cast(k);
@@ -160,9 +167,8 @@ void VrCraft::initPhysics() {
 	}
 
 	testBlock->position = wand->position;
-	auto m = physicsWorld->addMesh(testBlock);
-	testBlock->addComponent(new PhysicsComponent(m));
-	//m->addForce(vec3(0, 5, 0));
+	auto m = physicsWorld->addBox(testBlock, testBlock->getBlockSize());
+	testBlock->addComponent(new PhysicsComponent(m, "dynamic-body"));
 }
 
 void VrCraft::spawnPlayer() {

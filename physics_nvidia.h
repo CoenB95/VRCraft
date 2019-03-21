@@ -24,20 +24,36 @@ private:
 
 	PxScene* pxWorld;
 
+	PhysicsRigidBody* addShape(GameObject* object, PxShape* shaps, bool isStatic);
+
 public:
+	PhysicsRigidBody* addBox(GameObject* object, vec3 boxSize, bool isStatic) override;
 	PhysicsRigidBody* addMesh(GameObject* object, bool isStatic) override;
 	void onUpdate(float elapsedSeconds) override;
 	void setup(vec3 gravity) override;
 };
 
-class NvidiaRigidBody : public PhysicsRigidBody {
+
+class NvidiaDynamicRigidBody : public PhysicsRigidBody {
+private:
+	PxRigidDynamic* actor;
+
+public:
+	NvidiaDynamicRigidBody(PxRigidDynamic* actor) : actor(actor) {};
+
+	void addForce(vec3 force) override;
+	vec3 getPosition() override;
+	quat getOrientation() override;
+};
+
+class NvidiaStaticRigidBody : public PhysicsRigidBody {
 private:
 	PxRigidActor* actor;
 
 public:
-	NvidiaRigidBody(PxRigidActor* actor);
+	NvidiaStaticRigidBody(PxRigidActor* actor) : actor(actor) {};
 
-	void addForce(vec3 force) override;
+	void addForce(vec3 force) override {};
 	vec3 getPosition() override;
 	quat getOrientation() override;
 };

@@ -10,7 +10,7 @@ class PhysicsRigidBody;
 
 class PhysicsWorld {
 public:
-	//virtual PhysicsRigidBody* addBox() = 0;
+	virtual PhysicsRigidBody* addBox(GameObject* object, vec3 boxSize, bool isStatic = false) = 0;
 	virtual PhysicsRigidBody* addMesh(GameObject* object, bool isStatic = false) = 0;
 	virtual void onUpdate(float elapsedSeconds) {};
 	virtual void setup(vec3 gravity) = 0;

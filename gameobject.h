@@ -46,7 +46,9 @@ public:
 	virtual void buildStandalone(bool pivotAsCenter = true);
 	mat4 calcModelMatrix(const mat4& parentModelMatrix = mat4());
 	virtual void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix = mat4());
+	GameObjectComponent* getComponent(string tag);
 	virtual vec3 globalPosition() { return position; };
+	bool hasComponent(string tag) { return getComponent(tag) != nullptr; };
 	void removeAllComponents();
 	inline bool shouldRebuild() { return dirty; };
 	//Updates the object 

@@ -36,7 +36,7 @@ const GLfloat Block::SCALE_BLOCK = 1.0f;
 const GLfloat Block::SCALE_BLOCK_OVERLAY = 1.001f;
 const GLfloat Block::SCALE_ITEM = 0.3f;
 
-Block::Block() : GameObject() {
+Block::Block(vec3 blockSize) : GameObject(), blockSize(blockSize) {
 
 }
 
@@ -65,8 +65,8 @@ void Block::updateContext(BlockContext* blockContext) {
 	context = blockContext;
 }
 
-CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, bool transparent) :
-	Block(),
+CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, vec3 blockSize, bool transparent) :
+	Block(blockSize),
 	topTextureIndex(top),
 	frontTextureIndex(front),
 	rightTextureIndex(right),
@@ -75,7 +75,7 @@ CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bott
 	bottomTextureIndex(bottom)
 {
 	isTransparent = transparent;
-	pivot = vec3(0.5f, 0.5f, 0.5f);
+	pivot = this->blockSize * 0.5f;
 }
 
 void CubeBlock::build(vec3 offsetPosition) {

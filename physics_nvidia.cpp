@@ -26,6 +26,14 @@
 
 #include "physics_nvidia.h"
 
+PhysicsRigidBody* NvidiaPhysics::addBox(GameObject* object, vec3 boxSize, bool isStatic) {
+	if (pxWorld == nullptr)
+		return nullptr;
+
+	PxShape* shape = pxSdk->createShape(PxBoxGeometry(boxSize.x / 2, boxSize.y / 2, boxSize.z / 2), *pxDefaultMaterial);
+	return addShape(object, shape, isStatic);
+}
+
 PhysicsRigidBody* NvidiaPhysics::addMesh(GameObject* object, bool isStatic) {
 	if (pxWorld == nullptr || object->vertices.empty())
 		return nullptr;
@@ -54,24 +62,29 @@ PhysicsRigidBody* NvidiaPhysics::addMesh(GameObject* object, bool isStatic) {
 
 	PxDefaultMemoryInputData meshInputStream(meshOutputStream.getData(), meshOutputStream.getSize());
 	PxShape* shape = pxSdk->createShape(PxTriangleMeshGeometry(pxSdk->createTriangleMesh(meshInputStream)), *pxDefaultMaterial);
+	return addShape(object, shape, isStatic);
+}
 
+PhysicsRigidBody* NvidiaPhysics::addShape(GameObject* object, PxShape* shape, bool isStatic) {
 	PxVec3 initialPosition(object->position.x, object->position.y, object->position.z);
 	PxQuat initialOrientation(object->orientation.x, object->orientation.y, object->orientation.z, object->orientation.w);
 	PxTransform initialTransform(initialPosition, initialOrientation);
 
 	PxRigidActor* actor;
+	PhysicsRigidBody* body;
 	if (isStatic) {
 		actor = pxSdk->createRigidStatic(initialTransform);
+		body = new NvidiaStaticRigidBody(actor);
 	} else {
 		PxRigidDynamic* rigidActor;
 		actor = rigidActor = pxSdk->createRigidDynamic(initialTransform);
-		//rigidActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+		body = new NvidiaDynamicRigidBody(rigidActor);
 		PxRigidBodyExt::updateMassAndInertia(*rigidActor, 1.0f);
 	}
 	actor->attachShape(*shape);
 	pxWorld->addActor(*actor);
 
-	return new NvidiaRigidBody(actor);
+	return body;
 }
 
 void NvidiaPhysics::onUpdate(float elapsedSeconds) {
@@ -86,7 +99,7 @@ void NvidiaPhysics::setup(vec3 gravity) {
 	pxFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, pxAllocator, pxErrorCallback);
 
 	pxPvd = PxCreatePvd(*pxFoundation);
-	PxPvdTransport* pvdTransport = PxDefaultPvdSocketTransportCreate("145.48.205.28", 5425, 10);
+	PxPvdTransport* pvdTransport = PxDefaultPvdSocketTransportCreate("localhost", 5425, 10);
 	pxPvd->connect(*pvdTransport, PxPvdInstrumentationFlag::eALL);
 
 	pxSdk = PxCreatePhysics(PX_PHYSICS_VERSION, *pxFoundation, PxTolerancesScale(), true, pxPvd);
@@ -110,11 +123,17 @@ void NvidiaPhysics::setup(vec3 gravity) {
 	}
 }
 
-NvidiaRigidBody::NvidiaRigidBody(PxRigidActor* actor) : actor(actor) {
-
+vec3 NvidiaDynamicRigidBody::getPosition() {
+	PxVec3 pos = actor->getGlobalPose().p;
+	return vec3(pos.x, pos.y, pos.z);
 }
 
-void NvidiaRigidBody::addForce(vec3 force) {
+quat NvidiaDynamicRigidBody::getOrientation() {
+	PxQuat orien = actor->getGlobalPose().q;
+	return quat(orien.w, orien.x, orien.y, orien.z);
+}
+
+void NvidiaDynamicRigidBody::addForce(vec3 force) {
 	PxRigidDynamic* dynamicActor = dynamic_cast<PxRigidDynamic*>(actor);
 	if (dynamicActor == nullptr)
 		return;
@@ -122,12 +141,12 @@ void NvidiaRigidBody::addForce(vec3 force) {
 	dynamicActor->addForce(PxVec3(force.x, force.y, force.z));
 }
 
-vec3 NvidiaRigidBody::getPosition() {
+vec3 NvidiaStaticRigidBody::getPosition() {
 	PxVec3 pos = actor->getGlobalPose().p;
 	return vec3(pos.x, pos.y, pos.z);
 }
 
-quat NvidiaRigidBody::getOrientation() {
+quat NvidiaStaticRigidBody::getOrientation() {
 	PxQuat orien = actor->getGlobalPose().q;
-	return quat(orien.x, orien.y, orien.z, orien.w);
+	return quat(orien.w, orien.x, orien.y, orien.z);
 }

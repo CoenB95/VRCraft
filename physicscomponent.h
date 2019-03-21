@@ -5,11 +5,10 @@
 class PhysicsRigidBody;
 
 class PhysicsComponent : public GameObjectComponent {
-private:
+public:
 	PhysicsRigidBody* rigidBody;
 
-public:
-	PhysicsComponent(PhysicsRigidBody* rigidBody);
+	PhysicsComponent(PhysicsRigidBody* rigidBody, string tag = "");
 
 	void onAttach(GameObject* newParent) override;
 	void onUpdate(float elapsedSeconds) override;

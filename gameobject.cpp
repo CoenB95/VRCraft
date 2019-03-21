@@ -53,6 +53,18 @@ void GameObject::draw(const mat4& projectionMatrix, const mat4& viewMatrix, cons
 		component->onDraw(projectionMatrix, viewMatrix, modelMatrix);
 }
 
+GameObjectComponent* GameObject::getComponent(string tag) {
+	if (tag.empty())
+		return nullptr;
+
+	for (GameObjectComponent* component : components) {
+		if (component->getTag() == tag)
+			return component;
+	}
+
+	return nullptr;
+}
+
 void GameObject::removeAllComponents() {
 	for (GameObjectComponent* component : components)
 	{
