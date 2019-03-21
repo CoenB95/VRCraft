@@ -36,5 +36,6 @@ public:
 
 	void initPhysics();
 	void spawnPlayer();
+	void throwBlock();
 };
 

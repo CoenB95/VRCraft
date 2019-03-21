@@ -133,14 +133,16 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 void VrCraft::preFrame(double frameTime, double totalTime) {
 	float elapsedSeconds = (float)(frameTime / 1000.0);
 
-	if (physicsWorld != nullptr)
+	if (physicsWorld != nullptr) {
 		physicsWorld->onUpdate(elapsedSeconds);
 
-	physicsWait -= elapsedSeconds;
-	if (physicsWait < 0 && testBlock->hasComponent("dynamic-body")) {
-		physicsWait = 10;
-		auto p = dynamic_cast<PhysicsComponent*>(testBlock->getComponent("dynamic-body"));
-		p->rigidBody->addForce(wand->orientation * vec3(0, 0, -500));
+		physicsWait -= elapsedSeconds;
+		if (secondaryWandInput.getData() == vrlib::DigitalState::OFF)
+			physicsWait = -1;
+		if (physicsWait < 0 && secondaryWandInput.getData() == vrlib::DigitalState::ON) {
+			physicsWait = 1;
+			throwBlock();
+		}
 	}
 
 	mat4 k = secondaryWandPosition.getData();
@@ -165,10 +167,6 @@ void VrCraft::initPhysics() {
 		if (m != nullptr)
 			c->addComponent(new PhysicsComponent(m));
 	}
-
-	testBlock->position = wand->position;
-	auto m = physicsWorld->addBox(testBlock, testBlock->getBlockSize());
-	testBlock->addComponent(new PhysicsComponent(m, "dynamic-body"));
 }
 
 void VrCraft::spawnPlayer() {
@@ -188,4 +186,22 @@ void VrCraft::spawnPlayer() {
 	else {
 		logger << "Couldn't find valid spawn position" << Log::newline;
 	}
+}
+
+void VrCraft::throwBlock() {
+	Block* newBlock = new CobblestoneBlock(vec3(0.2f, 0.2f, 0.2f));
+	newBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
+	newBlock->updateContext(new BlockContext());
+	newBlock->buildStandalone();
+	newBlock->position = wand->position;
+
+	auto body = physicsWorld->addBox(newBlock, newBlock->getBlockSize());
+	if (body == nullptr) {
+		delete newBlock;
+		return;
+	}
+
+	newBlock->addComponent(new PhysicsComponent(body));
+	body->addForce(wand->orientation * vec3(0, 0, -500));
+	gameObjects3D.push_back(newBlock);
 }
