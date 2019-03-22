@@ -1,7 +1,7 @@
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
 
-GameObjectComponent::GameObjectComponent() {
+GameObjectComponent::GameObjectComponent(string tag) : tag(tag) {
 
 }
 
@@ -10,7 +10,7 @@ void GameObjectComponent::setParent(GameObject* newParent) {
 	onAttach(parentObject);
 }
 
-SpinComponent::SpinComponent(float degreesPerSec) : GameObjectComponent(),
+SpinComponent::SpinComponent(float degreesPerSec, string tag) : GameObjectComponent(tag),
 degreesPerSec(degreesPerSec) {
 
 }
