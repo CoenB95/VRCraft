@@ -30,30 +30,36 @@ public:
 	PhysicsRigidBody* addBox(GameObject* object, vec3 boxSize, bool isStatic) override;
 	PhysicsRigidBody* addMesh(GameObject* object, bool isStatic) override;
 	void onUpdate(float elapsedSeconds) override;
+	void removeBody(PhysicsRigidBody* body) override;
 	void setup(vec3 gravity) override;
 };
 
-
-class NvidiaDynamicRigidBody : public PhysicsRigidBody {
-private:
-	PxRigidDynamic* actor;
-
+class NvidiaBaseRigidBody : public PhysicsRigidBody {
 public:
-	NvidiaDynamicRigidBody(PxRigidDynamic* actor) : actor(actor) {};
+	PxRigidActor* actor;
 
-	void addForce(vec3 force) override;
+	NvidiaBaseRigidBody(PxRigidActor* actor, NvidiaPhysics* world) : PhysicsRigidBody(world), actor(actor) {};
+
 	vec3 getPosition() override;
 	quat getOrientation() override;
 };
 
-class NvidiaStaticRigidBody : public PhysicsRigidBody {
-private:
-	PxRigidActor* actor;
-
+class NvidiaDynamicRigidBody : public NvidiaBaseRigidBody {
 public:
-	NvidiaStaticRigidBody(PxRigidActor* actor) : actor(actor) {};
+	PxRigidDynamic* dynamicActor;
+
+	NvidiaDynamicRigidBody(PxRigidDynamic* actor, NvidiaPhysics* world)
+		: NvidiaBaseRigidBody(actor, world), dynamicActor(actor) {};
+
+	void addForce(vec3 force) override;
+};
+
+class NvidiaStaticRigidBody : public NvidiaBaseRigidBody {
+public:
+	PxRigidActor* staticActor;
+
+	NvidiaStaticRigidBody(PxRigidActor* actor, NvidiaPhysics* world)
+		: NvidiaBaseRigidBody(actor, world), staticActor(actor) {};
 
 	void addForce(vec3 force) override {};
-	vec3 getPosition() override;
-	quat getOrientation() override;
 };

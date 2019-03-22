@@ -74,11 +74,11 @@ PhysicsRigidBody* NvidiaPhysics::addShape(GameObject* object, PxShape* shape, bo
 	PhysicsRigidBody* body;
 	if (isStatic) {
 		actor = pxSdk->createRigidStatic(initialTransform);
-		body = new NvidiaStaticRigidBody(actor);
+		body = new NvidiaStaticRigidBody(actor, this);
 	} else {
 		PxRigidDynamic* rigidActor;
 		actor = rigidActor = pxSdk->createRigidDynamic(initialTransform);
-		body = new NvidiaDynamicRigidBody(rigidActor);
+		body = new NvidiaDynamicRigidBody(rigidActor, this);
 		PxRigidBodyExt::updateMassAndInertia(*rigidActor, 1.0f);
 	}
 	actor->attachShape(*shape);
@@ -93,6 +93,14 @@ void NvidiaPhysics::onUpdate(float elapsedSeconds) {
 
 	pxWorld->simulate(0.013f);
 	pxWorld->fetchResults(true);
+}
+
+void NvidiaPhysics::removeBody(PhysicsRigidBody* body) {
+	NvidiaBaseRigidBody* nvidiaBody = dynamic_cast<NvidiaBaseRigidBody*>(body);
+	if (nvidiaBody == nullptr)
+		return;
+
+	pxWorld->removeActor(*nvidiaBody->actor);
 }
 
 void NvidiaPhysics::setup(vec3 gravity) {
@@ -123,30 +131,16 @@ void NvidiaPhysics::setup(vec3 gravity) {
 	}
 }
 
-vec3 NvidiaDynamicRigidBody::getPosition() {
+vec3 NvidiaBaseRigidBody::getPosition() {
 	PxVec3 pos = actor->getGlobalPose().p;
 	return vec3(pos.x, pos.y, pos.z);
 }
 
-quat NvidiaDynamicRigidBody::getOrientation() {
+quat NvidiaBaseRigidBody::getOrientation() {
 	PxQuat orien = actor->getGlobalPose().q;
 	return quat(orien.w, orien.x, orien.y, orien.z);
 }
 
 void NvidiaDynamicRigidBody::addForce(vec3 force) {
-	PxRigidDynamic* dynamicActor = dynamic_cast<PxRigidDynamic*>(actor);
-	if (dynamicActor == nullptr)
-		return;
-
 	dynamicActor->addForce(PxVec3(force.x, force.y, force.z));
-}
-
-vec3 NvidiaStaticRigidBody::getPosition() {
-	PxVec3 pos = actor->getGlobalPose().p;
-	return vec3(pos.x, pos.y, pos.z);
-}
-
-quat NvidiaStaticRigidBody::getOrientation() {
-	PxQuat orien = actor->getGlobalPose().q;
-	return quat(orien.w, orien.x, orien.y, orien.z);
 }

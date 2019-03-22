@@ -39,7 +39,7 @@ public:
 	vrlib::gl::Shader<Shaders::Uniforms>* shader;
 
 	GameObject();
-	~GameObject();
+	virtual ~GameObject();
 	GameObject(GameObject& other);
 	void addComponent(GameObjectComponent* component);
 	//Builds the object as being part of a parent mesh. Meaning its current position is used to determine vertice positions.

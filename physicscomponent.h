@@ -9,6 +9,7 @@ public:
 	PhysicsRigidBody* rigidBody;
 
 	PhysicsComponent(PhysicsRigidBody* rigidBody, string tag = "");
+	~PhysicsComponent();
 
 	void onAttach(GameObject* newParent) override;
 	void onUpdate(float elapsedSeconds) override;

@@ -27,7 +27,6 @@
     <ClCompile Include="followcomponent.cpp" />
     <ClCompile Include="gameobjectgroup.cpp" />
     <ClCompile Include="gamescene.cpp" />
-    <ClCompile Include="physics.cpp" />
     <ClCompile Include="physicscomponent.cpp" />
     <ClCompile Include="physics_nvidia.cpp" />
     <ClCompile Include="shaders.cpp" />

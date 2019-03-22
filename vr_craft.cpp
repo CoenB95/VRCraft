@@ -142,7 +142,7 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 		if (secondaryWandInput.getData() == vrlib::DigitalState::OFF)
 			physicsWait = -1;
 		if (physicsWait < 0 && secondaryWandInput.getData() == vrlib::DigitalState::ON) {
-			physicsWait = 1;
+			physicsWait = 0.1f;
 			throwBlock();
 		}
 	}

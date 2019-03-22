@@ -11,6 +11,7 @@ protected:
 
 public:
 	GameObjectComponent(string tag = "");
+	virtual ~GameObjectComponent() {};
 
 	inline string getTag() { return tag; };
 	inline virtual void onAttach(GameObject* newParent) {};

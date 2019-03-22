@@ -6,6 +6,11 @@ PhysicsComponent::PhysicsComponent(PhysicsRigidBody* rigidBody, string tag) : Ga
 	this->rigidBody = rigidBody;
 }
 
+PhysicsComponent::~PhysicsComponent() {
+	rigidBody->removeFromWorld();
+	delete rigidBody;
+}
+
 void PhysicsComponent::onAttach(GameObject* newParent) {
 	
 }
