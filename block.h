@@ -16,6 +16,7 @@ class Chunk;
 class Block : public GameObject {
 protected:
 	BlockContext* context = nullptr;
+	vec3 blockSize;
 
 public:
 	static const int TILES_HEIGHT_COUNT;
@@ -34,8 +35,9 @@ public:
 	//Pointer to the block that should replace this one.
 	Block* newBlock = nullptr;
 
-	Block();
+	Block(vec3 blockSize = vec3(1, 1, 1));
 
+	vec3 getBlockSize() { return blockSize; };
 	string getPositionString() const;
 	vec3 globalPosition() override;
 	inline bool needsContext() { return context == nullptr; };
@@ -86,8 +88,8 @@ private:
 	int topTextureIndex;
 
 public:
-	CubeBlock(int all, bool transparent = false)
-		: CubeBlock(all, all, all, all, all, all, transparent) {};
-	CubeBlock(int top, int front, int right, int back, int left, int bottom, bool transparent = false);
+	CubeBlock(int all, vec3 blockSize = vec3(1, 1, 1), bool transparent = false)
+		: CubeBlock(all, all, all, all, all, all, blockSize, transparent) {};
+	CubeBlock(int top, int front, int right, int back, int left, int bottom, vec3 blockSize = vec3(1, 1, 1), bool transparent = false);
 	void build(vec3 offsetPosition) override;
 };
