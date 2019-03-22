@@ -23,7 +23,9 @@
     <ClCompile Include="block_grass.cpp" />
     <ClCompile Include="chunk.cpp" />
     <ClCompile Include="color.cpp" />
+    <ClCompile Include="despawncomponent.cpp" />
     <ClCompile Include="followcomponent.cpp" />
+    <ClCompile Include="gameobjectgroup.cpp" />
     <ClCompile Include="gamescene.cpp" />
     <ClCompile Include="physics.cpp" />
     <ClCompile Include="physicscomponent.cpp" />
@@ -47,7 +49,9 @@
     <ClInclude Include="block_grass.h" />
     <ClInclude Include="chunk.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="despawncomponent.h" />
     <ClInclude Include="followcomponent.h" />
+    <ClInclude Include="gameobjectgroup.h" />
     <ClInclude Include="gamescene.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="physicscomponent.h" />

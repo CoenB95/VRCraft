@@ -18,6 +18,7 @@ class GameObject
 {
 private:
 	vector<GameObjectComponent*> components;
+	mutex componentsMutex;
 	bool dirty = true;
 
 protected:
@@ -38,6 +39,7 @@ public:
 	vrlib::gl::Shader<Shaders::Uniforms>* shader;
 
 	GameObject();
+	~GameObject();
 	GameObject(GameObject& other);
 	void addComponent(GameObjectComponent* component);
 	//Builds the object as being part of a parent mesh. Meaning its current position is used to determine vertice positions.
@@ -45,11 +47,13 @@ public:
 	//Builds the object as being a standalone mesh. Meaning its current position is ignored when determining vertice positions.
 	virtual void buildStandalone(bool pivotAsCenter = true);
 	mat4 calcModelMatrix(const mat4& parentModelMatrix = mat4());
+	void deleteAllComponents();
+	void deleteComponent(GameObjectComponent* component);
 	virtual void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix = mat4());
-	GameObjectComponent* getComponent(string tag);
+	GameObjectComponent* findComponentByTag(string tag);
 	virtual vec3 globalPosition() { return position; };
-	bool hasComponent(string tag) { return getComponent(tag) != nullptr; };
-	void removeAllComponents();
+	bool hasComponent(string tag) { return findComponentByTag(tag) != nullptr; };
+	void removeComponent(GameObjectComponent* component);
 	inline bool shouldRebuild() { return dirty; };
 	//Updates the object 
 	virtual void update(float elapsedSeconds);

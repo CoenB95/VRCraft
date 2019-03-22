@@ -23,6 +23,7 @@ World::World(vec3 worldSize, vec3 chunkSize, vec3 blockSize) : worldSize(worldSi
 				chunk->shader = Shaders::SPECULAR;
 				//chunk->addComponent(new SpinComponent(10.0f));
 				chunks.push_back(chunk);
+				addChild(chunk);
 			}
 		}
 	}
@@ -37,12 +38,12 @@ void World::build(vec3 offsetPosition) {
 	}
 };
 
-void World::draw(const mat4& projectionMatrix, const mat4& modelViewMatrix, const mat4& parentModelMatrix) {
+/*void World::draw(const mat4& projectionMatrix, const mat4& modelViewMatrix, const mat4& parentModelMatrix) {
 	GameObject::draw(projectionMatrix, modelViewMatrix, parentModelMatrix);
 
 	for (GLuint i = 0; i < chunks.size(); i++)
 		chunks[i]->draw(projectionMatrix, modelViewMatrix, calcModelMatrix(parentModelMatrix));
-}
+}*/
 
 BlockContext* World::getAdjacentBlocks(vec3 positionInWorld) {
 	Chunk* centerChunk = getChunk(positionInWorld);
@@ -164,9 +165,9 @@ Block* World::tryFindArea(vec2 xzCoordsInWorld, vec3 areaSize) {
 	return nullptr;
 }
 
-void World::update(float elapsedSeconds) {
+/*void World::update(float elapsedSeconds) {
 	GameObject::update(elapsedSeconds);
 	randomTick();
 	for (Chunk* chunk : chunks)
 		chunk->update(elapsedSeconds);
-}
+}*/

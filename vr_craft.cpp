@@ -24,6 +24,7 @@
 
 #include "block.h"
 #include "blocks.h"
+#include "despawncomponent.h"
 #include "followcomponent.h"
 #include "mob.h"
 #include "model.h"
@@ -99,6 +100,7 @@ void VrCraft::init() {
 		initPhysics();
 
 		while (true) {
+			world->randomTick();
 			world->buildStandalone();
 			this_thread::sleep_for(0.5s);
 		}
@@ -202,6 +204,8 @@ void VrCraft::throwBlock() {
 	}
 
 	newBlock->addComponent(new PhysicsComponent(body));
+	newBlock->addComponent(new DespawnComponent(world, 2.0f));
 	body->addForce(wand->orientation * vec3(0, 0, -500));
-	gameObjects3D.push_back(newBlock);
+	//gameObjects3D.push_back(newBlock);
+	world->addChild(newBlock);
 }

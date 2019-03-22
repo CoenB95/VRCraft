@@ -1,14 +1,14 @@
 #pragma once
 
 #include <vector>
-#include "gameobject.h"
+#include "gameobjectgroup.h"
 #include "chunk.h"
 
 using namespace std;
 
 class BlockContext;
 
-class World : public GameObject {
+class World : public GameObjectGroup {
 public:
 	vector<Chunk*> chunks;
 private:
@@ -22,7 +22,7 @@ public:
 	World(vec3 worldSize, vec3 chunkSize, vec3 blockSize);
 
 	void build(vec3 offsetPosition) override;
-	void draw(const mat4& projectionMatrix, const mat4& modelViewMatrix, const mat4& parentModelMatrix) override;
+	//void draw(const mat4& projectionMatrix, const mat4& modelViewMatrix, const mat4& parentModelMatrix) override;
 	BlockContext* getAdjacentBlocks(vec3 positionInWorld);
 	ChunkContext* getAdjacentChunks(vec3 positionInWorld);
 	Block* getBlock(vec3 positionInWorld);
@@ -32,5 +32,5 @@ public:
 	void populateFromSeed(int worldSeed);
 	void randomTick();
 	Block* tryFindArea(vec2 xzCoordsInWorld, vec3 areaSize);
-	void update(float elapsedSeconds) override;
+	//void update(float elapsedSeconds) override;
 };
