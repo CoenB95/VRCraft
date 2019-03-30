@@ -96,13 +96,13 @@ void VrCraft::init() {
 		
 		spawnPlayer();
 
-		world->buildStandalone();
+		//world->buildStandalone();
 		initPhysics();
 
 		while (true) {
-			world->randomTick();
+			//world->randomTick();
 			world->buildStandalone();
-			this_thread::sleep_for(0.5s);
+			this_thread::sleep_for(0.1s);
 		}
 	});
 
@@ -142,7 +142,7 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 		if (secondaryWandInput.getData() == vrlib::DigitalState::OFF)
 			physicsWait = -1;
 		if (physicsWait < 0 && secondaryWandInput.getData() == vrlib::DigitalState::ON) {
-			physicsWait = 0.1f;
+			physicsWait = 0.25f;
 			throwBlock();
 		}
 	}
@@ -165,9 +165,9 @@ void VrCraft::initPhysics() {
 	physicsWorld = new NvidiaPhysics();
 	physicsWorld->setup(vec3(0.0f, -9.81f, 0.0f));
 	for (Chunk* c : world->chunks) {
-		auto m = physicsWorld->addMesh(c, true);
-		if (m != nullptr)
-			c->addComponent(new PhysicsComponent(m));
+		//auto m = physicsWorld->addMesh(c, true);
+		//if (m != nullptr)
+			c->addComponent(new PhysicsComponent(physicsWorld, ShapeType::MESH, true));
 	}
 }
 
@@ -192,22 +192,25 @@ void VrCraft::spawnPlayer() {
 
 void VrCraft::throwBlock() {
 	Block* newBlock = new CobblestoneBlock(vec3(0.2f, 0.2f, 0.2f));
+	PhysicsComponent* physComponent = new PhysicsComponent(physicsWorld, ShapeType::BOX, false, newBlock->getBlockSize());
 	newBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
-	newBlock->updateContext(new BlockContext());
-	newBlock->buildStandalone();
+	newBlock->addComponent(physComponent);
+	newBlock->addComponent(new DespawnComponent(world, 2.0f));
 	newBlock->position = wand->position;
 
-	PhysicsRigidBody* body = physicsWorld->addBox(newBlock, newBlock->getBlockSize());
-	body->setCollisionListener([this, newBlock](PhysicsRigidBody* other) {
-		Block* otherBlock = dynamic_cast<Block*>(other->getObject());
-		if (otherBlock != nullptr && otherBlock->parentChunk != nullptr) {
-			world->setBlock(newBlock->position, newBlock);
+	newBlock->updateContext(new BlockContext());
+	newBlock->buildStandalone();
+
+	physComponent->getBody()->setCollisionListener([this, newBlock](PhysicsRigidBody* other) {
+		Chunk* touchedChunk = dynamic_cast<Chunk*>(other->getObject());
+		if (touchedChunk != nullptr) {
+			Block* realBlock = new CobblestoneBlock();
+			vec3 newPos(floorf(newBlock->position.x), floorf(newBlock->position.y), floorf(newBlock->position.z));
+			world->setBlock(newPos, realBlock);
+			world->deleteChild(newBlock);
 		}
 	});
+	physComponent->getBody()->addForce(wand->orientation * vec3(0, 0, -500));
 
-	newBlock->addComponent(new PhysicsComponent(body));
-	newBlock->addComponent(new DespawnComponent(world, 2.0f));
-	body->addForce(wand->orientation * vec3(0, 0, -500));
-	//gameObjects3D.push_back(newBlock);
 	world->addChild(newBlock);
 }

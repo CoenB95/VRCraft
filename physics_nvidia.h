@@ -15,6 +15,8 @@ class NvidiaEventCallback;
 class NvidiaPhysics : public PhysicsWorld, public PxSimulationEventCallback {
 private:
 	vector<NvidiaBaseRigidBody*> bodies;
+	map<NvidiaBaseRigidBody*, NvidiaBaseRigidBody*> collisionsToCall;
+	float elapsedSimulationSeconds;
 
 	PxDefaultAllocator pxAllocator;
 	PxDefaultErrorCallback pxErrorCallback;

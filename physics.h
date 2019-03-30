@@ -9,7 +9,7 @@ using namespace glm;
 
 class PhysicsRigidBody;
 
-typedef const function<void(PhysicsRigidBody*)> PhysicsCollisionCallback;
+typedef function<void(PhysicsRigidBody*)> PhysicsCollisionCallback;
 
 class PhysicsWorld {
 public:
@@ -22,7 +22,7 @@ public:
 
 class PhysicsRigidBody {
 private:
-	PhysicsCollisionCallback* collisionCallback;
+	PhysicsCollisionCallback collisionCallback;
 	GameObject* object;
 	PhysicsWorld* parentPhysicsWorld;
 
@@ -34,8 +34,8 @@ public:
 	virtual vec3 getPosition() = 0;
 	virtual quat getOrientation() = 0;
 
-	PhysicsCollisionCallback* getCollisionListener() { return collisionCallback; };
+	PhysicsCollisionCallback getCollisionListener() { return collisionCallback; };
 	GameObject* getObject() { return object; };
 	void removeFromWorld() { parentPhysicsWorld->removeBody(this); };
-	void setCollisionListener(PhysicsCollisionCallback& callback) { collisionCallback = &callback; }
+	void setCollisionListener(PhysicsCollisionCallback callback) { collisionCallback = callback; }
 };

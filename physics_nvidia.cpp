@@ -76,15 +76,16 @@ PxFilterFlags SampleSubmarineFilterShader(
 		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
 		return PxFilterFlag::eDEFAULT;
 	}
-	// generate contacts for all that were not filtered above
+	// generate contacts for all that were not filtered above*/
 	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
 
 	// trigger the contact callback for pairs (A,B) where
 	// the filtermask of A contains the ID of B and vice versa.
-	if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+	if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1)) {
+		pairFlags |= PxPairFlag::eCONTACT_EVENT_POSE;
 		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
-		*/
-	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+	}
+		
 	return PxFilterFlag::eDEFAULT;
 }
 
@@ -105,9 +106,13 @@ PhysicsRigidBody* NvidiaPhysics::addShape(GameObject* object, PxShape* shape, bo
 		PxRigidBodyExt::updateMassAndInertia(*rigidActor, 1.0f);
 	}
 
-	PxSetGroup(*actor, isStatic ? 1 : 2);
-	PxSetGroupCollisionFlag(1, 2, true);
+	//PxSetGroup(*actor, isStatic ? 1 : 2);
+	//PxSetGroupCollisionFlag(1, 2, true);
 
+	PxFilterData dat;
+	dat.word0 = isStatic ? 1 : 2;
+	dat.word1 = isStatic ? 2 : 1;
+	shape->setSimulationFilterData(dat);
 	actor->attachShape(*shape);
 	shape->release();
 	pxWorld->addActor(*actor);
@@ -120,7 +125,16 @@ void NvidiaPhysics::onUpdate(float elapsedSeconds) {
 	if (pxWorld == nullptr)
 		return;
 
-	pxWorld->simulate(0.013f);
+	elapsedSimulationSeconds += elapsedSeconds;
+	for (auto collision : collisionsToCall) {
+		(collision.first->getCollisionListener())(collision.second);
+	}
+	collisionsToCall.clear();
+
+	while (elapsedSimulationSeconds > 0.010f) {
+		pxWorld->simulate(0.010f);
+		elapsedSimulationSeconds -= 0.010f;
+	}
 	pxWorld->fetchResults(true);
 }
 
@@ -184,9 +198,11 @@ void NvidiaPhysics::onContact(const PxContactPairHeader& pairHeader, const PxCon
 				return;
 
 			if (body1->getCollisionListener() != nullptr) {
-				(*body1->getCollisionListener())(body2);
+				collisionsToCall[body1] = body2;
+				//(body1->getCollisionListener())(body2);
 			} else if (body2->getCollisionListener() != nullptr) {
-				(*body2->getCollisionListener())(body1);
+				collisionsToCall[body2] = body1;
+				//(body2->getCollisionListener())(body1);
 			}
 		}
 	}

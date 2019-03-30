@@ -30,6 +30,15 @@ void GameObject::addComponent(GameObjectComponent* component) {
 
 void GameObject::build(vec3 offset) {
 	dirty = false;
+
+	vector<GameObjectComponent*> componentsCopy;
+	{
+		lock_guard<mutex> lock(componentsMutex);
+		componentsCopy = components;
+	}
+	for (GameObjectComponent* component : componentsCopy) {
+		component->onBuild(offset);
+	}
 }
 
 void GameObject::buildEmbedded(vec3 offset) {
