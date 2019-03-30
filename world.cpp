@@ -144,6 +144,13 @@ void World::randomTick() {
 	}
 }
 
+void World::setBlock(vec3 positionInWorld, Block* newBlock) {
+	Chunk* chunk = getChunk(positionInWorld);
+	if (chunk == nullptr)
+		return;
+
+	chunk->setBlock(positionInWorld - chunk->position, newBlock);
+}
 Block* World::tryFindArea(vec2 xzCoordsInWorld, vec3 areaSize) {
 	for (float y = 0.0f; y < worldSize.y * chunkSize.y * blockSize.y; y += blockSize.y) {
 		bool invalid = false;

@@ -197,11 +197,13 @@ void VrCraft::throwBlock() {
 	newBlock->buildStandalone();
 	newBlock->position = wand->position;
 
-	auto body = physicsWorld->addBox(newBlock, newBlock->getBlockSize());
-	if (body == nullptr) {
-		delete newBlock;
-		return;
-	}
+	PhysicsRigidBody* body = physicsWorld->addBox(newBlock, newBlock->getBlockSize());
+	body->setCollisionListener([this, newBlock](PhysicsRigidBody* other) {
+		Block* otherBlock = dynamic_cast<Block*>(other->getObject());
+		if (otherBlock != nullptr && otherBlock->parentChunk != nullptr) {
+			world->setBlock(newBlock->position, newBlock);
+		}
+	});
 
 	newBlock->addComponent(new PhysicsComponent(body));
 	newBlock->addComponent(new DespawnComponent(world, 2.0f));

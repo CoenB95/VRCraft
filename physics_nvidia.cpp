@@ -65,24 +65,53 @@ PhysicsRigidBody* NvidiaPhysics::addMesh(GameObject* object, bool isStatic) {
 	return addShape(object, shape, isStatic);
 }
 
+PxFilterFlags SampleSubmarineFilterShader(
+	PxFilterObjectAttributes attributes0, PxFilterData filterData0,
+	PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+	PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+{
+	/*// let triggers through
+	if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+	{
+		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+		return PxFilterFlag::eDEFAULT;
+	}
+	// generate contacts for all that were not filtered above
+	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+
+	// trigger the contact callback for pairs (A,B) where
+	// the filtermask of A contains the ID of B and vice versa.
+	if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+		*/
+	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+	return PxFilterFlag::eDEFAULT;
+}
+
 PhysicsRigidBody* NvidiaPhysics::addShape(GameObject* object, PxShape* shape, bool isStatic) {
 	PxVec3 initialPosition(object->position.x, object->position.y, object->position.z);
 	PxQuat initialOrientation(object->orientation.x, object->orientation.y, object->orientation.z, object->orientation.w);
 	PxTransform initialTransform(initialPosition, initialOrientation);
 
 	PxRigidActor* actor;
-	PhysicsRigidBody* body;
+	NvidiaBaseRigidBody* body;
 	if (isStatic) {
 		actor = pxSdk->createRigidStatic(initialTransform);
-		body = new NvidiaStaticRigidBody(actor, this);
+		body = new NvidiaStaticRigidBody(actor, object, this);
 	} else {
 		PxRigidDynamic* rigidActor;
 		actor = rigidActor = pxSdk->createRigidDynamic(initialTransform);
-		body = new NvidiaDynamicRigidBody(rigidActor, this);
+		body = new NvidiaDynamicRigidBody(rigidActor, object, this);
 		PxRigidBodyExt::updateMassAndInertia(*rigidActor, 1.0f);
 	}
+
+	PxSetGroup(*actor, isStatic ? 1 : 2);
+	PxSetGroupCollisionFlag(1, 2, true);
+
 	actor->attachShape(*shape);
+	shape->release();
 	pxWorld->addActor(*actor);
+	bodies.push_back(body);
 
 	return body;
 }
@@ -100,7 +129,11 @@ void NvidiaPhysics::removeBody(PhysicsRigidBody* body) {
 	if (nvidiaBody == nullptr)
 		return;
 
-	pxWorld->removeActor(*nvidiaBody->actor);
+	vector<NvidiaBaseRigidBody*>::iterator it = find(bodies.begin(), bodies.end(), nvidiaBody);
+	if (it != bodies.end()) {
+		bodies.erase(it);
+		pxWorld->removeActor(*nvidiaBody->actor);
+	}
 }
 
 void NvidiaPhysics::setup(vec3 gravity) {
@@ -119,8 +152,9 @@ void NvidiaPhysics::setup(vec3 gravity) {
 
 	PxSceneDesc sceneDescriptor(pxSdk->getTolerancesScale());
 	sceneDescriptor.cpuDispatcher = pxDispatcher;
-	sceneDescriptor.filterShader = PxDefaultSimulationFilterShader;
+	sceneDescriptor.filterShader = SampleSubmarineFilterShader; //PxDefaultSimulationFilterShader;
 	sceneDescriptor.gravity = PxVec3(gravity.x, gravity.y, gravity.z);
+	sceneDescriptor.simulationEventCallback = this;
 	pxWorld = pxSdk->createScene(sceneDescriptor);
 
 	PxPvdSceneClient* pvdClient = pxWorld->getScenePvdClient();
@@ -128,6 +162,33 @@ void NvidiaPhysics::setup(vec3 gravity) {
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+	}
+}
+
+void NvidiaPhysics::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) {
+	for (PxU32 i = 0; i < nbPairs; i++) {
+		const PxContactPair& cp = pairs[i];
+
+		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND) {
+			NvidiaBaseRigidBody* body1 = nullptr;
+			NvidiaBaseRigidBody* body2 = nullptr;
+			for (GLuint i = 0; i < bodies.size(); i++) {
+				if (bodies[i]->actor == pairHeader.actors[0]) {
+					body1 = bodies[i];
+				} else if (bodies[i]->actor == pairHeader.actors[1]) {
+					body2 = bodies[i];
+				}
+			}
+
+			if (body1 == nullptr || body2 == nullptr)
+				return;
+
+			if (body1->getCollisionListener() != nullptr) {
+				(*body1->getCollisionListener())(body2);
+			} else if (body2->getCollisionListener() != nullptr) {
+				(*body2->getCollisionListener())(body1);
+			}
+		}
 	}
 }
 

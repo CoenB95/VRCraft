@@ -4,9 +4,12 @@
 
 #include "gameobject.h"
 
+using namespace std;
 using namespace glm;
 
 class PhysicsRigidBody;
+
+typedef const function<void(PhysicsRigidBody*)> PhysicsCollisionCallback;
 
 class PhysicsWorld {
 public:
@@ -19,13 +22,20 @@ public:
 
 class PhysicsRigidBody {
 private:
+	PhysicsCollisionCallback* collisionCallback;
+	GameObject* object;
 	PhysicsWorld* parentPhysicsWorld;
 
 public:
-	PhysicsRigidBody(PhysicsWorld* parentPhysicsWorld) : parentPhysicsWorld(parentPhysicsWorld) {};
+	PhysicsRigidBody(GameObject* object, PhysicsWorld* parentPhysicsWorld)
+		: object(object), parentPhysicsWorld(parentPhysicsWorld) {};
 
 	virtual void addForce(vec3 force) = 0;
 	virtual vec3 getPosition() = 0;
 	virtual quat getOrientation() = 0;
+
+	PhysicsCollisionCallback* getCollisionListener() { return collisionCallback; };
+	GameObject* getObject() { return object; };
 	void removeFromWorld() { parentPhysicsWorld->removeBody(this); };
+	void setCollisionListener(PhysicsCollisionCallback& callback) { collisionCallback = &callback; }
 };
