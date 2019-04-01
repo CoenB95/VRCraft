@@ -5,6 +5,7 @@
 #include <thread>
 #include <VrLib/Application.h>
 #include <VrLib/Device.h>
+#include <VrLib/gl/FBO.h>
 
 using namespace glm;
 using namespace std;
@@ -26,6 +27,7 @@ private:
 	int worldSeed = 3;
 
 	PhysicsWorld* physicsWorld;
+	vrlib::gl::FBO* shadowMapFbo;
 
 public:
 	VrCraft();

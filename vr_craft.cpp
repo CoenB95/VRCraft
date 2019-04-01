@@ -58,6 +58,7 @@ void VrCraft::init() {
 	secondaryWandPosition.init("WandPositionLeft");
 
 	Shaders::setupDefaultShaders();
+	shadowMapFbo = new vrlib::gl::FBO(1024 * 8, 1024 * 8, false, 0, true);
 
 	world = new World(worldSize, chunkSize, blockSize);
 	world->loadTextures();
@@ -122,6 +123,26 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	
+	int viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glDisable(GL_SCISSOR_TEST);
+	glViewport(0, 0, shadowMapFbo->getWidth(), shadowMapFbo->getHeight());
+	glClearColor(1, 0, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	shadowMapFbo->bind();
+	mat4 modelMatrix = mat4();
+	modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
+	for (GameObject* object : gameObjects3D)
+		object->draw(projectionMatrix, viewMatrix, modelMatrix);
+	shadowMapFbo->unbind();
+
+	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glClearColor(0, 1, 0, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
 	mat4 modelMatrix = mat4();
 	modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
 	for (GameObject* object : gameObjects3D)
