@@ -27,7 +27,7 @@ Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(b
 }
 
 void Chunk::build(vec3 offsetPosition) {
-	GameObject::build(offsetPosition);
+	//GameObject::build(offsetPosition);
 
 	updateNewBlocks();
 
@@ -50,6 +50,8 @@ void Chunk::build(vec3 offsetPosition) {
 		vertices.clear();
 		vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
 	}
+
+	GameObject::build(offsetPosition);
 }
 
 BlockContext* Chunk::getAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChunk) {

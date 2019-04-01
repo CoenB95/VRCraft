@@ -2,15 +2,29 @@
 
 #include "gameobjectcomponent.h"
 
+class PhysicsWorld;
 class PhysicsRigidBody;
 
-class PhysicsComponent : public GameObjectComponent {
-public:
-	PhysicsRigidBody* rigidBody;
+enum ShapeType {
+	BOX, MESH
+};
 
-	PhysicsComponent(PhysicsRigidBody* rigidBody, string tag = "");
+class PhysicsComponent : public GameObjectComponent {
+private:
+	PhysicsRigidBody* rigidBody;
+	PhysicsWorld* world;
+	ShapeType type;
+	bool isStatic;
+	vec3 boxSize;
+
+	void buildPhysics();
+	void deletePhysics();
+
+public:
+	PhysicsComponent(PhysicsWorld* world, ShapeType type, bool isStatic, vec3 boxSize = vec3(1,1,1), string tag = "");
 	~PhysicsComponent();
 
-	void onAttach(GameObject* newParent) override;
+	PhysicsRigidBody* getBody() { return rigidBody; };
+	void onBuild(vec3 offset) override;
 	void onUpdate(float elapsedSeconds) override;
 };
