@@ -15,6 +15,7 @@ public:
 
 	inline string getTag() { return tag; };
 	inline virtual void onAttach(GameObject* newParent) {};
+	inline virtual void onBuild(vec3 offset) {};
 	inline virtual void onDraw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, const glm::mat4& modelMatrix) {};
 	inline virtual void onUpdate(float elapsedSeconds) {};
 	void setParent(GameObject* object);

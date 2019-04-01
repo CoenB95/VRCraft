@@ -31,6 +31,7 @@ public:
 	void loadTextures();
 	void populateFromSeed(int worldSeed);
 	void randomTick();
+	void setBlock(vec3 positionInWorld, Block* newBlock);
 	Block* tryFindArea(vec2 xzCoordsInWorld, vec3 areaSize);
 	//void update(float elapsedSeconds) override;
 };
