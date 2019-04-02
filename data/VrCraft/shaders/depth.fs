@@ -1,10 +1,10 @@
 #version 330
 
 //Uniforms
-uniform sampler2D uniTextureSampler;
-uniform sampler2DShadow uniShadowSampler;
-uniform vec4 uniDiffuseColor;
-uniform float uniTextureFactor;
+uniform sampler2D textureSampler;
+uniform sampler2DShadow shadowSampler;
+uniform vec4 diffuseColor;
+uniform float textureFactor;
 
 //Input arguments (from geometry/vertex-shader)
 in vec2 pixelTextureCoord;
