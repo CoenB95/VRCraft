@@ -83,7 +83,7 @@ void GameObject::draw(const mat4& projectionMatrix, const mat4& viewMatrix, cons
 
 	mat4 modelMatrix = calcModelMatrix(parentModelMatrix);
 
-	Shaders::useShader(shader, projectionMatrix, viewMatrix, modelMatrix);
+	//Shaders::useShader(shader, projectionMatrix, viewMatrix, modelMatrix);
 
 	vector<GameObjectComponent*> componentsCopy;
 	{

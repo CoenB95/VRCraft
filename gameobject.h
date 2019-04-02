@@ -29,6 +29,7 @@ protected:
 	inline void notifyDirty() { dirty = true; };
 
 public:
+	bool ut = true;
 	vec3 position;
 	quat orientation;
 	vec3 scale = vec3(1, 1, 1);

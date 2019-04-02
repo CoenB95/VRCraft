@@ -26,7 +26,8 @@ void TextureDrawComponent::onDraw(const glm::mat4 &projectionMatrix, const glm::
 	if (texture == nullptr)
 		return;
 
-	texture->bind();
+	if (parentObject->ut)
+		texture->bind();
 
 	glTranslatef(parentObject->position.x, parentObject->position.y, parentObject->position.z);
 	vrlib::gl::setAttributes<vrlib::gl::VertexP3N3T2>(&(parentObject->vertices)[0]);

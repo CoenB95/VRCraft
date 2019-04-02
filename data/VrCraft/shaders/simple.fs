@@ -1,26 +1,39 @@
+//Basic environment lighting fragment shader.
 #version 330
 
-uniform sampler2D s_texture;
-uniform vec4 diffuseColor;
-uniform float textureFactor;
+//Uniforms
+uniform sampler2D uniTextureSampler;
+uniform sampler2DShadow uniShadowSampler;
+uniform vec4 uniDiffuseColor;
+uniform float uniTextureFactor;
 
-in vec3 normal;
+//Inputs (from geometry/vertex-shader)
+in vec2 pixelTextureCoord;
+in vec3 pixelNormal;
 
+//Outputs (to draw buffers)
+out vec4 fragColor;
+
+//Shader
 void main()
 {
-	vec3 lightDirection = normalize(vec3(1,1,1));
-	vec3 viewDirection = vec3(0,0,1);
+	vec3 lightDirection = normalize(vec3(1, 1, 1));
+	vec3 viewDirection = vec3(0, 0, 1);
 	float shininess = 100.0;
 
-	float ambient = 0.2;
-	float diffuse = 0.8 * dot(normalize(normal), lightDirection);
+	float ambient = 0.7;
+	float diffuse = 0.8 * dot(normalize(pixelNormal), lightDirection);
 
-	vec3 r = reflect(-lightDirection, normalize(normal));
+	vec3 r = reflect(-lightDirection, normalize(pixelNormal));
 
 	float specular = pow(max(0.0, dot(r, viewDirection)), shininess);
 
 	float factor = ambient + diffuse + specular;
 
-
-	gl_FragColor = vec4(factor,factor,factor,1.0);
+	vec4 textureColor = texture2D(uniTextureSampler, pixelTextureCoord);
+	if(textureColor.a < 0.01)
+		discard;
+	
+	fragColor.rgb = factor * textureColor.rgb;
+	fragColor.a = textureColor.a;
 }

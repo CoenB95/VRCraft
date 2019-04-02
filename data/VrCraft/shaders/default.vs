@@ -21,5 +21,5 @@ void main()
 {
 	pixelTextureCoord = vertexTextureCoord;
 	pixelNormal = normalMatrix * vertexNormal;
-	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vertexPosition, 1);
+	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vertexPosition, 1.0);
 }

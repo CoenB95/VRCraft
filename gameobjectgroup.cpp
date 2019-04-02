@@ -48,6 +48,7 @@ void GameObjectGroup::draw(const mat4& projectionMatrix, const mat4& viewMatrix,
 		childrenCopy = children;
 	}
 	for (GameObject* child : childrenCopy) {
+		child->shader = shader;
 		child->draw(projectionMatrix, viewMatrix, modelMatrix);
 	}
 }
