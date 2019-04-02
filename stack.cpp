@@ -12,7 +12,7 @@ Stack::Stack(Block* type, World& world) : GameObject() {
 	position += vec3(0, 1, 0);
 
 	//Note to self: child has relative translation.
-	addComponent(new ChildDrawComponent(blockType));
+	//addComponent(new ChildDrawComponent(blockType));
 	blockType->position = vec3(0.0f, Block::SCALE_ITEM / 2, 0.0f);
 
 	addComponent(new SpinComponent(50.0f));
@@ -38,21 +38,4 @@ int Stack::decreaseStack(int amount)
 	int removed = stackSize - newSize;
 	stackSize = newSize;
 	return removed;
-}
-
-ChildDrawComponent::ChildDrawComponent(GameObject* child) : GameObjectComponent(), child(child)
-{
-
-}
-
-void ChildDrawComponent::onDraw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix, const glm::mat4& modelMatrix)
-{
-	if (child != nullptr)
-		child->draw(projectionMatrix, viewMatrix, modelMatrix);
-}
-
-void ChildDrawComponent::onUpdate(float elapsedSeconds)
-{
-	if (child != nullptr)
-		child->update(elapsedSeconds);
 }

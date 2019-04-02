@@ -19,7 +19,7 @@ public:
 	void addChild(GameObject* object);
 	void deleteAllChildren();
 	void deleteChild(GameObject* object);
-	void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix) override;
+	void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix, const mat4& shadowMatrix) override;
 	void update(float elapsedSeconds) override;
 	void removeChild(GameObject* object);
 };

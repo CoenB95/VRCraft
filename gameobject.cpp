@@ -77,13 +77,13 @@ void GameObject::deleteComponent(GameObjectComponent* component) {
 	}
 }
 
-void GameObject::draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix) {
+void GameObject::draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix, const glm::mat4& shadowMatrix) {
 	if (components.empty())
 		return;
 
 	mat4 modelMatrix = calcModelMatrix(parentModelMatrix);
 
-	//Shaders::useShader(shader, projectionMatrix, viewMatrix, modelMatrix);
+	Shaders::useShader(shader, projectionMatrix, viewMatrix, modelMatrix, shadowMatrix);
 
 	vector<GameObjectComponent*> componentsCopy;
 	{

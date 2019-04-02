@@ -58,7 +58,7 @@ void VrCraft::init() {
 	secondaryWandPosition.init("WandPositionLeft");
 
 	Shaders::setupDefaultShaders();
-	shadowMapFbo = new vrlib::gl::FBO(1024 * 8, 1024 * 8);// , false, 0, true);
+	shadowMapFbo = new vrlib::gl::FBO(1024 * 8, 1024 * 8, false, 0, true);
 
 	world = new World(worldSize, chunkSize, blockSize);
 	world->loadTextures();
@@ -126,33 +126,32 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 	int viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
+	float fac = 50.0f;
+	static float lightDirection = 0;
+	float lightDistance = worldSize.x * chunkSize.x * blockSize.x * 1.0f;
+	lightDirection += 0.001f;
+
+	glm::vec3 lightAngle(cos(lightDirection) * lightDistance, lightDistance, sin(lightDirection) * lightDistance);
+	glm::mat4 shadowProjectionMatrix = glm::ortho<float>(-fac, fac, -fac, fac, -5, 250);
+	glm::mat4 shadowCameraMatrix = glm::lookAt(lightAngle + glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
 	//if (false)
-	{	
+	{
 		shadowMapFbo->bind();
 		//glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		//glEnable(GL_SCISSOR_TEST);
 		//glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
-		//glDisable(GL_SCISSOR_TEST);
-		//glViewport(0, 0, shadowMapFbo->getWidth(), shadowMapFbo->getHeight());
+		glDisable(GL_SCISSOR_TEST);
+		glViewport(0, 0, shadowMapFbo->getWidth(), shadowMapFbo->getHeight());
 		glClearColor(1, 0, 0, 1);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-		
-		float fac = 10.0f;
-		static float lightDirection = 0;
-		lightDirection += 0.005f;
-
-		glm::vec3 lightAngle(cos(lightDirection) * 3, 2, sin(lightDirection) * 3);
-		glm::mat4 shadowProjectionMatrix = glm::ortho<float>(-fac, fac, -fac, fac, -5, 50);
-		glm::mat4 shadowCameraMatrix = glm::lookAt(lightAngle + glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
 		mat4 modelMatrix = mat4();
 		modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
 		for (GameObject* object : gameObjects3D) {
-			object->shader = Shaders::DEPTH;
-			object->shader->setUniform(Shaders::Uniforms::textureSampler, 0);
-			object->ut = true;
-			object->draw(shadowProjectionMatrix, shadowCameraMatrix, modelMatrix);
+			object->shader = Shaders::DEPTH_FBO;
+			//Shaders::useShader(Shaders::DEPTH_FBO, shadowProjectionMatrix, shadowCameraMatrix, modelMatrix, 0);
+			object->ut = false;
+			object->draw(shadowProjectionMatrix, shadowCameraMatrix, modelMatrix, mat4());
 		}
 		shadowMapFbo->unbind();
 	}
@@ -168,14 +167,14 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, shadowMapFbo->texid[0]);
 		glActiveTexture(GL_TEXTURE0);
-		
+
 		mat4 modelMatrix = mat4();
 		modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
 		for (GameObject* object : gameObjects3D) {
-			object->shader = Shaders::SPECULAR;
-			object->shader->setUniform(Shaders::Uniforms::s_texture, 1);
-			object->ut = false;
-			object->draw(projectionMatrix, viewMatrix, modelMatrix);
+			object->shader = Shaders::DEPTH;
+			//Shaders::useShader(Shaders::SPECULAR, projectionMatrix, viewMatrix, modelMatrix, 1);
+			object->ut = true;
+			object->draw(projectionMatrix, viewMatrix, modelMatrix, shadowProjectionMatrix * shadowCameraMatrix);
 		}
 	}
 

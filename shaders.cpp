@@ -28,6 +28,7 @@ vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setupShader(string vertShader, st
 	shader->registerUniform(Uniforms::modelMatrix, "modelMatrix");
 	shader->registerUniform(Uniforms::projectionMatrix, "projectionMatrix");
 	shader->registerUniform(Uniforms::viewMatrix, "viewMatrix");
+	shader->registerUniform(Uniforms::shadowMatrix, "shadowMatrix");
 	shader->registerUniform(Uniforms::normalMatrix, "normalMatrix");
 	shader->registerUniform(Uniforms::textureSampler, "textureSampler");
 	shader->registerUniform(Uniforms::shadowSampler, "shadowSampler");
@@ -37,15 +38,18 @@ vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setupShader(string vertShader, st
 }
 
 void Shaders::useShader(vrlib::gl::Shader<Shaders::Uniforms>* shader, const glm::mat4& projectionMatrix,
-	const glm::mat4& viewMatrix, const glm::mat4& modelMatrix, int textureSampler) {
+	const glm::mat4& viewMatrix, const glm::mat4& modelMatrix, const glm::mat4& shadowMatrix,
+	int textureSampler, int shadowSampler) {
 	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
 
 	shader->use();
 	shader->setUniform(Uniforms::projectionMatrix, projectionMatrix);
 	shader->setUniform(Uniforms::viewMatrix, viewMatrix);
 	shader->setUniform(Uniforms::modelMatrix, modelMatrix);
+	shader->setUniform(Uniforms::shadowMatrix, shadowMatrix);
 	shader->setUniform(Uniforms::normalMatrix, normalMatrix);
 	shader->setUniform(Uniforms::textureSampler, textureSampler);
+	shader->setUniform(Uniforms::shadowSampler, shadowSampler);
 	shader->setUniform(Uniforms::diffuseColor, glm::vec4(1, 1, 1, 1));
 	shader->setUniform(Uniforms::textureFactor, 1.0f);
 }

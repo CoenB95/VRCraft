@@ -50,7 +50,7 @@ public:
 	mat4 calcModelMatrix(const mat4& parentModelMatrix = mat4());
 	void deleteAllComponents();
 	void deleteComponent(GameObjectComponent* component);
-	virtual void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix = mat4());
+	virtual void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix, const glm::mat4& shadowMatrix);
 	GameObjectComponent* findComponentByTag(string tag);
 	virtual vec3 globalPosition() { return position; };
 	bool hasComponent(string tag) { return findComponentByTag(tag) != nullptr; };
