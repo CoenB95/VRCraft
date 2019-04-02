@@ -30,7 +30,7 @@ void main()
 
 	float factor = ambient + diffuse + specular;
 
-	vec4 textureColor = texture2D(uniTextureSampler, pixelTextureCoord);
+	vec4 textureColor = texture2D(textureSampler, pixelTextureCoord);
 	if(textureColor.a < 0.01)
 		discard;
 	

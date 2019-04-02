@@ -17,17 +17,17 @@ out vec4 fragColor;
 //Shader
 void main()
 {
-	float diffuse = dot(normalize(vec3(1, 1, 1)), normalize(normal));
+	float diffuse = dot(normalize(vec3(1, 1, 1)), normalize(pixelNormal));
 	diffuse = clamp(diffuse, 0, 1);
 
 	float bias = 0.001;
 	float visibility = 1.0;
 	for (int i = 0; i < 4; i++) {
 		int index = i;
-		visibility -= 0.15 * (1.0 - texture(uniShadowSampler, vec3(shadowPosition.xy, (shadowPosition.z-bias) / shadowPosition.w)));
+		visibility -= 0.15 * (1.0 - texture(shadowSampler, vec3(shadowPosition.xy, (shadowPosition.z-bias) / shadowPosition.w)));
 	}
 	float light = 0.5 * diffuse + 0.5;
-	vec4 tex = mix(diffuseColor, texture2D(s_texture, texCoord), textureFactor);
+	vec4 tex = mix(diffuseColor, texture(textureSampler, pixelTextureCoord), textureFactor);
 	if(tex.a < 0.01)
 		discard;
 	fragColor.rgb = visibility * light * tex.rgb;

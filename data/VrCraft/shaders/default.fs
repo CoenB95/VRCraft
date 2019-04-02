@@ -17,7 +17,7 @@ out vec4 fragColor;
 //Shader
 void main()
 {
-	vec4 textureColor = texture(uniTextureSampler, pixelTextureCoord);
+	vec4 textureColor = texture(textureSampler, pixelTextureCoord);
 	
 	fragColor = textureColor;
 }
