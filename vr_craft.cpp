@@ -128,7 +128,7 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
 	float fac = 50.0f;
-	static float lightDirection = 0;
+	static float lightDirection = 1.5f;
 	float lightDistance = worldSize.x * chunkSize.x * blockSize.x * 1.0f;
 	lightDirection += 0.001f;
 
@@ -155,6 +155,7 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 	{
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		glEnable(GL_SCISSOR_TEST);
+		glEnable(GL_BLEND);
 		glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
 		glClearColor(0, 0.6f, 1, 1);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -165,7 +166,8 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 
 		mat4 modelMatrix = mat4();
 		modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
-		Shaders::use(Shaders::DEPTH);
+		Shaders::use(randomShader());
+		Shaders::setAnimation(lightDirection);
 		Shaders::setProjectionViewMatrix(projectionMatrix, viewMatrix);
 		Shaders::setShadowMatrix(shadowProjectionMatrix * shadowCameraMatrix);
 		for (GameObject* object : gameObjects3D) {
@@ -212,6 +214,17 @@ void VrCraft::initPhysics() {
 	physicsWorld->setup(vec3(0.0f, -9.81f, 0.0f));
 	for (Chunk* c : world->chunks) {
 		c->addComponent(new PhysicsComponent(physicsWorld, ShapeType::MESH, true));
+	}
+}
+
+Shader<Shaders::Uniforms>* VrCraft::randomShader() {
+	switch (1) {
+	case 0:
+		return Shaders::DEPTH;
+	case 1:
+		return Shaders::NOISE;
+	default:
+		return Shaders::DEPTH;
 	}
 }
 

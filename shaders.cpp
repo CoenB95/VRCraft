@@ -14,12 +14,14 @@ Shader<Shaders::Uniforms>* Shaders::activeShader = nullptr;
 Shader<Shaders::Uniforms>* Shaders::DEFAULT_SHADER = nullptr;
 Shader<Shaders::Uniforms>* Shaders::DEPTH = nullptr;
 Shader<Shaders::Uniforms>* Shaders::DEPTH_FBO = nullptr;
+Shader<Shaders::Uniforms>* Shaders::NOISE = nullptr;
 Shader<Shaders::Uniforms>* Shaders::SPECULAR = nullptr;
 
 void Shaders::setupDefaultShaders() {
 	DEFAULT_SHADER = setup("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/default.fs");
 	DEPTH = setup("data/VrCraft/shaders/depth.vs", "data/VrCraft/shaders/depth.fs");
 	DEPTH_FBO = setup("data/VrCraft/shaders/depth_fbo.vs", "data/VrCraft/shaders/depth_fbo.fs");
+	NOISE = setup("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/noise_anim.fs");
 	SPECULAR = setup("data/VrCraft/shaders/simple.vs", "data/VrCraft/shaders/simple.fs");
 	activeShader = DEFAULT_SHADER;
 }
@@ -40,6 +42,7 @@ vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setup(string vertShader, string f
 	shader->registerUniform(Uniforms::shadowSampler, "shadowSampler");
 	shader->registerUniform(Uniforms::diffuseColor, "diffuseColor");
 	shader->registerUniform(Uniforms::textureFactor, "textureFactor");
+	shader->registerUniform(Uniforms::animTime, "animTime");
 	return shader;
 }
 
@@ -50,6 +53,10 @@ void Shaders::use(Shader<Shaders::Uniforms>* shader) {
 	activeShader->setUniform(Uniforms::textureFactor, 1.0f);
 	activeShader->setUniform(Uniforms::textureSampler, 0);
 	activeShader->setUniform(Uniforms::shadowSampler, 1);
+}
+
+void Shaders::setAnimation(float time) {
+	activeShader->setUniform(Uniforms::animTime, time);
 }
 
 void Shaders::setModelMatrix(const mat4& modelMatrix) {
