@@ -11,21 +11,23 @@ using namespace vrlib::gl;
 
 Shader<Shaders::Uniforms>* Shaders::activeShader = nullptr;
 
-Shader<Shaders::Uniforms>* Shaders::DEFAULT_SHADER = nullptr;
-Shader<Shaders::Uniforms>* Shaders::DEPTH = nullptr;
-Shader<Shaders::Uniforms>* Shaders::DEPTH_FBO = nullptr;
+Shader<Shaders::Uniforms>* Shaders::DEFAULT = nullptr;
+Shader<Shaders::Uniforms>* Shaders::FBO_DEPTH = nullptr;
 Shader<Shaders::Uniforms>* Shaders::NOISE = nullptr;
+Shader<Shaders::Uniforms>* Shaders::SHADOW = nullptr;
 Shader<Shaders::Uniforms>* Shaders::SPECULAR = nullptr;
+Shader<Shaders::Uniforms>* Shaders::TOON = nullptr;
 Shader<Shaders::Uniforms>* Shaders::WAVE = nullptr;
 
 void Shaders::setupDefaultShaders() {
-	DEFAULT_SHADER = setup("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/default.fs");
-	DEPTH = setup("data/VrCraft/shaders/depth.vs", "data/VrCraft/shaders/depth.fs");
-	DEPTH_FBO = setup("data/VrCraft/shaders/depth_fbo.vs", "data/VrCraft/shaders/depth_fbo.fs");
+	DEFAULT = setup("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/default.fs");
+	FBO_DEPTH = setup("data/VrCraft/shaders/depth_fbo.vs", "data/VrCraft/shaders/depth_fbo.fs");
 	NOISE = setup("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/noise_anim.fs");
-	SPECULAR = setup("data/VrCraft/shaders/simple.vs", "data/VrCraft/shaders/simple.fs");
+	SHADOW = setup("data/VrCraft/shaders/depth.vs", "data/VrCraft/shaders/depth.fs");
+	SPECULAR = setup("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/specular.fs");
+	TOON = setup("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/toon.fs");
 	WAVE = setup("data/VrCraft/shaders/wave.vs", "data/VrCraft/shaders/default.fs");
-	activeShader = DEFAULT_SHADER;
+	activeShader = DEFAULT;
 }
 
 vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setup(string vertShader, string fragShader) {

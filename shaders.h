@@ -27,11 +27,12 @@ private:
 	static Shader<Uniforms>* activeShader;
 
 public:
-	static Shader<Uniforms>* DEFAULT_SHADER;
-	static Shader<Uniforms>* DEPTH;
-	static Shader<Uniforms>* DEPTH_FBO;
+	static Shader<Uniforms>* DEFAULT;
+	static Shader<Uniforms>* FBO_DEPTH;
 	static Shader<Uniforms>* NOISE;
+	static Shader<Uniforms>* SHADOW;
 	static Shader<Uniforms>* SPECULAR;
+	static Shader<Uniforms>* TOON;
 	static Shader<Uniforms>* WAVE;
 
 	static void setupDefaultShaders();

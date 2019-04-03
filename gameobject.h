@@ -7,8 +7,6 @@
 #include <VrLib/gl/shader.h>
 #include <VrLib/gl/Vertex.h>
 
-#include "shaders.h"
-
 using namespace glm;
 using namespace std;
 

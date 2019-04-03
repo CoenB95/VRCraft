@@ -50,6 +50,8 @@ Block* wand;
 Block* testBlock;
 float physicsWait;
 
+int curShaderIndex = 1;
+
 VrCraft::VrCraft() {
 	clearColor = vec4(0.0f, 0.5f, 0.9f, 1.0f);
 }
@@ -87,7 +89,7 @@ void VrCraft::init() {
 	//Make random more random.
 	time_t currentTime;
 	time(&currentTime);
-	srand(currentTime);
+	srand((GLuint)currentTime);
 
 	builderThread = new thread([this]() {
 		loading = true;
@@ -144,7 +146,7 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		mat4 modelMatrix = mat4();
 		modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
-		Shaders::use(Shaders::DEPTH_FBO);
+		Shaders::use(Shaders::FBO_DEPTH);
 		Shaders::setProjectionViewMatrix(shadowProjectionMatrix, shadowCameraMatrix);
 		for (GameObject* object : gameObjects3D) {
 			object->draw(modelMatrix);
@@ -218,16 +220,20 @@ void VrCraft::initPhysics() {
 }
 
 Shader<Shaders::Uniforms>* VrCraft::randomShader() {
-	switch (2) {
+	switch (curShaderIndex) {
 	case 0:
-		return Shaders::DEFAULT_SHADER;
+		return Shaders::DEFAULT;
 	case 1:
-		return Shaders::NOISE;
+		return Shaders::SPECULAR;
 	case 2:
-		return Shaders::WAVE;
+		return Shaders::NOISE;
 	case 3:
+		return Shaders::WAVE;
+	case 4:
+		return Shaders::TOON;
+	case 5:
 	default:
-		return Shaders::DEPTH;
+		return Shaders::SHADOW;
 	}
 }
 

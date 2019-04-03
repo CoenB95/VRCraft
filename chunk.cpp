@@ -85,7 +85,7 @@ BlockContext* Chunk::getAdjacentBlocks(ChunkContext* chunkContext, vec3 position
 }
 
 Block* Chunk::getBlock(vec3 positionInChunk) {
-	int index = getBlockIndex(positionInChunk);
+	GLuint index = getBlockIndex(positionInChunk);
 
 	if (index < 0 || index >= blocks.size())
 		return nullptr;
