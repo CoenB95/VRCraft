@@ -6,20 +6,26 @@
 using vrlib::Log;
 using vrlib::logger;
 
-vrlib::gl::Shader<Shaders::Uniforms>* Shaders::DEFAULT_SHADER = nullptr;
-vrlib::gl::Shader<Shaders::Uniforms>* Shaders::DEPTH = nullptr;
-vrlib::gl::Shader<Shaders::Uniforms>* Shaders::DEPTH_FBO = nullptr;
-vrlib::gl::Shader<Shaders::Uniforms>* Shaders::SPECULAR = nullptr;
+using namespace glm;
+using namespace vrlib::gl;
+
+Shader<Shaders::Uniforms>* Shaders::activeShader = nullptr;
+
+Shader<Shaders::Uniforms>* Shaders::DEFAULT_SHADER = nullptr;
+Shader<Shaders::Uniforms>* Shaders::DEPTH = nullptr;
+Shader<Shaders::Uniforms>* Shaders::DEPTH_FBO = nullptr;
+Shader<Shaders::Uniforms>* Shaders::SPECULAR = nullptr;
 
 void Shaders::setupDefaultShaders() {
-	DEFAULT_SHADER = setupShader("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/default.fs");
-	DEPTH = setupShader("data/VrCraft/shaders/depth.vs", "data/VrCraft/shaders/depth.fs");
-	DEPTH_FBO = setupShader("data/VrCraft/shaders/depth_fbo.vs", "data/VrCraft/shaders/depth_fbo.fs");
-	SPECULAR = setupShader("data/VrCraft/shaders/simple.vs", "data/VrCraft/shaders/simple.fs");
+	DEFAULT_SHADER = setup("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/default.fs");
+	DEPTH = setup("data/VrCraft/shaders/depth.vs", "data/VrCraft/shaders/depth.fs");
+	DEPTH_FBO = setup("data/VrCraft/shaders/depth_fbo.vs", "data/VrCraft/shaders/depth_fbo.fs");
+	SPECULAR = setup("data/VrCraft/shaders/simple.vs", "data/VrCraft/shaders/simple.fs");
+	activeShader = DEFAULT_SHADER;
 }
 
-vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setupShader(string vertShader, string fragShader) {
-	vrlib::gl::Shader<Shaders::Uniforms>* shader = new vrlib::gl::Shader<Uniforms>(vertShader, fragShader);
+vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setup(string vertShader, string fragShader) {
+	Shader<Shaders::Uniforms>* shader = new Shader<Uniforms>(vertShader, fragShader);
 	shader->bindAttributeLocation("vertexPosition", 0);
 	shader->bindAttributeLocation("vertexNormal", 1);
 	shader->bindAttributeLocation("vertexTextureCoord", 2);
@@ -37,19 +43,26 @@ vrlib::gl::Shader<Shaders::Uniforms>* Shaders::setupShader(string vertShader, st
 	return shader;
 }
 
-void Shaders::useShader(vrlib::gl::Shader<Shaders::Uniforms>* shader, const glm::mat4& projectionMatrix,
-	const glm::mat4& viewMatrix, const glm::mat4& modelMatrix, const glm::mat4& shadowMatrix,
-	int textureSampler, int shadowSampler) {
-	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
+void Shaders::use(Shader<Shaders::Uniforms>* shader) {
+	activeShader = shader;
+	activeShader->use();
+	activeShader->setUniform(Uniforms::diffuseColor, vec4(1, 1, 1, 1));
+	activeShader->setUniform(Uniforms::textureFactor, 1.0f);
+	activeShader->setUniform(Uniforms::textureSampler, 0);
+	activeShader->setUniform(Uniforms::shadowSampler, 1);
+}
 
-	shader->use();
-	shader->setUniform(Uniforms::projectionMatrix, projectionMatrix);
-	shader->setUniform(Uniforms::viewMatrix, viewMatrix);
-	shader->setUniform(Uniforms::modelMatrix, modelMatrix);
-	shader->setUniform(Uniforms::shadowMatrix, shadowMatrix);
-	shader->setUniform(Uniforms::normalMatrix, normalMatrix);
-	shader->setUniform(Uniforms::textureSampler, textureSampler);
-	shader->setUniform(Uniforms::shadowSampler, shadowSampler);
-	shader->setUniform(Uniforms::diffuseColor, glm::vec4(1, 1, 1, 1));
-	shader->setUniform(Uniforms::textureFactor, 1.0f);
+void Shaders::setModelMatrix(const mat4& modelMatrix) {
+	mat3 normalMatrix = transpose(inverse(mat3(modelMatrix)));
+	activeShader->setUniform(Uniforms::modelMatrix, modelMatrix);
+	activeShader->setUniform(Uniforms::normalMatrix, normalMatrix);
+}
+
+void Shaders::setProjectionViewMatrix(const mat4& projectionMatrix, const mat4& viewMatrix) {
+	activeShader->setUniform(Uniforms::projectionMatrix, projectionMatrix);
+	activeShader->setUniform(Uniforms::viewMatrix, viewMatrix);
+}
+
+void Shaders::setShadowMatrix(const mat4& shadowMatrix) {
+	activeShader->setUniform(Uniforms::shadowMatrix, shadowMatrix);
 }

@@ -35,8 +35,8 @@ void GameObjectGroup::deleteChild(GameObject* object) {
 	}
 }
 
-void GameObjectGroup::draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix, const mat4& shadowMatrix) {
-	GameObject::draw(projectionMatrix, viewMatrix, parentModelMatrix, shadowMatrix);
+void GameObjectGroup::draw(const mat4& parentModelMatrix) {
+	GameObject::draw(parentModelMatrix);
 
 	if (children.empty())
 		return;
@@ -48,8 +48,7 @@ void GameObjectGroup::draw(const mat4& projectionMatrix, const mat4& viewMatrix,
 		childrenCopy = children;
 	}
 	for (GameObject* child : childrenCopy) {
-		child->shader = shader;
-		child->draw(projectionMatrix, viewMatrix, modelMatrix, shadowMatrix);
+		child->draw(modelMatrix);
 	}
 }
 

@@ -32,6 +32,7 @@
 #include "physics_nvidia.h"
 #include "physicscomponent.h"
 #include "raycast.h"
+#include "spincomponent.h"
 #include "texturedrawcomponent.h"
 #include "world.h"
 
@@ -135,33 +136,27 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 	glm::mat4 shadowProjectionMatrix = glm::ortho<float>(-fac, fac, -fac, fac, -5, 250);
 	glm::mat4 shadowCameraMatrix = glm::lookAt(lightAngle + glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-	//if (false)
 	{
 		shadowMapFbo->bind();
-		//glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-		//glEnable(GL_SCISSOR_TEST);
-		//glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
 		glDisable(GL_SCISSOR_TEST);
 		glViewport(0, 0, shadowMapFbo->getWidth(), shadowMapFbo->getHeight());
 		glClearColor(1, 0, 0, 1);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		mat4 modelMatrix = mat4();
 		modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
+		Shaders::use(Shaders::DEPTH_FBO);
+		Shaders::setProjectionViewMatrix(shadowProjectionMatrix, shadowCameraMatrix);
 		for (GameObject* object : gameObjects3D) {
-			object->shader = Shaders::DEPTH_FBO;
-			//Shaders::useShader(Shaders::DEPTH_FBO, shadowProjectionMatrix, shadowCameraMatrix, modelMatrix, 0);
-			object->ut = false;
-			object->draw(shadowProjectionMatrix, shadowCameraMatrix, modelMatrix, mat4());
+			object->draw(modelMatrix);
 		}
 		shadowMapFbo->unbind();
 	}
 
-	//if (false)
 	{
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
-		glClearColor(0, 1, 0, 1);
+		glClearColor(0, 0.6f, 1, 1);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		glActiveTexture(GL_TEXTURE1);
@@ -170,11 +165,11 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 
 		mat4 modelMatrix = mat4();
 		modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
+		Shaders::use(Shaders::DEPTH);
+		Shaders::setProjectionViewMatrix(projectionMatrix, viewMatrix);
+		Shaders::setShadowMatrix(shadowProjectionMatrix * shadowCameraMatrix);
 		for (GameObject* object : gameObjects3D) {
-			object->shader = Shaders::DEPTH;
-			//Shaders::useShader(Shaders::SPECULAR, projectionMatrix, viewMatrix, modelMatrix, 1);
-			object->ut = true;
-			object->draw(projectionMatrix, viewMatrix, modelMatrix, shadowProjectionMatrix * shadowCameraMatrix);
+			object->draw(modelMatrix);
 		}
 	}
 
@@ -216,9 +211,7 @@ void VrCraft::initPhysics() {
 	physicsWorld = new NvidiaPhysics();
 	physicsWorld->setup(vec3(0.0f, -9.81f, 0.0f));
 	for (Chunk* c : world->chunks) {
-		//auto m = physicsWorld->addMesh(c, true);
-		//if (m != nullptr)
-			c->addComponent(new PhysicsComponent(physicsWorld, ShapeType::MESH, true));
+		c->addComponent(new PhysicsComponent(physicsWorld, ShapeType::MESH, true));
 	}
 }
 

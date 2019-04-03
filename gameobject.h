@@ -29,15 +29,12 @@ protected:
 	inline void notifyDirty() { dirty = true; };
 
 public:
-	bool ut = true;
 	vec3 position;
 	quat orientation;
 	vec3 scale = vec3(1, 1, 1);
 	vec3 pivot = vec3(0, 0, 0);
 	vector<vrlib::gl::VertexP3N3T2> vertices;
 	mutex verticesMutex;
-
-	vrlib::gl::Shader<Shaders::Uniforms>* shader;
 
 	GameObject();
 	virtual ~GameObject();
@@ -50,7 +47,7 @@ public:
 	mat4 calcModelMatrix(const mat4& parentModelMatrix = mat4());
 	void deleteAllComponents();
 	void deleteComponent(GameObjectComponent* component);
-	virtual void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix, const glm::mat4& shadowMatrix);
+	virtual void draw(const mat4& parentModelMatrix);
 	GameObjectComponent* findComponentByTag(string tag);
 	virtual vec3 globalPosition() { return position; };
 	bool hasComponent(string tag) { return findComponentByTag(tag) != nullptr; };

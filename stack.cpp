@@ -1,6 +1,7 @@
 #include "block.h"
 #include "followcomponent.h"
 #include "gameobject.h"
+#include "spincomponent.h"
 #include "stack.h"
 #include "world.h"
 

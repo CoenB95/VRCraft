@@ -10,7 +10,7 @@
 using namespace std;
 
 GameObject::GameObject() {
-	shader = Shaders::DEFAULT_SHADER;
+	
 }
 
 GameObject::~GameObject() {
@@ -77,13 +77,12 @@ void GameObject::deleteComponent(GameObjectComponent* component) {
 	}
 }
 
-void GameObject::draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix, const glm::mat4& shadowMatrix) {
+void GameObject::draw(const mat4& parentModelMatrix) {
 	if (components.empty())
 		return;
 
 	mat4 modelMatrix = calcModelMatrix(parentModelMatrix);
-
-	Shaders::useShader(shader, projectionMatrix, viewMatrix, modelMatrix, shadowMatrix);
+	Shaders::setModelMatrix(modelMatrix);
 
 	vector<GameObjectComponent*> componentsCopy;
 	{
@@ -91,7 +90,7 @@ void GameObject::draw(const mat4& projectionMatrix, const mat4& viewMatrix, cons
 		componentsCopy = components;
 	}
 	for (GameObjectComponent* component : componentsCopy) {
-		component->onDraw(projectionMatrix, viewMatrix, modelMatrix);
+		component->onDraw();
 	}
 }
 

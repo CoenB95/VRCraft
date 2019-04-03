@@ -3,7 +3,9 @@
 #include <VrLib/gl/shader.h>
 #include <string>
 
+using namespace glm;
 using namespace std;
+using namespace vrlib::gl;
 
 class Shaders {
 public:
@@ -20,6 +22,9 @@ public:
 		textureFactor
 	};
 
+private:
+	static Shader<Uniforms>* activeShader;
+
 public:
 	static vrlib::gl::Shader<Uniforms>* DEFAULT_SHADER;
 	static vrlib::gl::Shader<Uniforms>* DEPTH;
@@ -27,8 +32,11 @@ public:
 	static vrlib::gl::Shader<Uniforms>* SPECULAR;
 
 	static void setupDefaultShaders();
-	static vrlib::gl::Shader<Uniforms>* setupShader(string vertShader, string fragShader);
-	static void useShader(vrlib::gl::Shader<Uniforms>* shader, const glm::mat4& projectionMatrix,
-		const glm::mat4& viewMatrix, const glm::mat4& modelMatrix, const glm::mat4& shadowMatrix,
-		int textureSampler = 0, int shadowSampler = 1);
+
+	static void setProjectionViewMatrix(const mat4& projectionMatrix, const mat4& viewMatrix);
+	static void setModelMatrix(const mat4& modelMatrix);
+	static void setShadowMatrix(const mat4& shadowMatrix);
+
+	static vrlib::gl::Shader<Uniforms>* setup(string vertShader, string fragShader);
+	static void use(Shader<Uniforms>* shader);
 };
