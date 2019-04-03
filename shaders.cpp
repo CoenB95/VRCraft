@@ -16,6 +16,7 @@ Shader<Shaders::Uniforms>* Shaders::DEPTH = nullptr;
 Shader<Shaders::Uniforms>* Shaders::DEPTH_FBO = nullptr;
 Shader<Shaders::Uniforms>* Shaders::NOISE = nullptr;
 Shader<Shaders::Uniforms>* Shaders::SPECULAR = nullptr;
+Shader<Shaders::Uniforms>* Shaders::WAVE = nullptr;
 
 void Shaders::setupDefaultShaders() {
 	DEFAULT_SHADER = setup("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/default.fs");
@@ -23,6 +24,7 @@ void Shaders::setupDefaultShaders() {
 	DEPTH_FBO = setup("data/VrCraft/shaders/depth_fbo.vs", "data/VrCraft/shaders/depth_fbo.fs");
 	NOISE = setup("data/VrCraft/shaders/default.vs", "data/VrCraft/shaders/noise_anim.fs");
 	SPECULAR = setup("data/VrCraft/shaders/simple.vs", "data/VrCraft/shaders/simple.fs");
+	WAVE = setup("data/VrCraft/shaders/wave.vs", "data/VrCraft/shaders/default.fs");
 	activeShader = DEFAULT_SHADER;
 }
 

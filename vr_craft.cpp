@@ -218,11 +218,14 @@ void VrCraft::initPhysics() {
 }
 
 Shader<Shaders::Uniforms>* VrCraft::randomShader() {
-	switch (1) {
+	switch (2) {
 	case 0:
-		return Shaders::DEPTH;
+		return Shaders::DEFAULT_SHADER;
 	case 1:
 		return Shaders::NOISE;
+	case 2:
+		return Shaders::WAVE;
+	case 3:
 	default:
 		return Shaders::DEPTH;
 	}

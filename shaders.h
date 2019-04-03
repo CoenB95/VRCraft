@@ -32,6 +32,7 @@ public:
 	static Shader<Uniforms>* DEPTH_FBO;
 	static Shader<Uniforms>* NOISE;
 	static Shader<Uniforms>* SPECULAR;
+	static Shader<Uniforms>* WAVE;
 
 	static void setupDefaultShaders();
 
