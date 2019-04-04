@@ -5,11 +5,16 @@
 #include <thread>
 #include <VrLib/Application.h>
 #include <VrLib/Device.h>
+#include <VrLib/gl/FBO.h>
+
+#include "shaders.h"
+#include "VrLib/gl/shader.h"
 
 using namespace glm;
 using namespace std;
 
 class PhysicsWorld;
+class Shaders;
 
 class VrCraft : public vrlib::Application
 {
@@ -26,6 +31,7 @@ private:
 	int worldSeed = 3;
 
 	PhysicsWorld* physicsWorld;
+	vrlib::gl::FBO* shadowMapFbo;
 
 public:
 	VrCraft();
@@ -35,6 +41,7 @@ public:
 	virtual void preFrame(double frameTime, double totalTime) override;
 
 	void initPhysics();
+	vrlib::gl::Shader<Shaders::Uniforms>* randomShader();
 	void spawnPlayer();
 	void throwBlock();
 };

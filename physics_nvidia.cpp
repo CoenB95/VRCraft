@@ -133,9 +133,9 @@ void NvidiaPhysics::onUpdate(float elapsedSeconds) {
 
 	while (elapsedSimulationSeconds > 0.010f) {
 		pxWorld->simulate(0.010f);
+		pxWorld->fetchResults(true);
 		elapsedSimulationSeconds -= 0.010f;
 	}
-	pxWorld->fetchResults(true);
 }
 
 void NvidiaPhysics::removeBody(PhysicsRigidBody* body) {

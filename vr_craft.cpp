@@ -32,6 +32,7 @@
 #include "physics_nvidia.h"
 #include "physicscomponent.h"
 #include "raycast.h"
+#include "spincomponent.h"
 #include "texturedrawcomponent.h"
 #include "world.h"
 
@@ -49,6 +50,8 @@ Block* wand;
 Block* testBlock;
 float physicsWait;
 
+int curShaderIndex = 1;
+
 VrCraft::VrCraft() {
 	clearColor = vec4(0.0f, 0.5f, 0.9f, 1.0f);
 }
@@ -58,6 +61,7 @@ void VrCraft::init() {
 	secondaryWandPosition.init("WandPositionLeft");
 
 	Shaders::setupDefaultShaders();
+	shadowMapFbo = new vrlib::gl::FBO(1024 * 8, 1024 * 8, false, 0, true);
 
 	world = new World(worldSize, chunkSize, blockSize);
 	world->loadTextures();
@@ -85,7 +89,7 @@ void VrCraft::init() {
 	//Make random more random.
 	time_t currentTime;
 	time(&currentTime);
-	srand(currentTime);
+	srand((GLuint)currentTime);
 
 	builderThread = new thread([this]() {
 		loading = true;
@@ -121,11 +125,57 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
-	
-	mat4 modelMatrix = mat4();
-	modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
-	for (GameObject* object : gameObjects3D)
-		object->draw(projectionMatrix, viewMatrix, modelMatrix);
+
+	int viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	float fac = 50.0f;
+	static float lightDirection = 1.5f;
+	float lightDistance = worldSize.x * chunkSize.x * blockSize.x * 1.0f;
+	lightDirection += 0.001f;
+
+	glm::vec3 lightAngle(cos(lightDirection) * lightDistance, lightDistance, sin(lightDirection) * lightDistance);
+	glm::mat4 shadowProjectionMatrix = glm::ortho<float>(-fac, fac, -fac, fac, -5, 250);
+	glm::mat4 shadowCameraMatrix = glm::lookAt(lightAngle + glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
+	{
+		shadowMapFbo->bind();
+		glDisable(GL_SCISSOR_TEST);
+		glViewport(0, 0, shadowMapFbo->getWidth(), shadowMapFbo->getHeight());
+		glClearColor(1, 0, 0, 1);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		mat4 modelMatrix = mat4();
+		modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
+		Shaders::use(Shaders::FBO_DEPTH);
+		Shaders::setProjectionViewMatrix(shadowProjectionMatrix, shadowCameraMatrix);
+		for (GameObject* object : gameObjects3D) {
+			object->draw(modelMatrix);
+		}
+		shadowMapFbo->unbind();
+	}
+
+	{
+		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		glEnable(GL_SCISSOR_TEST);
+		glEnable(GL_BLEND);
+		glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
+		glClearColor(0, 0.6f, 1, 1);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, shadowMapFbo->texid[0]);
+		glActiveTexture(GL_TEXTURE0);
+
+		mat4 modelMatrix = mat4();
+		modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
+		Shaders::use(randomShader());
+		Shaders::setAnimation(lightDirection);
+		Shaders::setProjectionViewMatrix(projectionMatrix, viewMatrix);
+		Shaders::setShadowMatrix(shadowProjectionMatrix * shadowCameraMatrix);
+		for (GameObject* object : gameObjects3D) {
+			object->draw(modelMatrix);
+		}
+	}
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
@@ -165,9 +215,25 @@ void VrCraft::initPhysics() {
 	physicsWorld = new NvidiaPhysics();
 	physicsWorld->setup(vec3(0.0f, -9.81f, 0.0f));
 	for (Chunk* c : world->chunks) {
-		//auto m = physicsWorld->addMesh(c, true);
-		//if (m != nullptr)
-			c->addComponent(new PhysicsComponent(physicsWorld, ShapeType::MESH, true));
+		c->addComponent(new PhysicsComponent(physicsWorld, ShapeType::MESH, true));
+	}
+}
+
+Shader<Shaders::Uniforms>* VrCraft::randomShader() {
+	switch (curShaderIndex) {
+	case 0:
+		return Shaders::DEFAULT;
+	case 1:
+		return Shaders::SPECULAR;
+	case 2:
+		return Shaders::NOISE;
+	case 3:
+		return Shaders::WAVE;
+	case 4:
+		return Shaders::TOON;
+	case 5:
+	default:
+		return Shaders::SHADOW;
 	}
 }
 

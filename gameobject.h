@@ -7,8 +7,6 @@
 #include <VrLib/gl/shader.h>
 #include <VrLib/gl/Vertex.h>
 
-#include "shaders.h"
-
 using namespace glm;
 using namespace std;
 
@@ -36,8 +34,6 @@ public:
 	vector<vrlib::gl::VertexP3N3T2> vertices;
 	mutex verticesMutex;
 
-	vrlib::gl::Shader<Shaders::Uniforms>* shader;
-
 	GameObject();
 	virtual ~GameObject();
 	GameObject(GameObject& other);
@@ -49,7 +45,7 @@ public:
 	mat4 calcModelMatrix(const mat4& parentModelMatrix = mat4());
 	void deleteAllComponents();
 	void deleteComponent(GameObjectComponent* component);
-	virtual void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix = mat4());
+	virtual void draw(const mat4& parentModelMatrix);
 	GameObjectComponent* findComponentByTag(string tag);
 	virtual vec3 globalPosition() { return position; };
 	bool hasComponent(string tag) { return findComponentByTag(tag) != nullptr; };
