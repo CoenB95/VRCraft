@@ -46,19 +46,24 @@ vector<GameObject*> gameObjects3D;
 
 World* world;
 Block* player;
-Block* wand;
 Block* testBlock;
 float physicsWait;
 
-int curShaderIndex = 1;
+int curShaderIndex = 5;
 
 VrCraft::VrCraft() {
 	clearColor = vec4(0.0f, 0.5f, 0.9f, 1.0f);
 }
 
 void VrCraft::init() {
-	secondaryWandInput.init("buttonLeftTrigger");
+	primaryWandPosition.init("WandPosition");
+	primaryWandTouch.init("buttonRightTouch");
+	primaryWandTouchPosition.init("RightThumbPos");
+	primaryWandTrigger.init("buttonRightTrigger");
 	secondaryWandPosition.init("WandPositionLeft");
+	secondaryWandTouch.init("buttonLeftTouch");
+	secondaryWandTouchPosition.init("LeftThumbPos");
+	secondaryWandTrigger.init("buttonLeftTrigger");
 
 	Shaders::setupDefaultShaders();
 	shadowMapFbo = new vrlib::gl::FBO(1024 * 8, 1024 * 8, false, 0, true);
@@ -74,10 +79,10 @@ void VrCraft::init() {
 	player->scale = vec3(0.2f, 0.01f, 0.2f);
 	player->buildStandalone();
 
-	wand = new PumpkinBlock();
-	wand->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
-	wand->updateContext(new BlockContext());
-	wand->buildStandalone();
+	primaryWand = new PumpkinBlock();
+	primaryWand->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
+	primaryWand->updateContext(new BlockContext());
+	primaryWand->buildStandalone();
 
 	testBlock = new CobblestoneBlock(vec3(0.2f, 0.2f, 0.2f));
 	testBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
@@ -114,7 +119,7 @@ void VrCraft::init() {
 
 	gameObjects3D.push_back(world);
 	gameObjects3D.push_back(player);
-	gameObjects3D.push_back(wand);
+	gameObjects3D.push_back(primaryWand);
 	gameObjects3D.push_back(testBlock);
 }
 
@@ -185,29 +190,43 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 void VrCraft::preFrame(double frameTime, double totalTime) {
 	float elapsedSeconds = (float)(frameTime / 1000.0);
 
+	updateWand(primaryWand, primaryWandPosition.getData());
+
 	if (physicsWorld != nullptr) {
 		physicsWorld->onUpdate(elapsedSeconds);
 
 		physicsWait -= elapsedSeconds;
-		if (secondaryWandInput.getData() == vrlib::DigitalState::OFF)
+		if (primaryWandTouch.getData() == vrlib::DigitalState::OFF &&
+			primaryWandTrigger.getData() == vrlib::DigitalState::OFF)
 			physicsWait = -1;
-		if (physicsWait < 0 && secondaryWandInput.getData() == vrlib::DigitalState::ON) {
+
+		if (physicsWait < 0 && primaryWandTouch.getData() == vrlib::DigitalState::ON) {
 			physicsWait = 0.25f;
 			throwBlock();
 		}
-	}
 
-	mat4 k = secondaryWandPosition.getData();
-	vec3 axis = vec3((k * vec4(0, 0, 1, 1)) - (k * vec4(0, 0, 0, 1)));
-	wand->orientation = quat_cast(k);
-	wand->position = player->position + vec3(k * vec4(0, 0, 0, 1));
-	wand->scale = vec3(0.1f, 0.1f, 0.1f);
+		if (physicsWait < 0 && primaryWandTrigger.getData() == vrlib::DigitalState::ON) {
+			physicsWait = 0.25f;
+			destroyBlock();
+		}
+	}
 
 	{
 		lock_guard<mutex> lock(updateMutex);
 		for (GameObject* object : gameObjects3D)
 			object->update(elapsedSeconds);
 	}
+}
+
+void VrCraft::destroyBlock() {
+	Block* blockToDestroy = world->getBlock(primaryWand->position);
+	if (blockToDestroy == nullptr)
+		return;
+
+	if (dynamic_cast<AirBlock*>(blockToDestroy) != nullptr)
+		return; //Nothing to destroy, already air.
+
+	world->setBlock(blockToDestroy->globalPosition(), new AirBlock());
 }
 
 void VrCraft::initPhysics() {
@@ -262,7 +281,7 @@ void VrCraft::throwBlock() {
 	newBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
 	newBlock->addComponent(physComponent);
 	newBlock->addComponent(new DespawnComponent(world, 2.0f));
-	newBlock->position = wand->position;
+	newBlock->position = primaryWand->position;
 
 	newBlock->updateContext(new BlockContext());
 	newBlock->buildStandalone();
@@ -276,7 +295,14 @@ void VrCraft::throwBlock() {
 			world->deleteChild(newBlock);
 		}
 	});
-	physComponent->getBody()->addForce(wand->orientation * vec3(0, 0, -500));
+	physComponent->getBody()->addForce(primaryWand->orientation * vec3(0, 0, -500));
 
 	world->addChild(newBlock);
+}
+
+void VrCraft::updateWand(GameObject* wandObject, const mat4& wandMatrix) {
+	vec3 axis = vec3((wandMatrix * vec4(0, 0, 1, 1)) - (wandMatrix * vec4(0, 0, 0, 1)));
+	wandObject->orientation = quat_cast(wandMatrix);
+	wandObject->position = player->position + vec3(wandMatrix * vec4(0, 0, 0, 1));
+	wandObject->scale = vec3(0.1f, 0.1f, 0.1f);
 }
