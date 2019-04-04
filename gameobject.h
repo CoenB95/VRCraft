@@ -7,8 +7,6 @@
 #include <VrLib/gl/shader.h>
 #include <VrLib/gl/Vertex.h>
 
-#include "shaders.h"
-
 using namespace glm;
 using namespace std;
 
@@ -25,9 +23,6 @@ protected:
 	//Called when the object should (re)build its vertices to represent its current state. Could be called from a worker thread.
 	virtual void build(vec3 offsetPosition);
 
-	//Notifies that this object has become dirty and should be rebuild.
-	inline void notifyDirty() { dirty = true; };
-
 public:
 	vec3 position;
 	quat orientation;
@@ -35,8 +30,6 @@ public:
 	vec3 pivot = vec3(0, 0, 0);
 	vector<vrlib::gl::VertexP3N3T2> vertices;
 	mutex verticesMutex;
-
-	vrlib::gl::Shader<Shaders::Uniforms>* shader;
 
 	GameObject();
 	virtual ~GameObject();
@@ -49,10 +42,12 @@ public:
 	mat4 calcModelMatrix(const mat4& parentModelMatrix = mat4());
 	void deleteAllComponents();
 	void deleteComponent(GameObjectComponent* component);
-	virtual void draw(const mat4& projectionMatrix, const mat4& viewMatrix, const mat4& parentModelMatrix = mat4());
+	virtual void draw(const mat4& parentModelMatrix);
 	GameObjectComponent* findComponentByTag(string tag);
 	virtual vec3 globalPosition() { return position; };
 	bool hasComponent(string tag) { return findComponentByTag(tag) != nullptr; };
+	//Notifies that this object has become dirty and should be rebuild.
+	inline void notifyDirty() { dirty = true; };
 	void removeComponent(GameObjectComponent* component);
 	inline bool shouldRebuild() { return dirty; };
 	//Updates the object 

@@ -3,7 +3,9 @@
 #include <VrLib/gl/shader.h>
 #include <string>
 
+using namespace glm;
 using namespace std;
+using namespace vrlib::gl;
 
 class Shaders {
 public:
@@ -12,18 +14,34 @@ public:
 		modelMatrix,
 		projectionMatrix,
 		viewMatrix,
+		shadowMatrix,
 		normalMatrix,
-		s_texture,
+		textureSampler,
+		shadowSampler,
 		diffuseColor,
-		textureFactor
+		textureFactor,
+		animTime
 	};
 
+private:
+	static Shader<Uniforms>* activeShader;
+
 public:
-	static vrlib::gl::Shader<Uniforms>* DEFAULT_SHADER;
-	static vrlib::gl::Shader<Uniforms>* SPECULAR;
+	static Shader<Uniforms>* DEFAULT;
+	static Shader<Uniforms>* FBO_DEPTH;
+	static Shader<Uniforms>* NOISE;
+	static Shader<Uniforms>* SHADOW;
+	static Shader<Uniforms>* SPECULAR;
+	static Shader<Uniforms>* TOON;
+	static Shader<Uniforms>* WAVE;
 
 	static void setupDefaultShaders();
-	static vrlib::gl::Shader<Uniforms>* setupShader(string vertShader, string fragShader);
-	static void useShader(vrlib::gl::Shader<Uniforms>* shader, const glm::mat4& projectionMatrix,
-		const glm::mat4& modelViewMatrix, const glm::mat4& modelMatrix);
+
+	static void setAnimation(float time);
+	static void setProjectionViewMatrix(const mat4& projectionMatrix, const mat4& viewMatrix);
+	static void setModelMatrix(const mat4& modelMatrix);
+	static void setShadowMatrix(const mat4& shadowMatrix);
+
+	static Shader<Uniforms>* setup(string vertShader, string fragShader);
+	static void use(Shader<Uniforms>* shader);
 };
