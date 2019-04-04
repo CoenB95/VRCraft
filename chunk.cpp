@@ -29,7 +29,7 @@ Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(b
 void Chunk::build(vec3 offsetPosition) {
 	//GameObject::build(offsetPosition);
 
-	updateNewBlocks();
+	updateNewBlocks(context);
 
 	vector<vrlib::gl::VertexP3N3T2> newVertices;
 	newVertices.reserve(blocks.size() * 36);
@@ -190,6 +190,7 @@ void Chunk::randomTick() {
 
 void Chunk::setBlock(vec3 positionInChunk, Block* newBlock) {
 	newBlock->position = positionInChunk;
+	newBlock->parentChunk = this;
 	{
 		lock_guard<mutex> lock(verticesMutex);
 		newBlocks.push_back(newBlock);
@@ -201,6 +202,19 @@ void Chunk::update(float elapsedSeconds) {
 	GameObject::update(elapsedSeconds);
 }
 
+void Chunk::updateAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChunk) {
+	BlockContext* context = getAdjacentBlocks(chunkContext, positionInChunk);
+	for (int x = 0; x < 3; x++) {
+		for (int y = 0; y < 3; y++) {
+			for (int z = 0; z < 3; z++) {
+				Block* b = context->surroundings[x][y][z];
+				if (b != nullptr)
+					b->notifyDirty();
+			}
+		}
+	}
+}
+
 void Chunk::updateContext(ChunkContext* chunkContext) {
 	if (context == nullptr) {
 		delete context;
@@ -209,11 +223,14 @@ void Chunk::updateContext(ChunkContext* chunkContext) {
 	context = chunkContext;
 }
 
-void Chunk::updateNewBlocks() {
+void Chunk::updateNewBlocks(ChunkContext* chunkContext) {
 	lock_guard<mutex> lock(verticesMutex);
-	for (GLuint i = 0; i < newBlocks.size(); i++)
-	{
+	for (GLuint i = 0; i < newBlocks.size(); i++) {
 		Block** block = getBlockPtr(newBlocks[i]->position);
+		if ((*block)->isTransparent != newBlocks[i]->isTransparent) {
+			//Transparency changed: Either block sides may have been revealed or covered up.
+			updateAdjacentBlocks(chunkContext, newBlocks[i]->position);
+		}
 		delete *block;
 		*block = newBlocks[i];
 	}

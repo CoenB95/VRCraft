@@ -24,7 +24,7 @@ private:
 	bool blocksChanged = true;
 	bool itemsChanged = false;
 
-	void updateNewBlocks();
+	void updateNewBlocks(ChunkContext* chunkContext);
 
 protected:
 	ChunkContext* context;
@@ -45,6 +45,7 @@ public:
 	void randomTick();
 	void setBlock(vec3 positionInChunk, Block* newBlock);
 	void update(float elapsedSeconds) override;
+	void updateAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChunk);
 	void updateContext(ChunkContext* chunkContext);
 };
 
