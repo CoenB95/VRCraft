@@ -208,8 +208,10 @@ void Chunk::updateAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChun
 		for (int y = 0; y < 3; y++) {
 			for (int z = 0; z < 3; z++) {
 				Block* b = context->surroundings[x][y][z];
-				if (b != nullptr)
+				if (b != nullptr) {
 					b->notifyDirty();
+					b->parentChunk->notifyDirty();
+				}
 			}
 		}
 	}
