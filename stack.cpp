@@ -5,9 +5,9 @@
 #include "stack.h"
 #include "world.h"
 
-Stack::Stack(Block* type, World& world) : GameObject() {
-	blockType = new Block();
-	//blockType->setScale(Block::SCALE_ITEM);
+Stack::Stack(Block* type, World* world, int amount) : GameObjectGroup() {
+	blockType = type;
+	blockType->scale = vec3(1, 1, 1) * Block::SCALE_ITEM;
 
 	position = blockType->position;
 	position += vec3(0, 1, 0);

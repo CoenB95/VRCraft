@@ -21,6 +21,7 @@ class Shaders;
 class VrCraft : public vrlib::Application
 {
 private:
+	vrlib::DigitalDevice primaryWandMenu;
 	vrlib::PositionalDevice primaryWandPosition;
 	vrlib::DigitalDevice primaryWandTouch;
 	vrlib::TwoDimensionDevice primaryWandTouchPosition;

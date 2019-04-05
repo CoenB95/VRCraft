@@ -40,6 +40,11 @@ Block::Block(vec3 blockSize) : GameObject(), blockSize(blockSize) {
 
 }
 
+Block::Block(const Block* original) {
+	blockSize = original->blockSize;
+	isTransparent = original->isTransparent;
+}
+
 string Block::getPositionString() const
 {
 	stringstream ss;
@@ -76,6 +81,15 @@ CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bott
 {
 	isTransparent = transparent;
 	pivot = this->blockSize * 0.5f;
+}
+
+CubeBlock::CubeBlock(const CubeBlock* original) : Block(original) {
+	topTextureIndex = original->topTextureIndex;
+	frontTextureIndex = original->frontTextureIndex;
+	rightTextureIndex = original->rightTextureIndex;
+	backTextureIndex = original->backTextureIndex;
+	leftTextureIndex = original->leftTextureIndex;
+	bottomTextureIndex = original->bottomTextureIndex;
 }
 
 void CubeBlock::build(vec3 offsetPosition) {

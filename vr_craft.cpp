@@ -56,6 +56,7 @@ VrCraft::VrCraft() {
 }
 
 void VrCraft::init() {
+	primaryWandMenu.init("buttonRightMenu");
 	primaryWandPosition.init("WandPosition");
 	primaryWandTouch.init("buttonRightTouch");
 	primaryWandTouchPosition.init("RightThumbPos");

@@ -36,6 +36,8 @@ public:
 	Block* newBlock = nullptr;
 
 	Block(vec3 blockSize = vec3(1, 1, 1));
+	Block(const Block* original);
+	virtual Block* clone() const { return(new Block(this)); };
 
 	vec3 getBlockSize() { return blockSize; };
 	string getPositionString() const;
@@ -91,5 +93,8 @@ public:
 	CubeBlock(int all, vec3 blockSize = vec3(1, 1, 1), bool transparent = false)
 		: CubeBlock(all, all, all, all, all, all, blockSize, transparent) {};
 	CubeBlock(int top, int front, int right, int back, int left, int bottom, vec3 blockSize = vec3(1, 1, 1), bool transparent = false);
+	CubeBlock(const CubeBlock* original);
+	virtual Block* clone() const override { return(new CubeBlock(this)); };
+
 	void build(vec3 offsetPosition) override;
 };

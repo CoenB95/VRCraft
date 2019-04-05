@@ -27,6 +27,7 @@
     <ClCompile Include="followcomponent.cpp" />
     <ClCompile Include="gameobjectgroup.cpp" />
     <ClCompile Include="gamescene.cpp" />
+    <ClCompile Include="inventory.cpp" />
     <ClCompile Include="physicscomponent.cpp" />
     <ClCompile Include="physics_nvidia.cpp" />
     <ClCompile Include="shaders.cpp" />
@@ -53,6 +54,7 @@
     <ClInclude Include="followcomponent.h" />
     <ClInclude Include="gameobjectgroup.h" />
     <ClInclude Include="gamescene.h" />
+    <ClInclude Include="inventory.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="physicscomponent.h" />
     <ClInclude Include="physics_nvidia.h" />
