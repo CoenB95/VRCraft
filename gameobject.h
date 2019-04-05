@@ -23,9 +23,6 @@ protected:
 	//Called when the object should (re)build its vertices to represent its current state. Could be called from a worker thread.
 	virtual void build(vec3 offsetPosition);
 
-	//Notifies that this object has become dirty and should be rebuild.
-	inline void notifyDirty() { dirty = true; };
-
 public:
 	vec3 position;
 	quat orientation;
@@ -49,6 +46,8 @@ public:
 	GameObjectComponent* findComponentByTag(string tag);
 	virtual vec3 globalPosition() { return position; };
 	bool hasComponent(string tag) { return findComponentByTag(tag) != nullptr; };
+	//Notifies that this object has become dirty and should be rebuild.
+	inline void notifyDirty() { dirty = true; };
 	void removeComponent(GameObjectComponent* component);
 	inline bool shouldRebuild() { return dirty; };
 	//Updates the object 
