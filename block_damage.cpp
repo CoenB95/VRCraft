@@ -1,6 +1,9 @@
+#include <glm/glm.hpp>
+
 #include "block.h"
 #include "blocks.h"
 
 void DamageBlock::setDamage(float value) {
-	setTextureIndexes(XY((int)(value * 10), 15));
+	int niveau = ((int)ceilf(value * 8) - 1) % 8;
+	setTextureIndexes(niveau < 0 ? -1 : XY(niveau, 15));
 }
