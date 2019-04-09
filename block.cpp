@@ -21,6 +21,7 @@
 #include "color.h"
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
+#include "gameobjectgroup.h"
 
 using namespace glm;
 using namespace std;
@@ -40,15 +41,16 @@ Block::Block(vec3 blockSize) : GameObject(), blockSize(blockSize) {
 
 }
 
+Block::Block(const Block* original) {
+	blockSize = original->blockSize;
+	isTransparent = original->isTransparent;
+}
+
 string Block::getPositionString() const
 {
 	stringstream ss;
 	ss << "x=" << position.x << ", y=" << position.y << ", z=" << position.z;
 	return ss.str();
-}
-
-vec3 Block::globalPosition() {
-	return parentChunk == nullptr ? position : (parentChunk->globalPosition() + position);
 }
 
 string Block::toString() const {
@@ -66,16 +68,20 @@ void Block::updateContext(BlockContext* blockContext) {
 }
 
 CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, vec3 blockSize, bool transparent) :
-	Block(blockSize),
-	topTextureIndex(top),
-	frontTextureIndex(front),
-	rightTextureIndex(right),
-	backTextureIndex(back),
-	leftTextureIndex(left),
-	bottomTextureIndex(bottom)
+	Block(blockSize)
 {
+	setTextureIndexes(top, front, right, back, left, bottom);
 	isTransparent = transparent;
 	pivot = this->blockSize * 0.5f;
+}
+
+CubeBlock::CubeBlock(const CubeBlock* original) : Block(original) {
+	topTextureIndex = original->topTextureIndex;
+	frontTextureIndex = original->frontTextureIndex;
+	rightTextureIndex = original->rightTextureIndex;
+	backTextureIndex = original->backTextureIndex;
+	leftTextureIndex = original->leftTextureIndex;
+	bottomTextureIndex = original->bottomTextureIndex;
 }
 
 void CubeBlock::build(vec3 offsetPosition) {
@@ -165,6 +171,16 @@ void CubeBlock::build(vec3 offsetPosition) {
 	//Cleanup context
 	delete context;
 	context = nullptr;
+}
+
+void CubeBlock::setTextureIndexes(int top, int front, int right, int back, int left, int bottom) {
+	topTextureIndex = top;
+	frontTextureIndex = front;
+	rightTextureIndex = right;
+	backTextureIndex = back;
+	leftTextureIndex = left;
+	bottomTextureIndex = bottom;
+	notifyDirty();
 }
 
 /*SelectionBlock::SelectionBlock(float breakage) : Block(

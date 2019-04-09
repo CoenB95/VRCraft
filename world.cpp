@@ -35,6 +35,7 @@ void World::build(vec3 offsetPosition) {
 			chunks[i]->buildStandalone(false);
 		}
 	}
+	GameObjectGroup::build(offsetPosition);
 };
 
 /*void World::draw(const mat4& projectionMatrix, const mat4& modelViewMatrix, const mat4& parentModelMatrix) {

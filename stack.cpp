@@ -5,9 +5,9 @@
 #include "stack.h"
 #include "world.h"
 
-Stack::Stack(Block* type, World& world) : GameObject() {
-	blockType = new Block();
-	//blockType->setScale(Block::SCALE_ITEM);
+Stack::Stack(Block* type, World* world, int amount) : GameObjectGroup() {
+	blockType = type;
+	blockType->scale = vec3(1, 1, 1) * Block::SCALE_ITEM;
 
 	position = blockType->position;
 	position += vec3(0, 1, 0);
@@ -19,7 +19,7 @@ Stack::Stack(Block* type, World& world) : GameObject() {
 	addComponent(new SpinComponent(50.0f));
 }
 
-int Stack::increaseStack(int amount)
+/*int Stack::increaseStack(int amount)
 {
 	int newSize = stackSize + amount;
 	if (newSize > maxStackSize)
@@ -39,4 +39,4 @@ int Stack::decreaseStack(int amount)
 	int removed = stackSize - newSize;
 	stackSize = newSize;
 	return removed;
-}
+}*/

@@ -31,6 +31,7 @@
 #include "physics.h"
 #include "physics_nvidia.h"
 #include "physicscomponent.h"
+#include "player.h"
 #include "raycast.h"
 #include "spincomponent.h"
 #include "texturedrawcomponent.h"
@@ -44,9 +45,9 @@ using vrlib::logger;
 
 vector<GameObject*> gameObjects3D;
 
-World* world;
-Block* player;
 Block* testBlock;
+
+float damage = 0.0f;
 float physicsWait;
 
 int curShaderIndex = 5;
@@ -56,6 +57,7 @@ VrCraft::VrCraft() {
 }
 
 void VrCraft::init() {
+	primaryWandMenu.init("buttonRightMenu");
 	primaryWandPosition.init("WandPosition");
 	primaryWandTouch.init("buttonRightTouch");
 	primaryWandTouchPosition.init("RightThumbPos");
@@ -71,18 +73,14 @@ void VrCraft::init() {
 	world = new World(worldSize, chunkSize, blockSize);
 	world->loadTextures();
 
-	//player = new Steve(*world);
-	player = new CobblestoneBlock();
-	player->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
-	player->addComponent(new SpinComponent(10.0f));
-	player->updateContext(new BlockContext());
-	player->scale = vec3(0.2f, 0.01f, 0.2f);
-	player->buildStandalone();
+	player = new Player();
 
-	primaryWand = new PumpkinBlock();
-	primaryWand->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
-	primaryWand->updateContext(new BlockContext());
-	primaryWand->buildStandalone();
+	pickHighlight = new DamageBlock();
+	pickHighlight->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
+	pickHighlight->updateContext(new BlockContext());
+	pickHighlight->scale = vec3(1, 1, 1) * Block::SCALE_BLOCK_OVERLAY;
+	pickHighlight->pivot = (pickHighlight->scale - vec3(1, 1, 1)) * 0.5f;
+	pickHighlight->buildStandalone();
 
 	testBlock = new CobblestoneBlock(vec3(0.2f, 0.2f, 0.2f));
 	testBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
@@ -119,7 +117,7 @@ void VrCraft::init() {
 
 	gameObjects3D.push_back(world);
 	gameObjects3D.push_back(player);
-	gameObjects3D.push_back(primaryWand);
+	world->addChild(pickHighlight);
 	gameObjects3D.push_back(testBlock);
 }
 
@@ -190,25 +188,41 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 void VrCraft::preFrame(double frameTime, double totalTime) {
 	float elapsedSeconds = (float)(frameTime / 1000.0);
 
-	updateWand(primaryWand, primaryWandPosition.getData());
+	updateWand(player->primaryHand, primaryWandPosition.getData());
 
 	if (physicsWorld != nullptr) {
 		physicsWorld->onUpdate(elapsedSeconds);
 
+		Block* pickedBlock = pickBlock(player->primaryHand);
+		if (pickedBlock != nullptr) {
+			if (pickHighlight->position != pickedBlock->globalPosition())
+				damage = 0;
+
+			pickHighlight->position = pickedBlock->globalPosition();
+		}
+
 		physicsWait -= elapsedSeconds;
 		if (primaryWandTouch.getData() == vrlib::DigitalState::OFF &&
-			primaryWandTrigger.getData() == vrlib::DigitalState::OFF)
+			primaryWandTrigger.getData() == vrlib::DigitalState::OFF) {
 			physicsWait = -1;
+			damage = 0;
+		}
 
 		if (physicsWait < 0 && primaryWandTouch.getData() == vrlib::DigitalState::ON) {
 			physicsWait = 0.25f;
 			throwBlock();
 		}
 
-		if (physicsWait < 0 && primaryWandTrigger.getData() == vrlib::DigitalState::ON) {
-			physicsWait = 0.25f;
-			destroyBlock();
+		if (primaryWandTrigger.getData() == vrlib::DigitalState::ON) {
+			if (pickedBlock != nullptr) {
+				damage += elapsedSeconds;
+				if (damage >= 1)
+					world->setBlock(pickedBlock->globalPosition(), new AirBlock());
+			}
 		}
+
+		pickHighlight->setDamage(damage);
+		pickHighlight->updateContext(new BlockContext());
 	}
 
 	{
@@ -218,17 +232,6 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 	}
 }
 
-void VrCraft::destroyBlock() {
-	Block* blockToDestroy = world->getBlock(primaryWand->position);
-	if (blockToDestroy == nullptr)
-		return;
-
-	if (dynamic_cast<AirBlock*>(blockToDestroy) != nullptr)
-		return; //Nothing to destroy, already air.
-
-	world->setBlock(blockToDestroy->globalPosition(), new AirBlock());
-}
-
 void VrCraft::initPhysics() {
 	lock_guard<mutex> lock(updateMutex);
 	physicsWorld = new NvidiaPhysics();
@@ -236,6 +239,16 @@ void VrCraft::initPhysics() {
 	for (Chunk* c : world->chunks) {
 		c->addComponent(new PhysicsComponent(physicsWorld, ShapeType::MESH, true));
 	}
+}
+
+Block* VrCraft::pickBlock(GameObject* wandObject) {
+	Block* pickedBlock = nullptr;
+	for (int offset = 0; pickedBlock == nullptr && offset < 3; offset++) {
+		pickedBlock = world->getBlock(wandObject->globalPosition() + vec3(0, 0, offset * -1));
+		if (dynamic_cast<AirBlock*>(pickedBlock) != nullptr)
+			pickedBlock = nullptr; //Cannot pick air.
+	}
+	return pickedBlock;
 }
 
 Shader<Shaders::Uniforms>* VrCraft::randomShader() {
@@ -281,7 +294,8 @@ void VrCraft::throwBlock() {
 	newBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
 	newBlock->addComponent(physComponent);
 	newBlock->addComponent(new DespawnComponent(world, 2.0f));
-	newBlock->position = primaryWand->position;
+	newBlock->position = player->primaryHand->position;
+	newBlock->orientation = player->orientation;
 
 	newBlock->updateContext(new BlockContext());
 	newBlock->buildStandalone();
@@ -295,7 +309,7 @@ void VrCraft::throwBlock() {
 			world->deleteChild(newBlock);
 		}
 	});
-	physComponent->getBody()->addForce(primaryWand->orientation * vec3(0, 0, -500));
+	physComponent->getBody()->addForce(player->primaryHand->orientation * vec3(0, 0, -500));
 
 	world->addChild(newBlock);
 }
@@ -303,6 +317,5 @@ void VrCraft::throwBlock() {
 void VrCraft::updateWand(GameObject* wandObject, const mat4& wandMatrix) {
 	vec3 axis = vec3((wandMatrix * vec4(0, 0, 1, 1)) - (wandMatrix * vec4(0, 0, 0, 1)));
 	wandObject->orientation = quat_cast(wandMatrix);
-	wandObject->position = player->position + vec3(wandMatrix * vec4(0, 0, 0, 1));
-	wandObject->scale = vec3(0.1f, 0.1f, 0.1f);
+	wandObject->position = vec3(wandMatrix * vec4(0, 0, 0, 1));
 }

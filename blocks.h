@@ -9,11 +9,19 @@ static const int w = Block::TILES_WIDTH_COUNT;
 class AirBlock : public CubeBlock {
 public:
 	AirBlock(vec3 blockSize = vec3(1, 1, 1)) : CubeBlock(-1, blockSize, true) { };
+	AirBlock(const AirBlock* original) : CubeBlock(original) {};
+	virtual Block* clone() const override { return(new AirBlock(this)); };
 };
 
 class CobblestoneBlock : public CubeBlock {
 public:
 	CobblestoneBlock(vec3 blockSize = vec3(1, 1, 1)) : CubeBlock(Block::TILES_WIDTH_COUNT, blockSize) { };
+};
+
+class DamageBlock : public CubeBlock {
+public:
+	DamageBlock(vec3 blockSize = vec3(1, 1, 1)) : CubeBlock(XY(8, 15), blockSize) { };
+	void setDamage(float value);
 };
 
 class DirtBlock : public CubeBlock {
