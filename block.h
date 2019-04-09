@@ -59,22 +59,15 @@ public:
 
 	Block* surroundings[3][3][3];
 
-	Block** up =	&surroundings[X_CENTER][Y_TOP][Z_CENTER];
-	Block** south =	&surroundings[X_CENTER][Y_CENTER][Z_FRONT];
-	Block** east =	&surroundings[X_RIGHT][Y_CENTER][Z_CENTER];
-	Block** north =	&surroundings[X_CENTER][Y_CENTER][Z_BACK];
-	Block** west =	&surroundings[X_LEFT][Y_CENTER][Z_CENTER];
-	Block** down =	&surroundings[X_CENTER][Y_BOTTOM][Z_CENTER];
+	Block** up =	 &surroundings[X_CENTER][Y_TOP][Z_CENTER];
+	Block** south =	 &surroundings[X_CENTER][Y_CENTER][Z_FRONT];
+	Block** east =	 &surroundings[X_RIGHT][Y_CENTER][Z_CENTER];
+	Block** north =	 &surroundings[X_CENTER][Y_CENTER][Z_BACK];
+	Block** west =	 &surroundings[X_LEFT][Y_CENTER][Z_CENTER];
+	Block** down =	 &surroundings[X_CENTER][Y_BOTTOM][Z_CENTER];
+	Block** center = &surroundings[X_CENTER][Y_CENTER][Z_CENTER];
 
 	BlockContext() { };
-	BlockContext(Block* up, Block* south, Block* east, Block* north, Block* west, Block* down) {
-		*this->up = up;
-		*this->south = south;
-		*this->east = east;
-		*this->north = north;
-		*this->west = west;
-		*this->down = down;
-	};
 	bool anyAdjacent();
 };
 

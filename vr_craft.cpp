@@ -203,7 +203,8 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 
 		physicsWait -= elapsedSeconds;
 		if (primaryWandTouch.getData() == vrlib::DigitalState::OFF &&
-			primaryWandTrigger.getData() == vrlib::DigitalState::OFF) {
+			primaryWandTrigger.getData() == vrlib::DigitalState::OFF &&
+			primaryWandMenu.getData() == vrlib::DigitalState::OFF) {
 			physicsWait = -1;
 			damage = 0;
 		}
@@ -211,6 +212,11 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 		if (physicsWait < 0 && primaryWandTouch.getData() == vrlib::DigitalState::ON) {
 			physicsWait = 0.25f;
 			throwBlock();
+		}
+
+		if (physicsWait < 0 && primaryWandMenu.getData() == vrlib::DigitalState::ON) {
+			physicsWait = 0.25f;
+			throwPearl();
 		}
 
 		if (primaryWandTrigger.getData() == vrlib::DigitalState::ON) {
@@ -276,10 +282,10 @@ void VrCraft::spawnPlayer() {
 		(0.5f * (worldSize.z * chunkSize.z * blockSize.z)));
 
 	logger << "Trying to find spawn position at (" << pp.x << ";" << pp.y << ")" << Log::newline;
-	Block* spawnPoint = world->tryFindArea(pp, vec3(1, 2, 1));
+	Block* spawnPoint = world->tryFindArea(pp, player->size);
 	if (spawnPoint != nullptr) {
 		vec3 p = spawnPoint->globalPosition();
-		p += vec3(0.5f * blockSize.x, 0, 0.5f * blockSize.z);
+		p += spawnOffset;
 		logger << "Spawning @ (" << p.x << ";" << p.y << ";" << p.z << ")" << Log::newline;
 		player->position = p;
 	}
@@ -307,6 +313,33 @@ void VrCraft::throwBlock() {
 			if (context->anyAdjacent()) {
 				Block* realBlock = new CobblestoneBlock();
 				world->setBlock(newBlock->position, realBlock);
+				world->deleteChild(newBlock);
+			}
+		}
+	});
+	physComponent->getBody()->addForce(player->primaryHand->orientation * vec3(0, 0, -500));
+
+	world->addChild(newBlock);
+}
+
+void VrCraft::throwPearl() {
+	Block* newBlock = new PumpkinBlock(vec3(0.2f, 0.2f, 0.2f));
+	PhysicsComponent* physComponent = new PhysicsComponent(physicsWorld, ShapeType::BOX, false, newBlock->getBlockSize());
+	newBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
+	newBlock->addComponent(physComponent);
+	newBlock->addComponent(new DespawnComponent(world, 2.0f));
+	newBlock->position = player->primaryHand->globalPosition();
+	newBlock->orientation = player->orientation;
+
+	newBlock->updateContext(new BlockContext());
+	newBlock->buildStandalone();
+
+	physComponent->getBody()->setCollisionListener([this, newBlock](PhysicsRigidBody* other) {
+		Chunk* touchedChunk = dynamic_cast<Chunk*>(other->getObject());
+		if (touchedChunk != nullptr) {
+			BlockContext* context = world->getAdjacentBlocks(newBlock->position);
+			if (*context->down != nullptr && world->ensureArea(newBlock->position, player->size)) {
+				player->position = (*context->center)->globalPosition() + spawnOffset;
 				world->deleteChild(newBlock);
 			}
 		}

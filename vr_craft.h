@@ -45,6 +45,7 @@ private:
 	vec3 worldSize = vec3(4, 4, 4);
 	vec3 chunkSize = vec3(16, 16, 16);
 	vec3 blockSize = vec3(1, 1, 1);
+	vec3 spawnOffset = vec3(0.5f * blockSize.x, 0, 0.5f * blockSize.z);
 	int worldSeed = 3;
 
 	PhysicsWorld* physicsWorld;
@@ -62,6 +63,7 @@ public:
 	vrlib::gl::Shader<Shaders::Uniforms>* randomShader();
 	void spawnPlayer();
 	void throwBlock();
+	void throwPearl();
 	void updateWand(GameObject* wandObject, const mat4& wandMatrix);
 };
 

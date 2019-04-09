@@ -38,12 +38,18 @@ void World::build(vec3 offsetPosition) {
 	GameObjectGroup::build(offsetPosition);
 };
 
-/*void World::draw(const mat4& projectionMatrix, const mat4& modelViewMatrix, const mat4& parentModelMatrix) {
-	GameObject::draw(projectionMatrix, modelViewMatrix, parentModelMatrix);
-
-	for (GLuint i = 0; i < chunks.size(); i++)
-		chunks[i]->draw(projectionMatrix, modelViewMatrix, calcModelMatrix(parentModelMatrix));
-}*/
+bool World::ensureArea(vec3 spawnPosition, vec3 areaSize) {
+	for (int bx = 0; bx < areaSize.x; bx++) {
+		for (int by = 0; by < areaSize.y; by++) {
+			for (int bz = 0; bz < areaSize.z; bz++) {
+				Block* b = getBlock(vec3(spawnPosition.x + bx, spawnPosition.y + by, spawnPosition.z + bz));
+				if (b != nullptr && !b->isTransparent)
+					return false;
+			}
+		}
+	}
+	return true;
+}
 
 BlockContext* World::getAdjacentBlocks(vec3 positionInWorld) {
 	Chunk* centerChunk = getChunk(positionInWorld);
@@ -154,19 +160,8 @@ void World::setBlock(vec3 positionInWorld, Block* newBlock) {
 
 Block* World::tryFindArea(vec2 xzCoordsInWorld, vec3 areaSize) {
 	for (float y = 0.0f; y < worldSize.y * chunkSize.y * blockSize.y; y += blockSize.y) {
-		bool invalid = false;
 		Block* spawnBlock = getBlock(vec3(xzCoordsInWorld.x, y, xzCoordsInWorld.y));
-		for (int bx = 0; !invalid && bx < areaSize.x; bx++) {
-			for (int by = 0; !invalid && by < areaSize.y; by++) {
-				for (int bz = 0; !invalid && bz < areaSize.z; bz++) {
-					Block* b = getBlock(vec3(xzCoordsInWorld.x + bx, y + by, xzCoordsInWorld.y + bz));
-					if (b != nullptr && !b->isTransparent)
-						invalid = true;
-				}
-			}
-		}
-
-		if (!invalid)
+		if (ensureArea(spawnBlock->globalPosition(), areaSize))
 			return spawnBlock;
 	}
 

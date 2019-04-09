@@ -22,7 +22,7 @@ public:
 	World(vec3 worldSize, vec3 chunkSize, vec3 blockSize);
 
 	void build(vec3 offsetPosition) override;
-	//void draw(const mat4& projectionMatrix, const mat4& modelViewMatrix, const mat4& parentModelMatrix) override;
+	bool ensureArea(vec3 spawnPosition, vec3 areaSize);
 	BlockContext* getAdjacentBlocks(vec3 positionInWorld);
 	ChunkContext* getAdjacentChunks(vec3 positionInWorld);
 	Block* getBlock(vec3 positionInWorld);
@@ -33,5 +33,4 @@ public:
 	void randomTick();
 	void setBlock(vec3 positionInWorld, Block* newBlock);
 	Block* tryFindArea(vec2 xzCoordsInWorld, vec3 areaSize);
-	//void update(float elapsedSeconds) override;
 };
