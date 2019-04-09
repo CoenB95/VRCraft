@@ -14,8 +14,8 @@ private:
 public:
 	Stack(Block* type, World* world, int amount = 1);
 
-	int adjustCount(int delta);
+	//int adjustCount(int delta);
 	inline int getStackSize() { return stackSize; };
 	inline Block* getType() { return blockType; };
-	void setCount(int value);
+	//void setCount(int value);
 };

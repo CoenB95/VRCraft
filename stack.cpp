@@ -19,7 +19,7 @@ Stack::Stack(Block* type, World* world, int amount) : GameObjectGroup() {
 	addComponent(new SpinComponent(50.0f));
 }
 
-int Stack::increaseStack(int amount)
+/*int Stack::increaseStack(int amount)
 {
 	int newSize = stackSize + amount;
 	if (newSize > maxStackSize)
@@ -39,4 +39,4 @@ int Stack::decreaseStack(int amount)
 	int removed = stackSize - newSize;
 	stackSize = newSize;
 	return removed;
-}
+}*/

@@ -11,6 +11,7 @@ using namespace glm;
 using namespace std;
 
 class GameObjectComponent;
+class GameObjectGroup;
 
 class GameObject
 {
@@ -24,6 +25,8 @@ protected:
 	virtual void build(vec3 offsetPosition);
 
 public:
+	GameObjectGroup* parent;
+
 	vec3 position;
 	quat orientation;
 	vec3 scale = vec3(1, 1, 1);
@@ -36,18 +39,18 @@ public:
 	GameObject(GameObject& other);
 	void addComponent(GameObjectComponent* component);
 	//Builds the object as being part of a parent mesh. Meaning its current position is used to determine vertice positions.
-	virtual void buildEmbedded(vec3 offset = vec3(0, 0, 0));
+	void buildEmbedded(vec3 offset = vec3(0, 0, 0));
 	//Builds the object as being a standalone mesh. Meaning its current position is ignored when determining vertice positions.
-	virtual void buildStandalone(bool pivotAsCenter = true);
+	void buildStandalone(bool pivotAsCenter = true);
 	mat4 calcModelMatrix(const mat4& parentModelMatrix = mat4());
 	void deleteAllComponents();
 	void deleteComponent(GameObjectComponent* component);
 	virtual void draw(const mat4& parentModelMatrix);
 	GameObjectComponent* findComponentByTag(string tag);
-	virtual vec3 globalPosition() { return position; };
+	vec3 globalPosition();
 	bool hasComponent(string tag) { return findComponentByTag(tag) != nullptr; };
 	//Notifies that this object has become dirty and should be rebuild.
-	inline void notifyDirty() { dirty = true; };
+	void notifyDirty();
 	void removeComponent(GameObjectComponent* component);
 	inline bool shouldRebuild() { return dirty; };
 	//Updates the object 

@@ -3,6 +3,8 @@
 #include <mutex>
 #include <VrLib/gl/Vertex.h>
 
+#include "gameobjectgroup.h"
+
 using namespace glm;
 using namespace std;
 
@@ -12,7 +14,7 @@ class ChunkContext;
 class Stack;
 class World;
 
-class Chunk : public GameObject {
+class Chunk : public GameObjectGroup {
 private:
 	vector<Block*> blocks;
 	vec3 chunkSize;
@@ -30,8 +32,6 @@ protected:
 	ChunkContext* context;
 
 public:
-	World* parentWorld;
-
 	Chunk(vec3 chunkSize, vec3 blockSize);
 
 	void build(vec3 offsetPosition) override;
@@ -44,7 +44,6 @@ public:
 	void populateFromSeed(vec3 worldSize, int seed = 0);
 	void randomTick();
 	void setBlock(vec3 positionInChunk, Block* newBlock);
-	void update(float elapsedSeconds) override;
 	void updateAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChunk);
 	void updateContext(ChunkContext* chunkContext);
 };

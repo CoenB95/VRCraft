@@ -1,6 +1,7 @@
 #pragma once
 
 class World;
+class Stack;
 
 class Mob : public GameObject {
 private:
@@ -15,5 +16,5 @@ public:
 class Steve : public Mob
 {
 public:
-	Steve(World& world);
+	Steve(World* world);
 };

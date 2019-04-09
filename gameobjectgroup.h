@@ -17,9 +17,10 @@ public:
 	~GameObjectGroup();
 
 	void addChild(GameObject* object);
+	virtual void build(vec3 offset) override;
 	void deleteAllChildren();
 	void deleteChild(GameObject* object);
-	void draw(const mat4& parentModelMatrix) override;
-	void update(float elapsedSeconds) override;
+	virtual void draw(const mat4& parentModelMatrix) override;
+	virtual void update(float elapsedSeconds) override;
 	void removeChild(GameObject* object);
 };

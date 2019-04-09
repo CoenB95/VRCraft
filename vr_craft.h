@@ -14,9 +14,12 @@ using namespace glm;
 using namespace std;
 
 class Block;
+class DamageBlock;
 class GameObject;
 class PhysicsWorld;
+class Player;
 class Shaders;
+class World;
 
 class VrCraft : public vrlib::Application
 {
@@ -31,7 +34,9 @@ private:
 	vrlib::TwoDimensionDevice secondaryWandTouchPosition;
 	vrlib::DigitalDevice secondaryWandTrigger;
 
-	Block* primaryWand;
+	World* world;
+	Player* player;
+	DamageBlock* pickHighlight;
 
 	thread* builderThread;
 	bool loading = true;
@@ -52,8 +57,8 @@ public:
 	virtual void draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix) override;
 	virtual void preFrame(double frameTime, double totalTime) override;
 
-	void destroyBlock();
 	void initPhysics();
+	Block* pickBlock(GameObject* wandObject);
 	vrlib::gl::Shader<Shaders::Uniforms>* randomShader();
 	void spawnPlayer();
 	void throwBlock();

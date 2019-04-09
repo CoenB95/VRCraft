@@ -5,6 +5,7 @@
 
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
+#include "gameobjectgroup.h"
 #include "shaders.h"
 
 using namespace std;
@@ -106,6 +107,16 @@ GameObjectComponent* GameObject::findComponentByTag(string tag) {
 
 	return nullptr;
 }
+
+vec3 GameObject::globalPosition() {
+	return parent == nullptr ? position : parent->globalPosition() + position;
+};
+
+void GameObject::notifyDirty() {
+	dirty = true;
+	if (parent != nullptr)
+		parent->notifyDirty();
+};
 
 void GameObject::removeComponent(GameObjectComponent* component) {
 	if (component == nullptr)

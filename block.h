@@ -27,8 +27,6 @@ public:
 	static const GLfloat SCALE_BLOCK_OVERLAY;
 	static const GLfloat SCALE_ITEM;
 
-	Chunk* parentChunk = nullptr;
-
 	//Whether this block should be considered see-through (render adjacent block-sides).
 	bool isTransparent = false;
 
@@ -41,7 +39,6 @@ public:
 
 	vec3 getBlockSize() { return blockSize; };
 	string getPositionString() const;
-	vec3 globalPosition() override;
 	inline bool needsContext() { return context == nullptr; };
 	virtual void randomTick() {};
 	virtual string toString() const;
@@ -97,4 +94,6 @@ public:
 	virtual Block* clone() const override { return(new CubeBlock(this)); };
 
 	void build(vec3 offsetPosition) override;
+	void setTextureIndexes(int all) { setTextureIndexes(all, all, all, all, all, all); }
+	void setTextureIndexes(int top, int front, int right, int back, int left, int bottom);
 };

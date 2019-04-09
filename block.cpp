@@ -21,6 +21,7 @@
 #include "color.h"
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
+#include "gameobjectgroup.h"
 
 using namespace glm;
 using namespace std;
@@ -52,10 +53,6 @@ string Block::getPositionString() const
 	return ss.str();
 }
 
-vec3 Block::globalPosition() {
-	return parentChunk == nullptr ? position : (parentChunk->globalPosition() + position);
-}
-
 string Block::toString() const {
 	stringstream ss;
 	ss << "{" << getPositionString() << "}";
@@ -71,14 +68,9 @@ void Block::updateContext(BlockContext* blockContext) {
 }
 
 CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, vec3 blockSize, bool transparent) :
-	Block(blockSize),
-	topTextureIndex(top),
-	frontTextureIndex(front),
-	rightTextureIndex(right),
-	backTextureIndex(back),
-	leftTextureIndex(left),
-	bottomTextureIndex(bottom)
+	Block(blockSize)
 {
+	setTextureIndexes(top, front, right, back, left, bottom);
 	isTransparent = transparent;
 	pivot = this->blockSize * 0.5f;
 }
@@ -179,6 +171,16 @@ void CubeBlock::build(vec3 offsetPosition) {
 	//Cleanup context
 	delete context;
 	context = nullptr;
+}
+
+void CubeBlock::setTextureIndexes(int top, int front, int right, int back, int left, int bottom) {
+	topTextureIndex = top;
+	frontTextureIndex = front;
+	rightTextureIndex = right;
+	backTextureIndex = back;
+	leftTextureIndex = left;
+	bottomTextureIndex = bottom;
+	notifyDirty();
 }
 
 /*SelectionBlock::SelectionBlock(float breakage) : Block(
