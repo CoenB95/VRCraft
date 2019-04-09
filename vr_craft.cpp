@@ -243,8 +243,8 @@ void VrCraft::initPhysics() {
 
 Block* VrCraft::pickBlock(GameObject* wandObject) {
 	Block* pickedBlock = nullptr;
-	for (int offset = 0; pickedBlock == nullptr && offset < 3; offset++) {
-		pickedBlock = world->getBlock(wandObject->globalPosition() + vec3(0, 0, offset * -1));
+	for (int offset = 0; pickedBlock == nullptr && offset < 5; offset++) {
+		pickedBlock = world->getBlock(wandObject->globalPosition() + wandObject->orientation * vec3(0, 0, offset * -1));
 		if (dynamic_cast<AirBlock*>(pickedBlock) != nullptr)
 			pickedBlock = nullptr; //Cannot pick air.
 	}
@@ -294,7 +294,7 @@ void VrCraft::throwBlock() {
 	newBlock->addComponent(new TextureDrawComponent("data/VrCraft/textures/terrain.png"));
 	newBlock->addComponent(physComponent);
 	newBlock->addComponent(new DespawnComponent(world, 2.0f));
-	newBlock->position = player->primaryHand->position;
+	newBlock->position = player->primaryHand->globalPosition();
 	newBlock->orientation = player->orientation;
 
 	newBlock->updateContext(new BlockContext());
