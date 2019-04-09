@@ -14,7 +14,6 @@
 #include "block.h"
 #include "blocks.h"
 #include "chunk.h"
-#include "gameobject.h"
 #include "stack.h"
 #include "stb_perlin.h"
 #include "texturedrawcomponent.h"
@@ -27,7 +26,9 @@ Chunk::Chunk(vec3 chunkSize, vec3 blockSize) : chunkSize(chunkSize), blockSize(b
 }
 
 void Chunk::build(vec3 offsetPosition) {
-	//GameObject::build(offsetPosition);
+	//Prevent clearing dirty mark if we can't build due to missing context.
+	if (context == nullptr)
+		return;
 
 	updateNewBlocks(context);
 
@@ -50,8 +51,9 @@ void Chunk::build(vec3 offsetPosition) {
 		vertices.clear();
 		vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
 	}
-
-	GameObject::build(offsetPosition);
+	delete context;
+	context = nullptr;
+	GameObjectGroup::build(offsetPosition);
 }
 
 BlockContext* Chunk::getAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChunk) {
@@ -167,7 +169,7 @@ void Chunk::populateFromSeed(vec3 worldSize, int seed) {
 				else
 					block = new AirBlock();*/
 
-				block->parentChunk = this;
+				block->parent = this;
 				block->position = blockPositionInChunk;
 				blocks.push_back(block);
 			}
@@ -190,16 +192,12 @@ void Chunk::randomTick() {
 
 void Chunk::setBlock(vec3 positionInChunk, Block* newBlock) {
 	newBlock->position = positionInChunk;
-	newBlock->parentChunk = this;
+	newBlock->parent = this;
 	{
 		lock_guard<mutex> lock(verticesMutex);
 		newBlocks.push_back(newBlock);
 	}
 	notifyDirty();
-}
-
-void Chunk::update(float elapsedSeconds) {
-	GameObject::update(elapsedSeconds);
 }
 
 void Chunk::updateAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChunk) {
@@ -210,7 +208,6 @@ void Chunk::updateAdjacentBlocks(ChunkContext* chunkContext, vec3 positionInChun
 				Block* b = context->surroundings[x][y][z];
 				if (b != nullptr) {
 					b->notifyDirty();
-					b->parentChunk->notifyDirty();
 				}
 			}
 		}

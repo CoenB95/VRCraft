@@ -11,9 +11,22 @@ GameObjectGroup::~GameObjectGroup() {
 }
 
 void GameObjectGroup::addChild(GameObject* object) {
+	if (object == nullptr)
+		return;
+
 	lock_guard<mutex> lock(childrenMutex);
+	object->parent = this;
 	children.push_back(object);
 }
+
+void GameObjectGroup::build(vec3 offsetPosition) {
+	GameObject::build(offsetPosition);
+	for (GLuint i = 0; i < children.size(); i++) {
+		if (children[i]->shouldRebuild()) {
+			children[i]->buildStandalone();
+		}
+	}
+};
 
 void GameObjectGroup::deleteAllChildren() {
 	lock_guard<mutex> lock(childrenMutex);

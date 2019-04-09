@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="block.cpp" />
+    <ClCompile Include="block_damage.cpp" />
     <ClCompile Include="block_grass.cpp" />
     <ClCompile Include="chunk.cpp" />
     <ClCompile Include="color.cpp" />
@@ -27,8 +28,10 @@
     <ClCompile Include="followcomponent.cpp" />
     <ClCompile Include="gameobjectgroup.cpp" />
     <ClCompile Include="gamescene.cpp" />
+    <ClCompile Include="inventory.cpp" />
     <ClCompile Include="physicscomponent.cpp" />
     <ClCompile Include="physics_nvidia.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="shaders.cpp" />
     <ClCompile Include="spincomponent.cpp" />
     <ClCompile Include="texturedrawcomponent.cpp" />
@@ -53,9 +56,11 @@
     <ClInclude Include="followcomponent.h" />
     <ClInclude Include="gameobjectgroup.h" />
     <ClInclude Include="gamescene.h" />
+    <ClInclude Include="inventory.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="physicscomponent.h" />
     <ClInclude Include="physics_nvidia.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="shaders.h" />
     <ClInclude Include="spincomponent.h" />
     <ClInclude Include="texturedrawcomponent.h" />

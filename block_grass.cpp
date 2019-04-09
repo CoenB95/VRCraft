@@ -9,7 +9,9 @@ void GrassBlock::randomTick() {
 	if (*context->up != nullptr && !(*context->up)->isTransparent) {
 		DirtBlock* dirt = new DirtBlock();
 		dirt->isTransparent = isTransparent;
-		parentChunk->setBlock(position, dirt);
+		Chunk* parentChunk = dynamic_cast<Chunk*>(parent);
+		if (parentChunk != nullptr)
+			parentChunk->setBlock(position, dirt);
 	}
 }
 
