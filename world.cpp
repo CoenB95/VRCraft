@@ -51,7 +51,7 @@ BlockContext* World::getAdjacentBlocks(vec3 positionInWorld) {
 		return new BlockContext();
 
 	ChunkContext* chunkContext = getAdjacentChunks(positionInWorld);
-	BlockContext* blockContext = centerChunk->getAdjacentBlocks(chunkContext, positionInWorld / chunkSize);
+	BlockContext* blockContext = centerChunk->getAdjacentBlocks(chunkContext, positionInWorld - centerChunk->position);
 	return blockContext;
 }
 

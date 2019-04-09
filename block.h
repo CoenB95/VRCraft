@@ -75,6 +75,7 @@ public:
 		*this->west = west;
 		*this->down = down;
 	};
+	bool anyAdjacent();
 };
 
 class CubeBlock : public Block {

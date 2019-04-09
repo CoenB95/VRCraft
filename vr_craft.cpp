@@ -109,7 +109,7 @@ void VrCraft::init() {
 		while (true) {
 			//world->randomTick();
 			world->buildStandalone();
-			this_thread::sleep_for(0.1s);
+			this_thread::sleep_for(0.01s);
 		}
 	});
 
@@ -186,7 +186,7 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 }
 
 void VrCraft::preFrame(double frameTime, double totalTime) {
-	float elapsedSeconds = (float)(frameTime / 1000.0);
+	float elapsedSeconds = 0.010f;// (float)(frameTime / 1000.0);
 
 	updateWand(player->primaryHand, primaryWandPosition.getData());
 
@@ -303,10 +303,12 @@ void VrCraft::throwBlock() {
 	physComponent->getBody()->setCollisionListener([this, newBlock](PhysicsRigidBody* other) {
 		Chunk* touchedChunk = dynamic_cast<Chunk*>(other->getObject());
 		if (touchedChunk != nullptr) {
-			Block* realBlock = new CobblestoneBlock();
-			vec3 newPos(floorf(newBlock->position.x), floorf(newBlock->position.y), floorf(newBlock->position.z));
-			world->setBlock(newPos, realBlock);
-			world->deleteChild(newBlock);
+			BlockContext* context = world->getAdjacentBlocks(newBlock->position);
+			if (context->anyAdjacent()) {
+				Block* realBlock = new CobblestoneBlock();
+				world->setBlock(newBlock->position, realBlock);
+				world->deleteChild(newBlock);
+			}
 		}
 	});
 	physComponent->getBody()->addForce(player->primaryHand->orientation * vec3(0, 0, -500));

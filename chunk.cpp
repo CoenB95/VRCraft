@@ -191,7 +191,7 @@ void Chunk::randomTick() {
 }
 
 void Chunk::setBlock(vec3 positionInChunk, Block* newBlock) {
-	newBlock->position = positionInChunk;
+	newBlock->position = vec3(floorf(positionInChunk.x), floorf(positionInChunk.y), floorf(positionInChunk.z));
 	newBlock->parent = this;
 	{
 		lock_guard<mutex> lock(verticesMutex);

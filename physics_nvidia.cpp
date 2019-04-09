@@ -126,16 +126,18 @@ void NvidiaPhysics::onUpdate(float elapsedSeconds) {
 		return;
 
 	elapsedSimulationSeconds += elapsedSeconds;
-	for (auto collision : collisionsToCall) {
-		(collision.first->getCollisionListener())(collision.second);
-	}
-	collisionsToCall.clear();
 
 	while (elapsedSimulationSeconds > 0.010f) {
 		pxWorld->simulate(0.010f);
 		pxWorld->fetchResults(true);
 		elapsedSimulationSeconds -= 0.010f;
 	}
+
+	for (auto collision : collisionsToCall) {
+		if (collision.first->getCollisionListener() != nullptr)
+			(collision.first->getCollisionListener())(collision.second);
+	}
+	collisionsToCall.clear();
 }
 
 void NvidiaPhysics::removeBody(PhysicsRigidBody* body) {

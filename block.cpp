@@ -18,6 +18,7 @@
 #include <VrLib/gl/Vertex.h>
 
 #include "block.h"
+#include "blocks.h"
 #include "color.h"
 #include "gameobject.h"
 #include "gameobjectcomponent.h"
@@ -65,6 +66,17 @@ void Block::updateContext(BlockContext* blockContext) {
 	}
 
 	context = blockContext;
+}
+
+bool BlockContext::anyAdjacent() {
+	//return
+	bool adjup = (*up != nullptr && dynamic_cast<AirBlock*>(*up) == nullptr);
+	bool adjsouth = (*south != nullptr && dynamic_cast<AirBlock*>(*south) == nullptr);
+	bool adjeast = (*east != nullptr && dynamic_cast<AirBlock*>(*east) == nullptr);
+	bool adjnorth = (*north != nullptr && dynamic_cast<AirBlock*>(*north) == nullptr);
+	bool adjwest = (*west != nullptr && dynamic_cast<AirBlock*>(*west) == nullptr);
+	bool adjdown = (*down != nullptr && dynamic_cast<AirBlock*>(*down) == nullptr);
+	return adjup || adjsouth || adjeast || adjnorth || adjwest || adjdown;
 }
 
 CubeBlock::CubeBlock(int top, int front, int right, int back, int left, int bottom, vec3 blockSize, bool transparent) :
