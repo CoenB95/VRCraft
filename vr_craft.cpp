@@ -186,7 +186,7 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 }
 
 void VrCraft::preFrame(double frameTime, double totalTime) {
-	float elapsedSeconds = 0.010f;// (float)(frameTime / 1000.0);
+	float elapsedSeconds = (float)(frameTime / 1000.0);
 
 	updateWand(player->primaryHand, primaryWandPosition.getData());
 
