@@ -69,6 +69,7 @@ void VrCraft::init() {
 
 	Shaders::setupDefaultShaders();
 	shadowMapFbo = new vrlib::gl::FBO(1024 * 8, 1024 * 8, false, 0, true);
+	renderFbo = new vrlib::gl::FBO(1920, 1080);
 
 	world = new World(worldSize, chunkSize, blockSize);
 	world->loadTextures();
@@ -141,7 +142,7 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 	mat4 shadowProjectionMatrix = glm::ortho<float>(-fac, fac, -fac, fac, -5, 250);
 	mat4 shadowCameraMatrix = glm::lookAt(sun->position, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-	//Shadow mapping
+	//Shadow-shading
 	{
 		shadowMapFbo->bind();
 		glDisable(GL_SCISSOR_TEST);
@@ -160,7 +161,9 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 		shadowMapFbo->unbind();
 	}
 
+	//Basic-shading
 	{
+		renderFbo->bind();
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		glEnable(GL_SCISSOR_TEST);
 		glEnable(GL_BLEND);
@@ -182,6 +185,43 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 		for (GameObject* object : gameObjects3D) {
 			object->draw(modelMatrix);
 		}
+		renderFbo->unbind();
+	}
+
+	//Post-shading
+	{
+		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		glEnable(GL_SCISSOR_TEST);
+		glEnable(GL_BLEND);
+		glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
+		glClearColor(1.0f, 0.25f, 0.75f, 1);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 1);
+
+		mat4 modelMatrix = mat4();
+		//modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
+		Shaders::use(Shaders::SPECULAR);
+		Shaders::setAnimation(elapsedSecondsTotal);
+		Shaders::setProjectionViewMatrix(projectionMatrix, viewMatrix);
+		Shaders::setModelMatrix(modelMatrix);
+		//Shaders::setShadowMatrix(shadowProjectionMatrix * shadowCameraMatrix);
+
+		//for (GameObject* object : gameObjects3D) {
+		//	object->draw(modelMatrix);
+		//}
+		static float quadVertices[] = {
+			 1.0f,  1.0f,  1.0f, 1.0f,
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			-1.0f, -1.0f,  0.0f, 0.0f,
+
+			 1.0f,  1.0f,  1.0f, 1.0f,
+			-1.0f, -1.0f,  0.0f, 0.0f,
+			 1.0f, -1.0f,  1.0f, 0.0f
+		};
+		vrlib::gl::setAttributes<vrlib::gl::VertexP2T2>(&quadVertices[0]);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
 	glDisableVertexAttribArray(0);

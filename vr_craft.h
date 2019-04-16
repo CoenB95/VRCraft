@@ -56,6 +56,7 @@ private:
 
 	PhysicsWorld* physicsWorld = nullptr;
 	vrlib::gl::FBO* shadowMapFbo = nullptr;
+	vrlib::gl::FBO* renderFbo = nullptr;
 
 public:
 	VrCraft();
