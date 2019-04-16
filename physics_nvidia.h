@@ -16,19 +16,19 @@ class NvidiaPhysics : public PhysicsWorld, public PxSimulationEventCallback {
 private:
 	vector<NvidiaBaseRigidBody*> bodies;
 	map<NvidiaBaseRigidBody*, NvidiaBaseRigidBody*> collisionsToCall;
-	float elapsedSimulationSeconds;
+	float elapsedSimulationSeconds = 0;
 
 	PxDefaultAllocator pxAllocator;
 	PxDefaultErrorCallback pxErrorCallback;
 	
-	PxCooking* pxCooking;
-	PxMaterial* pxDefaultMaterial;
-	PxDefaultCpuDispatcher* pxDispatcher;
-	PxFoundation* pxFoundation;
-	PxPvd* pxPvd;
-	PxPhysics* pxSdk;
+	PxCooking* pxCooking = nullptr;
+	PxMaterial* pxDefaultMaterial = nullptr;
+	PxDefaultCpuDispatcher* pxDispatcher = nullptr;
+	PxFoundation* pxFoundation = nullptr;
+	PxPvd* pxPvd = nullptr;
+	PxPhysics* pxSdk = nullptr;
 
-	PxScene* pxWorld;
+	PxScene* pxWorld = nullptr;
 
 	PhysicsRigidBody* addShape(GameObject* object, PxShape* shaps, bool isStatic);
 

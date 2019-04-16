@@ -57,7 +57,7 @@ public:
 	static const int Z_CENTER = 1;
 	static const int Z_FRONT = 2;
 
-	Block* surroundings[3][3][3];
+	Block* surroundings[3][3][3] = {};
 
 	Block** up =	 &surroundings[X_CENTER][Y_TOP][Z_CENTER];
 	Block** south =	 &surroundings[X_CENTER][Y_CENTER][Z_FRONT];
@@ -73,12 +73,12 @@ public:
 
 class CubeBlock : public Block {
 private:
-	int backTextureIndex;
-	int bottomTextureIndex;
-	int frontTextureIndex;
-	int leftTextureIndex;
-	int rightTextureIndex;
-	int topTextureIndex;
+	int backTextureIndex = -1;
+	int bottomTextureIndex = -1;
+	int frontTextureIndex = -1;
+	int leftTextureIndex = -1;
+	int rightTextureIndex = -1;
+	int topTextureIndex = -1;
 
 public:
 	CubeBlock(int all, vec3 blockSize = vec3(1, 1, 1), bool transparent = false)

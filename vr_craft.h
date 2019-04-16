@@ -24,6 +24,12 @@ class World;
 class VrCraft : public vrlib::Application
 {
 private:
+	vec3 worldSize = vec3(4, 4, 4);
+	vec3 chunkSize = vec3(16, 16, 16);
+	vec3 blockSize = vec3(1, 1, 1);
+	vec3 spawnOffset = vec3(0.5f * blockSize.x, 0, 0.5f * blockSize.z);
+	int worldSeed = 3;
+
 	vrlib::DigitalDevice primaryWandMenu;
 	vrlib::PositionalDevice primaryWandPosition;
 	vrlib::DigitalDevice primaryWandTouch;
@@ -34,22 +40,22 @@ private:
 	vrlib::TwoDimensionDevice secondaryWandTouchPosition;
 	vrlib::DigitalDevice secondaryWandTrigger;
 
-	World* world;
-	Player* player;
-	DamageBlock* pickHighlight;
+	World* world = nullptr;
+	Player* player = nullptr;
+	DamageBlock* pickHighlight = nullptr;
 
-	thread* builderThread;
+	Block* sun = nullptr;
+	float sunDistance = worldSize.x * chunkSize.x * blockSize.x * 1.0f;
+
+	thread* builderThread = nullptr;
 	bool loading = true;
 	mutex updateMutex;
 
-	vec3 worldSize = vec3(4, 4, 4);
-	vec3 chunkSize = vec3(16, 16, 16);
-	vec3 blockSize = vec3(1, 1, 1);
-	vec3 spawnOffset = vec3(0.5f * blockSize.x, 0, 0.5f * blockSize.z);
-	int worldSeed = 3;
+	float elapsedSecondsFrame = 0;
+	float elapsedSecondsTotal = 0;
 
-	PhysicsWorld* physicsWorld;
-	vrlib::gl::FBO* shadowMapFbo;
+	PhysicsWorld* physicsWorld = nullptr;
+	vrlib::gl::FBO* shadowMapFbo = nullptr;
 
 public:
 	VrCraft();

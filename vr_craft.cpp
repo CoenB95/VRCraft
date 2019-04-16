@@ -89,6 +89,10 @@ void VrCraft::init() {
 	testBlock->position = vec3(0.5f * blockSize.x, 0.5f * blockSize.y, 0.5f * blockSize.z);
 	testBlock->buildStandalone();
 
+	sun = new CobblestoneBlock();
+	sun->updateContext(new BlockContext());
+	sun->buildStandalone();
+
 	//Make random more random.
 	time_t currentTime;
 	time(&currentTime);
@@ -118,6 +122,7 @@ void VrCraft::init() {
 	gameObjects3D.push_back(world);
 	gameObjects3D.push_back(player);
 	world->addChild(pickHighlight);
+	world->addChild(sun);
 	gameObjects3D.push_back(testBlock);
 }
 
@@ -133,27 +138,25 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
 	float fac = 50.0f;
-	static float lightDirection = 1.5f;
-	float lightDistance = worldSize.x * chunkSize.x * blockSize.x * 1.0f;
-	lightDirection += 0.001f;
+	mat4 shadowProjectionMatrix = glm::ortho<float>(-fac, fac, -fac, fac, -5, 250);
+	mat4 shadowCameraMatrix = glm::lookAt(sun->position, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-	glm::vec3 lightAngle(cos(lightDirection) * lightDistance, lightDistance, sin(lightDirection) * lightDistance);
-	glm::mat4 shadowProjectionMatrix = glm::ortho<float>(-fac, fac, -fac, fac, -5, 250);
-	glm::mat4 shadowCameraMatrix = glm::lookAt(lightAngle + glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
+	//Shadow mapping
 	{
 		shadowMapFbo->bind();
 		glDisable(GL_SCISSOR_TEST);
 		glViewport(0, 0, shadowMapFbo->getWidth(), shadowMapFbo->getHeight());
 		glClearColor(1, 0, 0, 1);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-		mat4 modelMatrix = mat4();
-		modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
+
+		mat4 modelMatrix = glm::translate(mat4(), vec3(-player->position.x, -player->position.y, -player->position.z));
 		Shaders::use(Shaders::FBO_DEPTH);
 		Shaders::setProjectionViewMatrix(shadowProjectionMatrix, shadowCameraMatrix);
+
 		for (GameObject* object : gameObjects3D) {
 			object->draw(modelMatrix);
 		}
+
 		shadowMapFbo->unbind();
 	}
 
@@ -172,9 +175,10 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 		mat4 modelMatrix = mat4();
 		modelMatrix = glm::translate(modelMatrix, vec3(-player->position.x, -player->position.y, -player->position.z));
 		Shaders::use(randomShader());
-		Shaders::setAnimation(lightDirection);
+		Shaders::setAnimation(elapsedSecondsTotal);
 		Shaders::setProjectionViewMatrix(projectionMatrix, viewMatrix);
 		Shaders::setShadowMatrix(shadowProjectionMatrix * shadowCameraMatrix);
+
 		for (GameObject* object : gameObjects3D) {
 			object->draw(modelMatrix);
 		}
@@ -186,12 +190,18 @@ void VrCraft::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatri
 }
 
 void VrCraft::preFrame(double frameTime, double totalTime) {
-	float elapsedSeconds = (float)(frameTime / 1000.0);
+	elapsedSecondsFrame = (float)(frameTime / 1000.0);
+	elapsedSecondsTotal += elapsedSecondsFrame;
 
+	//Update player position.
 	updateWand(player->primaryHand, primaryWandPosition.getData());
 
+	//Update sun position.
+	float sunDirection = elapsedSecondsTotal / 100 * two_pi<float>();
+	sun->position = vec3(cos(sunDirection) * sunDistance, sunDistance, sin(sunDirection) * sunDistance);
+
 	if (physicsWorld != nullptr) {
-		physicsWorld->onUpdate(elapsedSeconds);
+		physicsWorld->onUpdate(elapsedSecondsFrame);
 
 		Block* pickedBlock = pickBlock(player->primaryHand);
 		if (pickedBlock != nullptr) {
@@ -201,7 +211,7 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 			pickHighlight->position = pickedBlock->globalPosition();
 		}
 
-		physicsWait -= elapsedSeconds;
+		physicsWait -= elapsedSecondsFrame;
 		if (primaryWandTouch.getData() == vrlib::DigitalState::OFF &&
 			primaryWandTrigger.getData() == vrlib::DigitalState::OFF &&
 			primaryWandMenu.getData() == vrlib::DigitalState::OFF) {
@@ -221,7 +231,7 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 
 		if (primaryWandTrigger.getData() == vrlib::DigitalState::ON) {
 			if (pickedBlock != nullptr) {
-				damage += elapsedSeconds;
+				damage += elapsedSecondsFrame;
 				if (damage >= 1)
 					world->setBlock(pickedBlock->globalPosition(), new AirBlock());
 			}
@@ -234,7 +244,7 @@ void VrCraft::preFrame(double frameTime, double totalTime) {
 	{
 		lock_guard<mutex> lock(updateMutex);
 		for (GameObject* object : gameObjects3D)
-			object->update(elapsedSeconds);
+			object->update(elapsedSecondsFrame);
 	}
 }
 

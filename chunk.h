@@ -60,7 +60,7 @@ public:
 	static const int Z_CENTER = 1;
 	static const int Z_FRONT = 2;
 
-	Chunk* surroundings[3][3][3];
+	Chunk* surroundings[3][3][3] = {};
 
 	Chunk** up =	&surroundings[X_CENTER][Y_TOP][Z_CENTER];
 	Chunk** south =	&surroundings[X_CENTER][Y_CENTER][Z_FRONT];
